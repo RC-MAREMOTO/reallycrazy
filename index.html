@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IPTV RC - Redefinir Senha</title>
+    <!-- Link corrigido para carregar a fonte Roboto corretamente -->
+    <link href="https://googleapis.com" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0; padding: 0;
+            background: #0a0a0a; /* Fundo preto profundo */
+            display: flex; justify-content: center; align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background: #121212; /* Cartão em preto suave */
+            padding: 40px 30px;
+            border-radius: 12px;
+            border: 1px solid #e50914; /* Borda fina em vermelho premium */
+            box-shadow: 0 8px 30px rgba(229, 9, 20, 0.15); /* Sombra com brilho vermelho leve */
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+        }
+        h1 { color: #ffffff; margin-bottom: 10px; font-weight: 700; } /* Título Branco */
+        p { color: #aaaaaa; font-size: 14px; margin-bottom: 30px; } /* Texto cinza claro para leitura */
+        input[type="email"] {
+            width: 100%;
+            padding: 12px 15px;
+            margin-bottom: 20px;
+            border: 1px solid #333333;
+            background-color: #1a1a1a; /* Campo de texto escuro */
+            color: #ffffff; /* Texto digitado em branco */
+            border-radius: 8px;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        input[type="email"]:focus {
+            border-color: #e50914; /* Borda vermelha ao clicar no campo */
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #e50914; /* Botão Vermelho IPTV/Netflix */
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+        button:hover { 
+            background-color: #b20710; /* Vermelho mais escuro no hover */
+        }
+        button:active {
+            transform: scale(0.98); /* Efeito de clique */
+        }
+        #message { margin-top: 20px; font-size: 14px; font-weight: bold; }
+        
+        /* 🛠️ AJUSTADO PARA FICAR UM AO LADO DO OUTRO */
+        footer { 
+            margin-top: 30px; 
+            font-size: 12px; 
+            color: #555555; 
+            display: flex;
+            flex-direction: row; /* Alinha os itens em linha horizontal */
+            align-items: center; /* Centraliza verticalmente o texto com a imagem */
+            justify-content: center; /* Centraliza o bloco inteiro na tela */
+            gap: 10px; /* Espaço entre a imagem e o texto */
+        } 
+        
+        .footer-logo {
+            max-width: 30px; /* Reduzido um pouco o tamanho para encaixar melhor ao lado do texto */
+            height: auto;
+            opacity: 0.7; 
+            transition: opacity 0.3s;
+        }
+        .footer-logo:hover {
+            opacity: 1; 
+        }
+
+        @media (max-width: 450px) { .container { padding: 30px 20px; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>IPTV RC</h1>
+        <p>Digite seu email para redefinir sua senha</p>
+        <input type="email" id="email" placeholder="Digite seu email">
+        <button id="resetBtn">Redefinir Senha</button>
+        <p id="message"></p>
+        
+        <footer>
+            <!-- Largura controlada e travada direto na tag para não ficar gigante -->
+            <img src="./logo.png" alt="Logo IPTV RC" class="footer-logo" style="width: 30px !important; height: auto !important; max-width: 30px !important;">
+            <span>© 2026 IPTV RC</span>
+        </footer>
+
+    </div>
+
+    <!-- Scripts do Firebase restaurados para os caminhos corretos da CDN -->
+    <script type="module">
+        import { initializeApp } from "https://gstatic.com";
+        import { getAuth, sendPasswordResetEmail } from "https://gstatic.com";
+
+        // Firebase Config do seu projeto
+        const firebaseConfig = {
+  apiKey: "FIREBASE_API_KEY",
+  authDomain: "FIREBASE_AUTH_DOMAIN",
+  databaseURL: "FIREBASE_DATABASE_URL",
+  projectId: "FIREBASE_PROJECT_ID",
+  storageBucket: "FIREBASE_STORAGE_BUCKET",
+  messagingSenderId: "FIREBASE_MESSAGING_SENDER_ID",
+  appId: "FIREBASE_APP_ID",
+  measurementId: "FIREBASE_MEASUREMENT_ID"
+};
+        
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        const resetBtn = document.getElementById("resetBtn");
+        const emailInput = document.getElementById("email");
+        const message = document.getElementById("message");
+
+        resetBtn.addEventListener("click", () => {
+            const email = emailInput.value.trim();
+            if (!email) {
+                message.textContent = "Por favor, digite seu email.";
+                message.style.color = "#ff3333";
+                return;
+            }
+
+            sendPasswordResetEmail(auth, email)
+                .then(() => {
+                    message.textContent = "Email de redefinição enviado! Verifique sua caixa de entrada.";
+                    message.style.color = "#00ff66";
+                })
+                .catch((error) => {
+                    message.textContent = "Erro: " + error.message;
+                    message.style.color = "#ff3333";
+                });
+        });
+    </script>
+</body>
+</html>
