@@ -17,7 +17,7 @@ jobs:
       - name: Injetar as Chaves do Firebase no HTML
         uses: cschleiden/replace-tokens@v1
         with:
-          files: '["index.html", "teste/index.html"]'
+          files: 'index.html'
         env:
           FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
           FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
