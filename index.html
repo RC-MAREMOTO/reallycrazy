@@ -361,6 +361,7 @@
             <li><a id="link-home" class="nav-link active" onclick="switchTab('home', this)">Início</a></li>
             <li><a id="link-aplicativos" class="nav-link" onclick="switchTab('aplicativos', this)">Aplicativos</a></li>
             <li><a id="link-comunidade" class="nav-link" onclick="switchTab('comunidade', this)">Comunidade</a></li>
+            <li><a id="link-comentarios" class="nav-link" onclick="switchTab('comentarios', this)">Comentários</a></li>
         </ul>
     </nav>
 
@@ -455,24 +456,6 @@
                     </div>
                 </div>
             </div>
-
-            <div class="section-block">
-                <h2 class="page-title">🗣️ O que a <span>Família RC</span> diz</h2>
-                <p class="page-desc">Fale com a comunidade RC TEAM em tempo real. Seu comentário aparece instantaneamente para todo mundo que estiver na página.</p>
-
-                <div class="comments-box">
-                    <div class="comment-form">
-                        <input type="text" id="comment-name" placeholder="Seu nome" maxlength="40">
-                        <textarea id="comment-text" placeholder="Escreva seu comentário..." rows="3" maxlength="500"></textarea>
-                        <div id="comments-status"></div>
-                        <button id="comment-submit" onclick="enviarComentario()">Enviar Comentário</button>
-                    </div>
-
-                    <div id="comments-list">
-                        <p class="comments-empty">Carregando comentários...</p>
-                    </div>
-                </div>
-            </div>
         </div>
         <!-- 📦 ABA 2: APLICATIVOS (RCTV + REGEDIT + FAKE LAG) -->
         <div id="aplicativos" class="tab-content">
@@ -508,7 +491,7 @@
                 </div>
 
                 <div class="center-btn" style="margin-top: 35px;">
-                    <a href="https://www.mediafire.com/file/72da4c3fby1obbq/REALLY_CRAZY_TV_BETA_V4.apk/file" class="btn-download">📥 DOWNLOAD RCTV APK V4</a>
+                    <a href="https://www.mediafire.com/folder/mp1wfafazorzx/IPTV+RC+By+RC+MAREMOTO" class="btn-download">📥 DOWNLOAD RCTV APK</a>
                 </div>
             </div>
 
@@ -527,9 +510,14 @@
                     </div>
                 </div>
 
+                <div class="center-btn" style="margin-top: 35px;">
+                    <a href="https://www.mediafire.com/file/3t6v44yleyl7kh2/PAINEL_REGEDIT_V4_STANDOFF_2.apk/file" class="btn-download">📥 DOWNLOAD PAINEL REGEDIT</a>
+                </div>
+
                 <div class="painel-aviso">
                     <h4>🔑 Login Controlado com Expiração</h4>
                     <p>O painel não possui cadastro aberto ao público. Todos os logins são estritamente temporários com prazo de expiração calculado por dias, gerados de forma individual diretamente por nós para cada cliente.</p>
+                    <p style="margin-top: -10px;"><strong>Usuário:</strong> 2026 &nbsp;•&nbsp; <strong>Senha:</strong> 2026</p>
                     <button class="btn-action" onclick="document.getElementById('link-comunidade').click()">Falar com o Suporte para Adquirir</button>
                 </div>
             </div>
@@ -550,7 +538,7 @@
                 </div>
 
                 <div class="center-btn" style="margin-top: 40px;">
-                    <a href="https://www.mediafire.com/folder/urznesz5ajlsu/FAKE+LAG+By+RC+MAREMOTO" class="btn-download">📥 DOWNLOAD FAKE LAG V1</a>
+                    <a href="https://www.mediafire.com/folder/urznesz5ajlsu/FAKE+LAG+By+RC+MAREMOTO" class="btn-download">📥 DOWNLOAD FAKE LAG</a>
                 </div>
             </div>
         </div>
@@ -597,6 +585,25 @@
             </div>
         </div>
 
+        <!-- 💬 ABA 6: COMENTÁRIOS -->
+        <div id="comentarios" class="tab-content">
+            <h2 class="page-title">🗣️ O que a <span>Família RC</span> diz</h2>
+            <p class="page-desc">Fale com a comunidade RC TEAM em tempo real. Seu comentário aparece instantaneamente para todo mundo que estiver na página.</p>
+
+            <div class="comments-box">
+                <div class="comment-form">
+                    <input type="text" id="comment-name" placeholder="Seu nome" maxlength="40">
+                    <textarea id="comment-text" placeholder="Escreva seu comentário..." rows="3" maxlength="500"></textarea>
+                    <div id="comments-status"></div>
+                    <button id="comment-submit" onclick="enviarComentario()">Enviar Comentário</button>
+                </div>
+
+                <div id="comments-list">
+                    <p class="comments-empty">Carregando comentários...</p>
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <footer>
@@ -609,15 +616,15 @@
     <script>
         // Configuração gerada a partir do seu google-services.json
         const firebaseConfig = {
-  apiKey: "AIzaSyCvsQ9x4IXjoAzK2Ic7eiYMWZpjnwvg0fU",
-  authDomain: "rc-maremoto-5ca60.firebaseapp.com",
-  databaseURL: "https://rc-maremoto-5ca60-default-rtdb.firebaseio.com",
-  projectId: "rc-maremoto-5ca60",
-  storageBucket: "rc-maremoto-5ca60.appspot.com",
-  messagingSenderId: "78226892457",
-  appId: "1:78226892457:web:9ff2e727916ffb3e1e2bb8",
-  measurementId: "G-DHC6J53W6W"
-};
+            apiKey: "#{FIREBASE_API_KEY}#",
+            authDomain: "#{FIREBASE_AUTH_DOMAIN}#",
+            databaseURL: "#{FIREBASE_DATABASE_URL}#",
+            projectId: "#{FIREBASE_PROJECT_ID}#",
+            storageBucket: "#{FIREBASE_STORAGE_BUCKET}#",
+            messagingSenderId: "#{FIREBASE_MESSAGING_SENDER_ID}#",
+            appId: "#{FIREBASE_APP_ID}#",
+            measurementId: "#{FIREBASE_MEASUREMENT_ID}#"
+        };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
         const commentsRef = db.ref("comentarios_site");
