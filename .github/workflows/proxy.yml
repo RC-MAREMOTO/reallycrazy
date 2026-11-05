@@ -1,0 +1,77 @@
+name: API Proxy
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0 1 1 *' # Mantém o serviço ativo (reinicia 1x por ano)
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Instalar dependências e rodar servidor
+        env:
+          OPENROUTER_KEY: ${{ secrets.OPENROUTER_KEY }}
+          GROQ_KEY: ${{ secrets.GROQ_KEY }}
+        run: |
+          npm init -y
+          npm install express cors node-fetch
+          
+          # Cria o arquivo do servidor proxy
+          cat << 'EOF' > proxy.js
+          const express = require('express');
+          const cors = require('cors');
+          const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
+          
+          const app = express();
+          app.use(cors());
+          app.use(express.json());
+
+          app.post('/api/chat', async (req, res) => {
+            const { provider, body } = req.body;
+            let url = '';
+            let key = '';
+            let headers = { 'Content-Type': 'application/json' };
+
+            if (provider === 'groq') {
+              url = 'https://api.groq.com/openai/v1/chat/completions';
+              key = process.env.GROQ_KEY;
+            } else {
+              url = 'https://openrouter.ai/api/v1/chat/completions';
+              key = process.env.OPENROUTER_KEY;
+              headers['HTTP-Referer'] = 'https://github.com';
+            }
+            headers['Authorization'] = `Bearer ${key}`;
+
+            try {
+              const response = await fetch(url, {
+                method: 'POST',
+                headers: headers,
+                body: JSON.stringify(body)
+              });
+              
+              res.setHeader('Content-Type', 'text/event-stream');
+              response.body.pipe(res);
+            } catch (e) {
+              res.status(500).json({ error: e.message });
+            }
+          });
+
+          app.listen(3000, () => console.log('Proxy rodando'));
+          EOF
+          
+          node proxy.js > /dev/null 2>&1 &
+          
+          # Instala o túnel para expor o servidor na internet
+          npm install -g localtunnel
+          lt --port 3000 > tunnel_url.txt &
+          
+          sleep 5
+          cat tunnel_url.txt
