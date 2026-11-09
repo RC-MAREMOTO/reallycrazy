@@ -6062,7 +6062,7 @@ const UI={tab:'play',view:'lobby',stab:'video',itab:'skins',iw:'all',ir:'all',
       if(!el)return;if(!el.getAttribute('src')){try{el.src=Thumb.map(id)}catch(e){console.warn('diorama',id,e)}}setTimeout(()=>nx(i+1),25)};setTimeout(()=>nx(0),30);
     },
   launch(){if(Party.inParty()&&!Party.isHost())return Pmsg('Só o líder da party pode iniciar a partida.');if(this.opt.mode==='rank'&&!Online.seasonActive())return Pmsg('🏁 Aguardando início da próxima temporada. Jogue Clássico ou Treino.');Snd.init();
-    try{const el=document.documentElement;(el.requestFullscreen||el.webkitRequestFullscreen||(()=>{})).call(el);screen.orientation&&screen.orientation.lock&&screen.orientation.lock('landscape').catch(()=>{})}catch(e){}
+    try{const el=document.documentElement;if(!window.matchMedia('(display-mode: fullscreen), (display-mode: standalone)').matches)(el.requestFullscreen||el.webkitRequestFullscreen||(()=>{})).call(el);screen.orientation&&screen.orientation.lock&&screen.orientation.lock('landscape').catch(()=>{})}catch(e){}
     this.fixOpt();const bp=this.botPick();const o=Object.assign({},this.opt,{size:5,diff:bp.diff,botRank:bp.rank,eco:this.opt.mode==='treino'?'treino':'padrao',team:'R'});$('#ldMap').textContent=(MN[o.map]||'Dunas').toUpperCase();try{buildLoadingBackground(o.map)}catch(e){}$('#ldMode').textContent=`${this.modeName(o.mode)} · 5v5 · BOTS ${(DIFF_LBL[o.diff]||o.diff)}`;
     const tips=['Agachar reduz a dispersão dos disparos.','Tiros na cabeça causam 3× de dano (1,7× com capacete).','Colete protege o corpo (60) e o capacete a cabeça (40); cada peça quebra sozinha.','Atire pelo botão FOGO e arraste a tela da direita para mirar.','Pule em caixas baixas para ganhar altura.'];
     $('#ldTip').textContent='DICA: '+tips[(Math.random()*tips.length)|0];
@@ -6078,7 +6078,7 @@ const UI={tab:'play',view:'lobby',stab:'video',itab:'skins',iw:'all',ir:'all',
   async partyJoin(go){if(Game.mode!=='menu'||!Online.ok)return;Snd.init();
     try{const i=(await Online.db.ref('rooms/'+go.rid+'/info').get()).val();if(!i)return;
       const pl=Object.entries(i.p||{}).map(([pid,v])=>Object.assign({pid},v)),me=pl.find(x=>x.pid===Online.pid);if(!me)return;
-      try{const el=document.documentElement;(el.requestFullscreen||el.webkitRequestFullscreen||(()=>{})).call(el);screen.orientation&&screen.orientation.lock&&screen.orientation.lock('landscape').catch(()=>{})}catch(e){}
+      try{const el=document.documentElement;if(!window.matchMedia('(display-mode: fullscreen), (display-mode: standalone)').matches)(el.requestFullscreen||el.webkitRequestFullscreen||(()=>{})).call(el);screen.orientation&&screen.orientation.lock&&screen.orientation.lock('landscape').catch(()=>{})}catch(e){}
       const o=Object.assign({},this.opt,{map:go.map,mode:go.mode,size:i.size||5,diff:this.botPick().diff,eco:'padrao',team:'R'});
       $('#ldMap').textContent=(MN[o.map]||'Dunas').toUpperCase();try{buildLoadingBackground(o.map)}catch(e){}$('#ldMode').textContent='PARTY · ONLINE';$('#ldTxt').textContent='Entrando na partida do líder…';$('#ldBar').style.width='100%';
       const L=$('#loading');L.classList.remove('hidden');
