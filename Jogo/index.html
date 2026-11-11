@@ -5,9 +5,6 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#070d06">
-<script>if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(function(){})</script>
 <title>Tactical Strike 2</title>
 <style>
 :root{--bg:#0e1115;--panel:#161a1f;--panel2:#1d2229;--line:#2b323b;--gold:#f0b429;--green:#6bb21b;--txt:#e8ecef;--mut:#8b95a1;--blue:#5aa0ff;--red:#e5483b}
@@ -587,7 +584,9 @@ const ActiveTimers=[];
 function addTimer(fn,ms){const t=setInterval(fn,ms);ActiveTimers.push(t);return t}
 function clearAllTimers(){ActiveTimers.forEach(t=>clearInterval(t));ActiveTimers.length=0}
 const GLModals=new Set();
-function disposeTree(o){if(!o||!o.traverse)return;o.traverse(x=>{if(x.geometry){try{x.geometry.dispose()}catch(_){}}})}   // libera buffers de GPU de um modelo removido
+function disposeTree(o){if(!o||!o.traverse)return;o.traverse(x=>{if(x.geometry){try{x.geometry.dispose()}catch(_){}}
+    const ms=x.material?(Array.isArray(x.material)?x.material:[x.material]):[];   // [FIX-GPU] também libera materiais e texturas (skins em canvas): antes só a geometria era liberada → GPU/RAM crescia a cada troca de lado/partida
+    for(const m of ms){try{for(const k in m){const t=m[k];if(t&&t.isTexture&&!(t.userData&&t.userData.keep))t.dispose()}m.dispose()}catch(_){}}})}   // libera buffers de GPU de um modelo removido
 const World={shFrozen:true,shDirty:false,scene:null,camera:null,renderer:null,sun:null,colliders:[],walls:[],smokes:[],spawns:{T:[],CT:[]},clock:new THREE.Clock()};
 /* ================= OTIMIZAÇÕES DE PERFORMANCE (mobile) =================
    mergeMap     : junta paredes/caixas/janelas/árvores em poucas malhas (1 draw call por material)
@@ -3279,8 +3278,8 @@ const Thumb={r:null,sc:null,cam:null,cache:{},
 const Nade={list:[],
   throw(owner,type,o,v){const gs=owner&&owner.isPlayer?gSkin(type):null;const m=buildNade(gs||{g:type,id:'',n:'Default',c1:'#4b5320',c2:'#4b5320'});m.scale.setScalar(.5);
     m.position.copy(o);World.scene.add(m);this.list.push({m,v:v.clone(),t:type==='frag'?1.7:type==='smoke'?1.5:1.3,type,owner,gs});Snd.tone(260,.05,.1)},
-  clear(){this.list.forEach(n=>World.scene.remove(n.m));this.list=[];World.smokes.forEach(q=>World.scene.remove(q.m));World.smokes=[]},
-  update(dt){World.smokes=World.smokes.filter(q=>{q.t-=dt;if(q.t<=0){World.scene.remove(q.m);return false}return true});
+  clear(){this.list.forEach(n=>World.scene.remove(n.m));this.list=[];World.smokes.forEach(q=>{World.scene.remove(q.m);try{q.m.geometry.dispose();q.m.material.dispose()}catch(_){}});World.smokes=[]},   // [FIX-GPU] fumaça libera geometria/material
+  update(dt){World.smokes=World.smokes.filter(q=>{q.t-=dt;if(q.t<=0){World.scene.remove(q.m);try{q.m.geometry.dispose();q.m.material.dispose()}catch(_){}return false}return true});
     for(let i=this.list.length-1;i>=0;i--){const n=this.list[i],p=n.m.position;n.t-=dt;n.v.y-=16*dt;const ox=p.x,oz=p.z;p.addScaledVector(n.v,dt);
       {const gy=(World.hg||World.low)?groundAt(p,p.y+.1)+.08:.08;if(p.y<gy){p.y=gy;if(n.v.y<0)n.v.y*=-.35;n.v.x*=.8;n.v.z*=.8}}
       for(const b of World.colliders){if(World.hg&&b.st)continue;if(p.y<b.h&&p.x>b.minX-.07&&p.x<b.maxX+.07&&p.z>b.minZ-.07&&p.z<b.maxZ+.07){
@@ -4624,7 +4623,7 @@ const Game={mode:'menu',phase:'none',timer:0,round:1,score:{T:0,CT:0},bots:[],op
   swapSides(){const f=t=>t==='T'?'CT':'T';const sc=this.score;this.score={T:sc.CT,CT:sc.T};
     Player.team=f(Player.team);Player.money=1200;
     const old=this.bots;this.bots=[];
-    old.forEach(b=>{World.scene.remove(b.m.root);const nb=new Bot(f(b.team),'x');nb.name=b.name;if(b.remote){nb.remote=true;nb.rid=b.rid;nb.born=Date.now()}this.bots.push(nb)})},
+    old.forEach(b=>{World.scene.remove(b.m.root);try{disposeTree(b.m.root)}catch(_){}const nb=new Bot(f(b.team),'x');nb.name=b.name;if(b.remote){nb.remote=true;nb.rid=b.rid;nb.born=Date.now()}this.bots.push(nb)})},
   newRound(first){if(World.renderer){World.shDirty=true;World.renderer.shadowMap.needsUpdate=true}const sw=!first&&this.swapAt()&&this.round===this.swapAt()+1;if(sw)this.swapSides();
     if(this.bomb.mesh)World.scene.remove(this.bomb.mesh);Drops.clear();this.bomb={state:'idle'};this.plan={t:World.sites[(Math.random()*2)|0]};Nade.clear();
     const pt=Player.team,en=pt==='T'?'CT':'T',sp=World.spawns;
@@ -5264,7 +5263,7 @@ const FBCFG={apiKey:"AIzaSyAy0v0g8PdKrmI3kSGssfJ0U7mRJUPAYiE",authDomain:"tactic
 
 /* ---------------- Online: perfil, amigos, fila de partida e sala (Firebase Realtime Database) ---------------- */
 const Online={shopOn:{sk:{},ag:{},av:{}},cav:{},db:null,ok:false,pid:Store.get('pid',null),room:null,peers:{},refs:[],_rx:false,
-  user:null,guest:false,top100Data:null,
+  user:null,guest:false,top100Data:null,_loaded:false,
   init(){if(!Store.get('ownedInit',0)){Store.set('owned',Object.values(eqSkins));Store.set('ownedInit',1)}
     try{if(!window.firebase)throw new Error('SDK do Firebase não carregou (sem internet/CDN bloqueado)');if(!firebase.auth||!firebase.database)throw new Error('faltou '+(!firebase.auth?'firebase-auth':'firebase-database')+' (script não carregou)');firebase.initializeApp(FBCFG);this.db=firebase.database();this.auth=firebase.auth();this.ok=true;
       this.auth.getRedirectResult().catch(e=>{this.authMsg('Erro no Google: '+(e.code||''));return null}).then(async res=>{
@@ -5350,7 +5349,7 @@ const Online={shopOn:{sk:{},ag:{},av:{}},cav:{},db:null,ok:false,pid:Store.get('
     if(out.length)Store.set('rwClaimed',cl);
     return out},
   /* ---------- skins criadas no ADM ---------- */
-  setIg(v){try{if(!this.ok||!this.pid)return;const r=this.db.ref('players/'+this.pid+'/ig');if(v)this.db.ref('players/'+this.pid+'/ls').set(firebase.database.ServerValue.TIMESTAMP).catch(()=>{});r.set(v).catch(()=>{});if(v)r.onDisconnect().set(0)}catch(e){}},
+  setIg(v){try{if(!this.ok||!this.pid)return;const r=this.db.ref('players/'+this.pid+'/ig');if(v)this.db.ref('players/'+this.pid).update({ls:firebase.database.ServerValue.TIMESTAMP}).catch(()=>{});r.set(v).catch(()=>{});if(v)r.onDisconnect().set(0)}catch(e){}},
   async loadCustomSkins(){
     const so={sk:{},ag:{},av:{}},cav={};
     try{const ow=Store.get('owned',[]),rd=p=>this.db.ref(p).get().then(x=>x.val()||{}).catch(()=>({}));
@@ -5392,7 +5391,7 @@ const Online={shopOn:{sk:{},ag:{},av:{}},cav:{},db:null,ok:false,pid:Store.get('
     msgs.forEach(n=>Pmsg('⚠️ Seu agente '+n+' expirou. Voltamos para o agente padrão.'));
   }catch(e){console.warn('checkExpired',e)}},
 
-  async onUser(u){this.user=u;
+  async onUser(u){this.user=u;this._loaded=false;   // [FIX LOGIN] nenhum sync() pode gravar enquanto o perfil do Firebase não foi lido
     if(!u){this.pid=null;this.showAuth();return}
     
     // --- INÍCIO TELA DE CARREGAMENTO ---
@@ -5421,16 +5420,29 @@ const Online={shopOn:{sk:{},ag:{},av:{}},cav:{},db:null,ok:false,pid:Store.get('
       else if(bn){this.banned(bn);return}   // ban ativo: bloqueia e mostra a tela de suspensão
       prog('60%','Carregando dados do jogador...');
       Store.set('pid',p);step='ler seu perfil (players)';
-      const v=(await this.db.ref('players/'+p).get()).val();
-      if(v&&v.uid===u.uid&&v.n){
-        if(!(Store.get('dirty',0)&&prevPid===p)) this.adopt(v,true);
-      } else {step='salvar o nome (players)';await this.askName(p,u)}
+      /* [FIX LOGIN] once('value') ANTES de qualquer gravação.
+         • Perfil existe no Firebase  → ele é a fonte da verdade: carrega Firebase → localStorage/tela. NUNCA é sobrescrito pelo local.
+         • Perfil não existe (novo)   → cria perfil zerado e só então grava (update, nunca set no nó inteiro). */
+      const pSnap=await Promise.race([this.db.ref('players/'+p).once('value'),new Promise((_,rej)=>setTimeout(()=>rej(new Error('tempo esgotado ao ler o perfil')),20000))]);
+      const v=pSnap.val();let fresh=false;
+      if(v&&typeof v==='object'&&v.n){
+        this.adopt(v,true);Store.set('dirty',0);                              // Firebase manda: sobrescreve o localStorage (e não o contrário)
+        if(v.uid!==u.uid){try{await this.db.ref('players/'+p).update({uid:u.uid,id:p})}catch(_){}}   // só ajusta o vínculo uid/id (update de 2 campos)
+      } else {
+        if(v&&typeof v==='object'){this.adopt(v,true);Store.set('dirty',0)}   // perfil parcial (sem nome): preserva o que já existe no Firebase
+        else{Store.wipe();this.resetMem();Store.set('pid',p)}                 // jogador novo: perfil zerado (nada do localStorage antigo)
+        fresh=true;step='salvar o nome (players)';await this.askName(p,u);      // askName grava só {uid,id,n} com update()
+      }
+      this._loaded=true;                                                      // a partir daqui o sync() normal (update) está liberado
       // índice de nomes únicos: se falhar, não impede o login
       try{if(S.name&&S.name!=='Player'&&!/[.#$\[\]\/]/.test(S.name)){const unSnap=await this.db.ref('usernames/'+S.name).get();if(!unSnap.exists())await this.db.ref('usernames/'+S.name).set(p)}}catch(_){}
       prog('90%','Sincronizando...');step='sincronizar';
       prog('80%','Carregando temporada e skins...');step='ler temporada e skins';await this.loadSeason();await this.loadCustomSkins();this.checkExpired();
       prog('85%','Carregando ranking...');step='buscar o ranking';await this.fetchLeaderboard(true);
-      this.hideAuth();this.sync();this.listen();
+      this.hideAuth();
+      if(fresh){await this.sync()}                                            // jogador novo: grava o perfil zerado
+      else{this.db.ref('players/'+p).update({ls:firebase.database.ServerValue.TIMESTAMP}).catch(()=>{})}   // jogador existente: só o último acesso (update de 1 campo)
+      this.listen();
       if(Game.mode==='menu'&&UI.tab==='play'&&UI.view==='lobby')UI.go('play','lobby');
       prog('100%','Pronto!');
       setTimeout(() => { if(loadEl){loadEl.style.opacity = '0'; setTimeout(() => loadEl.remove(), 400);} }, 300);   // destrói a tela de loading
@@ -5563,7 +5575,7 @@ const Online={shopOn:{sk:{},ag:{},av:{}},cav:{},db:null,ok:false,pid:Store.get('
   resetMem(){                                                              // zera o estado em memória que veio do localStorage (nome, skins e agentes equipados)
     S.name='Player';Object.keys(eqSkins).forEach(k=>delete eqSkins[k]);Object.assign(eqAgent,{T:'elite',CT:'tactical'});
   },
-  logout(){if(!this.ok)return;this.pid=null;this.unlisten();Store.wipe();this.resetMem();Store.set('ownedInit',1);Store.set('dirty',0);saveS();this.auth.signOut()},
+  logout(){if(!this.ok)return;this._loaded=false;this.pid=null;this.unlisten();Store.wipe();this.resetMem();Store.set('ownedInit',1);Store.set('dirty',0);saveS();this.auth.signOut()},
   adopt(v,force){const st=myStats();
     if(force||(v.xp||0)>st.xp||(v.m||0)>st.matches){Object.assign(st,{xp:v.xp||0,rp:v.rp||0,cm:v.cm||0,coins:v.coins||0,matches:v.m||0,kills:v.k||0,wins:v.w||0,hs:v.h||0});Store.set('stats',st)}
     const own=String(v.own||'').split(',').filter(Boolean);Store.set('owned',force?own:[...new Set(Store.get('owned',[]).concat(own))]);
@@ -5571,7 +5583,8 @@ const Online={shopOn:{sk:{},ag:{},av:{}},cav:{},db:null,ok:false,pid:Store.get('
       const old=Store.get('frReq',[]);Store.set('frReq',String(v.pq||'').split(',').filter(Boolean).map(id=>old.find(r=>r.id===id&&r.state==='pending')||{id,n:'',state:'pending',ts:Date.now()}));   // pedidos enviados ainda pendentes
       Store.set('seenN',[...new Set(Store.get('seenN',[]).concat(String(v.sn||'').split(',').filter(Boolean)))].slice(-30));
       if(v.eq){try{const q=JSON.parse(v.eq);if(q.s){Object.keys(eqSkins).forEach(k=>delete eqSkins[k]);Object.assign(eqSkins,q.s);Store.set('skins',eqSkins)}if(q.a){Object.assign(eqAgent,q.a);Store.set('agent',eqAgent)}}catch(_){}}}},
-  sync(){if(!this.ok||!this.user||!this.pid)return Promise.resolve(false);const st=myStats();try{this.badge()}catch(_){}   // subiu de patente? a recompensa já aparece no Correio
+  sync(){if(!this.ok||!this.user||!this.pid||!this._loaded)return Promise.resolve(false);   // [FIX LOGIN] sem perfil carregado do Firebase, nunca grava
+    const st=myStats();try{this.badge()}catch(_){}   // subiu de patente? a recompensa já aparece no Correio
     const pl={id:this.pid,n:S.name||'Player',xp:st.xp,lv:lvlOf(st.xp),rp:st.rp,cm:st.cm,rk:rankOf(st.rp,st.cm,this.pid).n,coins:st.coins,own:Store.get('owned',[]).join(','),m:st.matches,k:st.kills,w:st.wins,h:st.hs||0,b:esc(Store.get('bio','')).slice(0,80),uid:this.user.uid,em:this.user.email||'',fr:this.friends().join(','),pq:Friends.pending().map(r=>r.id).join(','),sn:Store.get('seenN',[]).join(','),eq:JSON.stringify({s:eqSkins,a:eqAgent}),tm:UI.opt.team==='CT'?'CT':'T',avatar:Store.get('avatar','')||'',avatares:Store.get('avExp',{}),agentes:Store.get('agExp',{}),rewardsClaimed:Store.get('rwClaimed',{}),ag:agentOf(UI.opt.team==='CT'?'CT':'T').id,ak:(skinOf('ak47')||{}).id||'',cfg:JSON.stringify(S),sh:JSON.stringify(Store.get('seasonHist',[])),ls:firebase.database.ServerValue.TIMESTAMP};
     const sg=JSON.stringify(Object.assign({},pl,{ls:0}));if(this._sig===sg&&Date.now()-(this._sigT||0)<60000)return Promise.resolve(true);   // só envia se mudou (ou a cada 60s p/ 'visto por último')
     this._sig=sg;this._sigT=Date.now();return this.db.ref('players/'+this.pid).update(pl).then(()=>{Store.set('dirty',0);return true}).catch(e=>{this._sig=null;Store.set('dirty',1);console.warn('sync falhou',e&&e.code);return false})},
@@ -6062,7 +6075,7 @@ const UI={tab:'play',view:'lobby',stab:'video',itab:'skins',iw:'all',ir:'all',
       if(!el)return;if(!el.getAttribute('src')){try{el.src=Thumb.map(id)}catch(e){console.warn('diorama',id,e)}}setTimeout(()=>nx(i+1),25)};setTimeout(()=>nx(0),30);
     },
   launch(){if(Party.inParty()&&!Party.isHost())return Pmsg('Só o líder da party pode iniciar a partida.');if(this.opt.mode==='rank'&&!Online.seasonActive())return Pmsg('🏁 Aguardando início da próxima temporada. Jogue Clássico ou Treino.');Snd.init();
-    try{const el=document.documentElement;if(!window.matchMedia('(display-mode: fullscreen), (display-mode: standalone)').matches)(el.requestFullscreen||el.webkitRequestFullscreen||(()=>{})).call(el);screen.orientation&&screen.orientation.lock&&screen.orientation.lock('landscape').catch(()=>{})}catch(e){}
+    try{const el=document.documentElement;(el.requestFullscreen||el.webkitRequestFullscreen||(()=>{})).call(el);screen.orientation&&screen.orientation.lock&&screen.orientation.lock('landscape').catch(()=>{})}catch(e){}
     this.fixOpt();const bp=this.botPick();const o=Object.assign({},this.opt,{size:5,diff:bp.diff,botRank:bp.rank,eco:this.opt.mode==='treino'?'treino':'padrao',team:'R'});$('#ldMap').textContent=(MN[o.map]||'Dunas').toUpperCase();try{buildLoadingBackground(o.map)}catch(e){}$('#ldMode').textContent=`${this.modeName(o.mode)} · 5v5 · BOTS ${(DIFF_LBL[o.diff]||o.diff)}`;
     const tips=['Agachar reduz a dispersão dos disparos.','Tiros na cabeça causam 3× de dano (1,7× com capacete).','Colete protege o corpo (60) e o capacete a cabeça (40); cada peça quebra sozinha.','Atire pelo botão FOGO e arraste a tela da direita para mirar.','Pule em caixas baixas para ganhar altura.'];
     $('#ldTip').textContent='DICA: '+tips[(Math.random()*tips.length)|0];
@@ -6078,7 +6091,7 @@ const UI={tab:'play',view:'lobby',stab:'video',itab:'skins',iw:'all',ir:'all',
   async partyJoin(go){if(Game.mode!=='menu'||!Online.ok)return;Snd.init();
     try{const i=(await Online.db.ref('rooms/'+go.rid+'/info').get()).val();if(!i)return;
       const pl=Object.entries(i.p||{}).map(([pid,v])=>Object.assign({pid},v)),me=pl.find(x=>x.pid===Online.pid);if(!me)return;
-      try{const el=document.documentElement;if(!window.matchMedia('(display-mode: fullscreen), (display-mode: standalone)').matches)(el.requestFullscreen||el.webkitRequestFullscreen||(()=>{})).call(el);screen.orientation&&screen.orientation.lock&&screen.orientation.lock('landscape').catch(()=>{})}catch(e){}
+      try{const el=document.documentElement;(el.requestFullscreen||el.webkitRequestFullscreen||(()=>{})).call(el);screen.orientation&&screen.orientation.lock&&screen.orientation.lock('landscape').catch(()=>{})}catch(e){}
       const o=Object.assign({},this.opt,{map:go.map,mode:go.mode,size:i.size||5,diff:this.botPick().diff,eco:'padrao',team:'R'});
       $('#ldMap').textContent=(MN[o.map]||'Dunas').toUpperCase();try{buildLoadingBackground(o.map)}catch(e){}$('#ldMode').textContent='PARTY · ONLINE';$('#ldTxt').textContent='Entrando na partida do líder…';$('#ldBar').style.width='100%';
       const L=$('#loading');L.classList.remove('hidden');
