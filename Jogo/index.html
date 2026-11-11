@@ -179,6 +179,27 @@ h2 small{font-size:11px;color:var(--mut);letter-spacing:0;margin-left:8px;font-w
 .pf-stats div{background:rgba(255,255,255,.04);border:1px solid #ffffff14;text-align:center;padding:5px 2px}
 .pf-stats b{display:block;font-size:17px;line-height:1}.pf-stats small{font-size:9px;color:var(--mut);letter-spacing:1px}
 .pf-bt{display:flex;gap:7px;margin-top:auto}.pf-bt .btn{flex:1}
+.li{width:1.15em;height:1.15em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto;vertical-align:-.2em}
+.phm-btns{display:flex;gap:7px}.phm-btns .btn{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:9px 6px;font-size:11px;line-height:1.15;text-align:center}
+.phm{position:fixed;inset:0;z-index:46;display:flex;align-items:center;justify-content:center;padding:10px;background:rgba(4,6,9,.82);backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);animation:pfIn .18s ease-out}
+.phm-bx{position:relative;width:min(94vw,560px);max-height:min(88vh,620px);display:flex;flex-direction:column;background:linear-gradient(120deg,rgba(24,29,35,.97),rgba(10,12,15,.95));border:1px solid #ffffff1f;box-shadow:0 10px 40px #000a}
+.phm-bx::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--gold)}
+.phm-hd{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:12px 12px 10px 16px;border-bottom:1px solid #ffffff14}.phm-hd b{display:flex;align-items:center;gap:8px;letter-spacing:2px;font-size:13px}.phm-hd .btn{padding:6px 8px;line-height:0}
+.phm-bd{flex:1;overflow:auto;padding:10px 12px 10px 16px;display:flex;flex-direction:column;gap:6px}
+.phm-ft{padding:10px 12px 12px 16px;border-top:1px solid #ffffff14;display:flex}.phm-ft .btn{flex:1}
+.phm-row{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:13px;padding:8px 10px;background:rgba(255,255,255,.04);border:1px solid #ffffff14}.phm-row small{opacity:.7}
+.phm-none{color:var(--mut);font-size:12px;text-align:center;padding:26px 0}
+.pmh{border:1px solid #ffffff14;border-left:3px solid var(--red);background:rgba(255,255,255,.04)}.pmh.w{border-left-color:var(--green)}
+.pmh-h{display:flex;align-items:center;flex-wrap:wrap;gap:6px 12px;padding:9px 10px;cursor:pointer;user-select:none}
+.pmh-r{min-width:74px}.pmh-r b{display:block;font-size:13px;letter-spacing:1px;color:var(--red)}.pmh.w .pmh-r b{color:var(--green)}
+.pmh-sc{font-size:19px;font-weight:700;letter-spacing:1px}.pmh-m{flex:1;min-width:120px;display:flex;flex-direction:column;gap:2px;font-size:12px}
+.pmh small{color:var(--mut);font-size:10px}.pmh-m small{display:flex;align-items:center;gap:4px}.pmh-kda{text-align:right}.pmh-kda b{display:block;font-size:13px}
+.pmh-ch .li{transition:transform .2s;opacity:.7}.pmh.open .pmh-ch .li{transform:rotate(180deg)}
+.pmh-d{display:none;padding:2px 10px 10px;border-top:1px solid #ffffff10}.pmh.open .pmh-d{display:block}
+.pmh-mvp{display:flex;align-items:center;gap:6px;margin:8px 0 6px;padding:6px 8px;font-size:12px;background:rgba(232,179,42,.1);border:1px solid rgba(232,179,42,.35);color:var(--gold)}
+.pmh-d label{display:block;margin:6px 0 4px;font-size:10px;letter-spacing:2px;color:var(--mut)}
+.pmh-p{display:flex;align-items:center;gap:8px;padding:5px 6px;font-size:12px;border-bottom:1px solid #ffffff0d}.pmh-p.me{background:rgba(255,255,255,.06)}
+.pmh-p span.nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.pmh-p i{font-style:normal;color:var(--gold);font-size:10px;margin-left:4px}.pmh-p .li{color:var(--gold);width:14px;height:14px}.pmh-p b{font-variant-numeric:tabular-nums}
 .pf-r{position:relative;min-height:0;border-left:1px solid #ffffff14;background:radial-gradient(ellipse at 50% 72%,#313c47 0,#161b21 55%,#0b0d10 100%)}
 .pf-r canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;cursor:grab}
 .pf-r #pfCv{inset:0 auto 0 0;width:56%}.pf-r #pfRadar{inset:0 0 0 auto;width:44%;cursor:default;pointer-events:none}
@@ -3790,7 +3811,7 @@ class Bot{
     this.wid='glock';this.path=[];this.pi=0;this.cd=0;this.scan=0;this.t=Math.random()*9;this.kills=0;
     this.strafe=1;this.strafeT=0;this.aim=0;this.vis=false;this.last=null;this.stuck=0;this.lp=V3();this.wait=0;this.spotted=0;this.fall=0;this.isPlayer=false;this.act=null;this.blind=0;this.nd=0;this.fl=false;this.cow=rnd(.6,1.4);this.still=false;this.gn={frag:0,flash:0,smoke:0};this.cr=0;this.noPick=0;this.dropCd=0;this.nadeCd=3;this.tk=0;this.idx=(Bot.n=(Bot.n||0)+1);this.holdT=0;this.holdFace=0;this.bw=0;this.bd=0;this.lk=null;this.lkT=0;this.fetchT=0;this.peek=false;this.vy=0;this.skill=Math.random();this.rj=rnd(.9,1.35);this.crT=0;this.cvCd=0;this.coverT=0;this.cvThreat=null;this.crch=false;this.burst=0;this.burstT=0;this.dmgT=0}
   reset(sp,wid){this.pos.set(sp[0],sp[2]||0,sp[1]);this.m.root.rotation.set(0,this.team==='T'?Math.PI:0,0);this.alive=true;this.hp=100;this.wid=wid;this.m.setWeapon(wid,defSkin(wid));
-    BotBrain.roundStart(this);this.path=[];this.target=null;this.cd=rnd(.2,1);this.last=null;this.fall=0;this.wait=rnd(0,2);this.m.root.visible=true;this.m.root.scale.y=1;this.act=null;this.blind=0;const R2=Game.round>=2||Game.opts.eco==='treino';this.gn={frag:R2&&Math.random()<.5?1:0,flash:Math.random()<(R2?.55:.15)?1:0,smoke:R2&&Math.random()<.4?1:0};this.nd=this.gn.frag;this.nadeCd=rnd(1,6);this.noPick=0;this.dropCd=0;this.holdT=0;this.cr=0;this.lk=null;this.lkT=0;this.skill=Math.random();this.rj=rnd(.9,1.35);this.vy=0;this.coverT=0;this.crT=0;this.dmgT=0;this.hitByP=false;this.burst=0;this.crch=false;const ar=Game.opts.eco==='treino'||Game.round>=3||(Game.round===2&&Math.random()<.5);this.vestP=ar?60:0;this.helmP=(ar&&Math.random()<.6)?40:0;Balance.sync(this)}
+    BotBrain.roundStart(this);this.path=[];this.target=null;this.cd=rnd(.2,1);this.last=null;this.fall=0;this.wait=rnd(0,2);this.m.root.visible=true;this.m.root.scale.y=1;this.act=null;this.blind=0;const R2=Game.round>=2||Game.opts.eco==='treino';this.gn={frag:R2&&Math.random()<.5?1:0,flash:Math.random()<(R2?.55:.15)?1:0,smoke:R2&&Math.random()<.4?1:0};this.nd=this.gn.frag;this.nadeCd=rnd(1,6);this.noPick=0;this.dropCd=0;this.holdT=0;this.cr=0;this.lk=null;this.lkT=0;this.skill=Math.random();this.rj=rnd(.9,1.35);this.vy=0;this.coverT=0;this.crT=0;this.dmgT=0;this.hitByP=false;this.hitBy=null;this.burst=0;this.crch=false;const ar=Game.opts.eco==='treino'||Game.round>=3||(Game.round===2&&Math.random()<.5);this.vestP=ar?60:0;this.helmP=(ar&&Math.random()<.6)?40:0;Balance.sync(this)}
   /* LOD: >lodDist esconde peças pequenas (rádio, antena, cinto, óculos...); no gráfico baixo, além da neblina o bot nem é desenhado */
   lodTick(dt){this._lq=(this._lq||0)-dt;if(this._lq>0)return;this._lq=.2+Math.random()*.1;
     const cp=World.camera.position,d=Math.hypot(this.pos.x-cp.x,this.pos.z-cp.z),m=this.m;
@@ -3798,7 +3819,7 @@ class Bot{
     const hideFar=S.quality==='baixa'&&d>PERF.fogFar&&!Game.spec;
     if(hideFar){m.root.visible=false;this._fh=true}else if(this._fh){this._fh=false;m.root.visible=true}}
   get eye(){return V3(this.pos.x,this.pos.y+1.55,this.pos.z)}
-  takeHit(dmg,att,head,wn){if(this.remote)return Online.hitRemote(this,dmg,att,head,wn);if(!this.alive)return false;if(att&&att.isPlayer)this.hitByP=true;dmg=Balance.hit(this,dmg,head);this.hp-=dmg;this.spotted=2.5;this.dmgT+=dmg;if(this.dmgT>40&&this.hp>0&&this.coverT<=0&&this.cvCd<=0&&!this.act&&att&&att.pos)this.seekCover(att.pos);if(att&&att.pos&&att!==this&&!this.vis){BotBrain.cSnap(this);this.last=att.pos.clone();this.path=[]}this.act=null;
+  takeHit(dmg,att,head,wn){if(this.remote)return Online.hitRemote(this,dmg,att,head,wn);if(!this.alive)return false;if(att&&att.isPlayer)this.hitByP=true;else if(att&&att.name)(this.hitBy||(this.hitBy={}))[att.name]=1;dmg=Balance.hit(this,dmg,head);this.hp-=dmg;this.spotted=2.5;this.dmgT+=dmg;if(this.dmgT>40&&this.hp>0&&this.coverT<=0&&this.cvCd<=0&&!this.act&&att&&att.pos)this.seekCover(att.pos);if(att&&att.pos&&att!==this&&!this.vis){BotBrain.cSnap(this);this.last=att.pos.clone();this.path=[]}this.act=null;
     if(this.hp>0&&att&&att.pos&&att!==this&&att.team!==this.team&&wn!=='Granada'&&!(this.blind>0)){   // PETECO: levou tiro → vira na hora para quem atirou e revida
       const hx=att.pos.x-this.pos.x,hz=att.pos.z-this.pos.z;if(hx*hx+hz*hz>.04){this.m.root.rotation.y=Math.atan2(hx,hz);this.hitT=1.5;this.scan=0;this.aim=Math.max(this.aim,DIFF[Game.opts.diff].react*this.rj*.7)}}
     BotBrain.hurt(this,att,wn);if(this.hp<=0){BotBrain.ev(this,'death',-30,1);BotBrain.err(this,'morte',this.pos.x,this.pos.z,wn);this.alive=false;this.fall=0;if(Game.opts.mode==='treino')this.deadT=1.5;
@@ -4056,7 +4077,7 @@ const Player={
   moving:false,air:false,bloom:0,kills:0,headshots:0,objectiveDone:false,vm:null,vmKick:0,bob:0,jumpQ:false,nades:{frag:0,flash:0,smoke:0},kit:false,flashT:0,scoped:false,actT:0,
   get w(){return W[this.cur]||NW[this.cur]},
   eyeY(){return this.pos.y+1.6-.53*this.crouch},
-  reset(sp,keep){this.setScope(false);this.flashT=0;$('#flashO').style.opacity=0;this.actT=0;$('#actBar').style.display='none';this.pos.set(sp[0],sp[2]||0,sp[1]);this.vy=0;this.hp=100;this.alive=true;this.cd=0;this.reloading=false;this.crouch=0;this.crouchOn=false;this.bloom=0;
+  reset(sp,keep){this.setScope(false);this.flashT=0;$('#flashO').style.opacity=0;this.actT=0;$('#actBar').style.display='none';this.pos.set(sp[0],sp[2]||0,sp[1]);this.vy=0;this.hp=100;this.hitBy=null;this.alive=true;this.cd=0;this.reloading=false;this.crouch=0;this.crouchOn=false;this.bloom=0;
     this.yaw=World.spYaw?World.spYaw(this.team,sp):(this.team==='T'?0:Math.PI);this.pitch=0;
     /* kills/headshots/objectiveDone são totais da PARTIDA: zerados em Game.start, não a cada round */
     if(!keep){const pp=this.team==='CT'?'usp':'glock';this.loadout={primary:null,pistol:pp,knife:'knife'};this.armor=0;this.helmet=false;this.vestP=0;this.helmP=0;this.nades={frag:0,flash:0,smoke:0};this.kit=false;this.ammo={};this.giveAmmo(pp)}else{[this.loadout.primary,this.loadout.pistol].forEach(id=>{if(id)this.giveAmmo(id)})}
@@ -4093,7 +4114,8 @@ const Player={
     Snd.tone(300,.05,.08);HUDui.dirty=true},
   swap(){const o=[this.loadout.primary,this.loadout.pistol,this.loadout.knife,this.loadout.c4].filter(Boolean);const i=o.indexOf(this.cur);this.equip(o[(i+1)%o.length])},
   reload(){const w=this.w,a=this.ammo[w.id];if(w.melee||!a||this.reloading||a.mag>=w.mag||a.res<=0)return;this.setScope(false);this.reloading=true;this.rt=w.reload;Snd.tone(220,.12,.1)},
-  takeHit(dmg,att,head,wn,src){if(!this.alive)return;
+  takeHit(dmg,att,head,wn,src){if(!this.alive)return;if(att&&att.name&&!att.isPlayer)(this.hitBy||(this.hitBy={}))[att.name]=1;   // [HIST] quem feriu o jogador (assistências dos bots inimigos)
+    
     dmg=Balance.hit(this,dmg,head);
     this.hp-=dmg;$('#vig').style.opacity=clamp(.4+dmg/60,0,1);setTimeout(()=>$('#vig').style.opacity=0,120);
     try{navigator.vibrate&&navigator.vibrate(30)}catch(e){}HUDui.dirty=true;
@@ -4312,6 +4334,16 @@ const HUD={editing:false,
 /* ---------------- Loja (compra por ID/preço) ---------------- */
 const ICO={"vest": "<svg viewBox=\"0 0 40 30\" width=\"40\" height=\"30\" fill=\"#e6edf3\"><path d=\"M10 3 L16 6 Q20 9 24 6 L30 3 L36 9 L33 28 L7 28 L4 9Z\"/></svg>", "vesthelm": "<svg viewBox=\"0 0 40 30\" width=\"40\" height=\"30\" fill=\"#e6edf3\"><path d=\"M7 24 Q7 4 20 4 Q33 4 33 24 L36 27 L4 27Z\"/><path d=\"M12 14 L17 16 Q20 18 23 16 L28 14 L31 18 L29 27 L11 27 L9 18Z\" fill=\"#12161b\"/></svg>", "frag": "<svg viewBox=\"0 0 40 30\" width=\"40\" height=\"30\" fill=\"#e6edf3\"><circle cx=\"20\" cy=\"18\" r=\"9.5\"/><rect x=\"17\" y=\"4\" width=\"6\" height=\"6\" rx=\"1\"/><path d=\"M23 6 L33 4 L33 8 L23 10Z\"/></svg>", "flash": "<svg viewBox=\"0 0 40 30\" width=\"40\" height=\"30\" fill=\"#e6edf3\"><rect x=\"14\" y=\"6\" width=\"12\" height=\"22\" rx=\"3\"/><rect x=\"17\" y=\"2\" width=\"6\" height=\"5\" rx=\"1\"/><rect x=\"14\" y=\"14\" width=\"12\" height=\"3\" fill=\"#12161b\"/></svg>", "smoke": "<svg viewBox=\"0 0 40 30\" width=\"40\" height=\"30\" fill=\"#e6edf3\"><rect x=\"13\" y=\"6\" width=\"14\" height=\"22\" rx=\"3\"/><rect x=\"16\" y=\"2\" width=\"8\" height=\"5\" rx=\"1\"/><rect x=\"13\" y=\"12\" width=\"14\" height=\"2\" fill=\"#12161b\"/><rect x=\"13\" y=\"20\" width=\"14\" height=\"2\" fill=\"#12161b\"/></svg>", "kit": "<svg viewBox=\"0 0 40 30\" width=\"40\" height=\"30\" fill=\"#e6edf3\"><rect x=\"5\" y=\"12\" width=\"30\" height=\"6\" rx=\"2\" transform=\"rotate(-30 20 15)\"/><circle cx=\"10\" cy=\"22\" r=\"4\"/><circle cx=\"30\" cy=\"8\" r=\"4\"/></svg>"};
 ICO.helm='<svg viewBox="0 0 40 30" width="40" height="30" fill="#e6edf3"><path d="M7 24 Q7 4 20 4 Q33 4 33 24 L36 27 L4 27Z"/></svg>';
+/* ===== ÍCONES SVG (mesmo padrão do Painel ADM: traço 24x24, cor = currentColor). Substituem os emojis da interface. ===== */
+const _si=p=>`<svg class="li" viewBox="0 0 24 24" aria-hidden="true">${p}</svg>`;
+const SI={
+  calendar:_si('<rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/>'),
+  scroll:_si('<path d="M15 12h-5"/><path d="M15 8h-5"/><path d="M19 17V5a2 2 0 0 0-2-2H4"/><path d="M8 21h12a2 2 0 0 0 2-2v-1a1 1 0 0 0-1-1H11a1 1 0 0 0-1 1v1a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v2a1 1 0 0 0 1 1h3"/>'),
+  x:_si('<path d="M18 6 6 18"/><path d="m6 6 12 12"/>'),
+  clock:_si('<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>'),
+  trophy:_si('<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>'),
+  down:_si('<path d="m6 9 6 6 6-6"/>')
+};
 /* Miniaturas assíncronas: a tela abre na hora com um espaço em branco e cada <img> é trocado quando a miniatura fica pronta.
    Gera no máx. ~9 ms por quadro (nada de travar) e pré-aquece o resto enquanto você está no menu. */
 (()=>{
@@ -4567,7 +4599,10 @@ const Game={mode:'menu',phase:'none',timer:0,round:1,score:{T:0,CT:0},bots:[],op
     const col=t=>t==='T'?'var(--gold)':'var(--blue)';
     d.innerHTML=`<span style="color:${col(a.team)}">${an}</span> [${wn}${head?' ⌖':''}] <span style="color:${col(v.team)}">${vn}</span>`;
     $('#kf').appendChild(d);setTimeout(()=>d.remove(),4500);while($('#kf').children.length>4)$('#kf').firstChild.remove()},
-  onKill(a,v,wn,head){BotBrain.kill(a,v);if(v&&v.team!==Player.team&&v.pos)Radar.dead.push({x:v.pos.x,z:v.pos.z,t:performance.now()/1000});if(v&&v.hitByP&&a&&!a.isPlayer&&v.team!==Player.team)Player.assists=(Player.assists||0)+1;this.feed(a,v,wn,head);
+  onKill(a,v,wn,head){BotBrain.kill(a,v);
+    if(v&&!v.isPlayer)v.deaths=(v.deaths||0)+1;   // [HIST] mortes dos bots/jogadores remotos (o Player já conta em takeHit)
+    if(v&&v.hitBy&&a&&a!==v){for(const nm in v.hitBy){const h=this.bots.find(x=>x.name===nm);if(h&&h!==a&&h!==v&&h.team===a.team&&h.team!==v.team)h.assists=(h.assists||0)+1}}   // [HIST] assistência: bot que feriu o inimigo morto por um aliado
+    if(v&&v.team!==Player.team&&v.pos)Radar.dead.push({x:v.pos.x,z:v.pos.z,t:performance.now()/1000});if(v&&v.hitByP&&a&&!a.isPlayer&&v.team!==Player.team)Player.assists=(Player.assists||0)+1;this.feed(a,v,wn,head);
     if(a&&a!==v){a.kills=(a.kills||0)+1;
       if(a.isPlayer&&head)a.headshots=(a.headshots||0)+1;
       this.kills[a.isPlayer?'__p':a.name]=(this.kills[a.isPlayer?'__p':a.name]||0)+1;if(a.isPlayer){Player.money=Math.min(16000,Player.money+((W[Player.cur]||{}).cat===3?600:300));HUDui.dirty=true}}
@@ -4615,7 +4650,7 @@ const Game={mode:'menu',phase:'none',timer:0,round:1,score:{T:0,CT:0},bots:[],op
     for(let i=0;i<o.size-1;i++)this.bots.push(new Bot(Player.team,names.pop()));
     for(let i=0;i<o.size;i++)this.bots.push(new Bot(en,names.pop()))}
     this.score={T:0,CT:0};this.round=1;this.over=false;Player.money=o.eco==='treino'?16000:1200;Player.kills=0;Player.headshots=0;Player.deaths=0;Player.plantsOk=0;Player.defuses=0;Player.mvps=0;Player.shotsF=0;Player.shotsH=0;Player.assists=0;Player.objectiveDone=false;
-    this.mode='game';$('#hud').classList.remove('hidden','preview');this.paused=false;$('#pauseBtn').style.display=(o.room||Online.room)?'none':'';HUDui.radar=$('#radar');HUDui.crosshair();HUD.apply();
+    this.mode='game';this.matchT0=Date.now();$('#hud').classList.remove('hidden','preview');this.paused=false;$('#pauseBtn').style.display=(o.room||Online.room)?'none':'';HUDui.radar=$('#radar');HUDui.crosshair();HUD.apply();
     World.camera.fov=S.fov;World.camera.updateProjectionMatrix();this.newRound(true)},
   botLoadout(tm){const r=this.round,eco=this.opts.eco==='treino';
     const pool=eco?['ak47','galil','awp','ssg08','p90','mac10','nova']:r<2?['glock','deagle']:r<3?['mac10','p90','nova','glock','deagle']:['ak47','galil','ak47','mac10','p90','ssg08','awp','nova'];
@@ -4657,6 +4692,16 @@ const Game={mode:'menu',phase:'none',timer:0,round:1,score:{T:0,CT:0},bots:[],op
     else if(aC===0)this.endRound('T','Todos os CTs foram eliminados');
     else if(aT===0&&b.state!=='planted')this.endRound('CT','Todos os terroristas foram eliminados');
     else if(b.state==='idle'&&this.timer<=0)this.endRound('CT','Tempo esgotado')},
+  /* [HIST] monta o registro da partida: resultado, placar, mapa/modo, data, duração, seu K/D/A, seu time e MVP. Treino não entra. */
+  recordMatchHistory(won){
+    const o=this.opts;if(!o||o.mode==='treino')return;
+    const my=Player.team,en=my==='T'?'CT':'T',okAv=a=>/^[\w-]{0,60}$/.test(a||'')?(a||''):'';
+    const row=(n,e,me)=>Object.assign({n:String(n||'Player').slice(0,20),av:me?okAv(Store.get('avatar','')):okAv(e.av),k:e.kills||0,d:e.deaths||0,a:e.assists||0},me?{me:1}:{});
+    const ally=[row(S.name,Player,true)].concat(this.bots.filter(b=>b.team===my).map(b=>row(b.name,b,false))).sort((x,y)=>y.k-x.k||x.d-y.d);
+    const top=this.bots.concat([Player]).sort((x,y)=>(y.kills||0)-(x.kills||0)||(x.deaths||0)-(y.deaths||0))[0];   // mesmo critério de MVP da tela de fim
+    const mvp=Object.assign({n:String(top.isPlayer?S.name:top.name||'Player').slice(0,20),k:top.kills||0,d:top.deaths||0,a:top.assists||0,ally:top.team===my?1:0},top.isPlayer?{me:1}:{});
+    Online.recordMatch({ts:Online.srvNow?Online.srvNow():Date.now(),r:won?1:0,sc:[this.score[my]||0,this.score[en]||0],map:o.map||'dunas',mode:o.mode||'rank',
+      dur:Math.max(1,Math.round((Date.now()-(this.matchT0||Date.now()))/1000)),k:Player.kills||0,d:Player.deaths||0,a:Player.assists||0,t:my,team:ally,mvp})},
   matchOver(){this.mode='over';const won=this.score[Player.team]>=this.win();
     const st=myStats();
     const k=Player.kills||0;
@@ -4673,6 +4718,7 @@ const Game={mode:'menu',phase:'none',timer:0,round:1,score:{T:0,CT:0},bots:[],op
     const rkH=r=>`${rkIcon(r,32)}${r.n}`;
     const dth=Player.deaths||0,ast=Player.assists||0,sF=Player.shotsF||0,acc=sF?Math.min(100,Math.round((Player.shotsH||0)/sF*100)):0,hsr=k?Math.round(h/k*100):0,mvs=Player.mvps||0;
 
+    try{this.recordMatchHistory(won)}catch(e){console.warn('histórico de partidas',e)}
     const rwHtml=rankRewardsPopup(rw);
     let html=`<div class="box"><h2>${won?'VITÓRIA':'DERROTA'}</h2>
     <div style="margin:6px 0 12px;font-size:24px">${this.score[Player.team]} : ${this.score[Player.team==='T'?'CT':'T']}</div>
@@ -4814,6 +4860,26 @@ const Lobby={scene:null,cam:null,char:null,rotY:-1.0,t:0,aspect:0,drag:false,
 
 /* ---------------- Inspecionar Perfil: cartão do jogador + boneco 3D em sub-cena ---------------- */
 const ProfileView={el:null,
+  /* modal de histórico aberto pelos botões do perfil: 's' = temporadas, 'm' = partidas. Fecha com X, VOLTAR ou toque no fundo. */
+  hist(kind,F){
+    if(document.getElementById('phm'))return;
+    const fr=!!F,isS=kind==='s';let body;
+    if(isS){let sh=fr?(F.sh||[]):Store.get('seasonHist',[]);if(typeof sh==='string'){try{sh=JSON.parse(sh)}catch(e){sh=[]}}
+      body=sh.length?sh.slice().reverse().map(x=>`<div class="phm-row"><span>${esc(x.n||x.s)}</span><b>${esc(x.rk)}</b>${x.rp!=null?`<small>${x.rp} RP</small>`:''}</div>`).join(''):'<div class="phm-none">Nenhuma temporada jogada ainda</div>'}
+    else{let mh=fr?F.historicoPartidas:Store.get('matchHist',[]);mh=Array.isArray(mh)?mh:Object.values(mh||{});mh=mh.filter(x=>x&&x.sc);
+      const MAPN={dunas:'Dunas',mercado:'Mercado',vila:'Vila',usina:'Usina',miragem:'Miragem',dune:'Dune',province:'Province',rust:'Rust',sandstone:'Sandstone',arena:'Arena',treinoext:'Treino Externo',treino:'Polygon'},MODN={rank:'Ranqueado',classic:'Clássico'};
+      const mmss=t=>Math.floor(t/60)+':'+String(t%60).padStart(2,'0'),kda=x=>(+x.k||0)+' / '+(+x.d||0)+' / '+(+x.a||0);
+      body=mh.length?mh.map((e,i)=>{const w=!!e.r,dt=new Date(+e.ts||0).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}),mv=e.mvp||{};
+        const rows=(e.team||[]).map(p=>{const isMv=mv.ally&&p.n===mv.n&&p.k===mv.k&&p.d===mv.d;return`<div class="pmh-p${p.me?' me':''}">${avHtml(p.av||'',p.n,26)}<span class="nm">${esc(p.n)}${p.me?'<i>VOCÊ</i>':''}</span>${isMv?SI.trophy:''}<b>${kda(p)}</b></div>`}).join('');
+        return`<div class="pmh ${w?'w':'l'}"><div class="pmh-h"><div class="pmh-r"><b>${w?'VITÓRIA':'DERROTA'}</b></div><div class="pmh-sc">${+(e.sc||[])[0]||0} x ${+(e.sc||[])[1]||0}</div>
+          <div class="pmh-m"><span>${esc(MAPN[e.map]||e.map||'—')} · ${esc(MODN[e.mode]||'Ranqueado')}</span><small>${esc(dt)} · ${SI.clock}${mmss(+e.dur||0)}</small></div>
+          <div class="pmh-kda"><b>${kda(e)}</b><small>K / D / A</small></div><span class="pmh-ch">${SI.down}</span></div>
+          <div class="pmh-d">${mv.n?`<div class="pmh-mvp">${SI.trophy}<span>MVP: <b>${esc(mv.n)}</b>${mv.me?' (você)':mv.ally?'':' · time adversário'} — ${kda(mv)}</span></div>`:''}<label>${fr?'TIME DO JOGADOR':'SEU TIME'}</label>${rows||'<small>Sem dados do time</small>'}</div></div>`}).join(''):'<div class="phm-none">Nenhuma partida registrada ainda</div>'}
+    const o=document.createElement('div');o.id='phm';o.className='phm';
+    o.innerHTML=`<div class="phm-bx" role="dialog" aria-modal="true"><div class="phm-hd"><b>${isS?SI.calendar+'HISTÓRICO DE TEMPORADAS':SI.scroll+'HISTÓRICO DE PARTIDAS'}</b><button class="btn" id="phmX" aria-label="Fechar">${SI.x}</button></div><div class="phm-bd">${body}</div><div class="phm-ft"><button class="btn g" id="phmBk">VOLTAR</button></div></div>`;
+    const cl=()=>o.remove();
+    o.querySelector('.phm-bd').onclick=e=>{const h=e.target.closest('.pmh-h');if(h)h.parentNode.classList.toggle('open')};o.querySelector('#phmX').onclick=cl;o.querySelector('#phmBk').onclick=cl;o.onpointerdown=e=>{if(e.target===o)cl()};
+    document.body.appendChild(o)},
   open(F){                       // F = dados de um amigo (somente leitura); sem F = perfil próprio
     if(this.el)return;const fr=!!F;
     const st=fr?{xp:F.xp||0,rp:F.rp||0,cm:F.cm||0,matches:F.m||0,kills:F.k||0,wins:F.w||0,hs:F.h||0}:myStats(),lvl=lvlOf(st.xp);
@@ -4831,13 +4897,14 @@ const ProfileView={el:null,
         <div class="pf-f"><label>NÍVEL</label><div class="pf-v">${lvl}</div><div class="pf-xp"><i style="width:${pct}%"></i></div><small>${Math.floor(st.xp-curXp)} / ${Math.floor(nextXp-curXp)} XP</small></div>
         <div class="pf-f"><label>PATENTE</label><div class="pf-v" style="color:${rk.c};display:flex;align-items:center;gap:8px">${rkIcon(rk,44)}<span>${rk.n}</span></div><small>${st.cm?rpLine(st,id):'Jogue ranqueado para obter'}</small></div>
         </div>
-        <div class="pf-f" id="pfSeasons"><label>HISTÓRICO DE TEMPORADAS</label>${(()=>{let sh=fr?(F.sh||[]):Store.get('seasonHist',[]);if(typeof sh==='string'){try{sh=JSON.parse(sh)}catch(e){sh=[]}}return sh.length?sh.slice().reverse().map(x=>`<div style="display:flex;justify-content:space-between;font-size:12px;padding:2px 0"><span>${esc(x.n||x.s)}</span><b>${esc(x.rk)}</b>${x.rp!=null?`<small style="opacity:.7">${x.rp} RP</small>`:''}</div>`).join(''):'<small>Nenhuma temporada jogada ainda</small>'})()}</div>
+        <div class="phm-btns"><button class="btn" id="pfHs">${SI.calendar}<span>HISTÓRICO DE TEMPORADAS</span></button><button class="btn" id="pfHm">${SI.scroll}<span>HISTÓRICO DE PARTIDAS</span></button></div>
         <div class="pf-f"><label>BIOGRAFIA</label><textarea id="pfBio" maxlength="80" rows="2" placeholder="Ex.: #00FF00Boa tarde#0000FFOi"></textarea><small id="pfCnt"></small><div class="pf-bio" id="pfBioPv"></div></div>
         <div class="pf-bt"><button class="btn g" id="pfSv">SALVAR PERFIL</button><button class="btn" id="pfCl">FECHAR</button></div>
       </div>
       <div class="pf-r"><canvas id="pfCv"></canvas><canvas id="pfRadar"></canvas><div class="pf-tag"><small>${fr?'AGENTE DO JOGADOR':'AGENTE EQUIPADO'}</small><b>${ag.name.toUpperCase()}</b></div><i class="pf-hint">Arraste para girar</i></div>
     </div>`;
     document.body.appendChild(el);
+    el.querySelector('#pfHs').onclick=()=>this.hist('s',F);el.querySelector('#pfHm').onclick=()=>this.hist('m',F);
 
     // ---- campos
     const ta=el.querySelector('#pfBio'),cnt=el.querySelector('#pfCnt'),sv=el.querySelector('#pfSv');let dirty=false;
@@ -5335,7 +5402,7 @@ const Online={shopOn:{sk:{},ag:{},av:{}},cav:{},db:null,ok:false,pid:Store.get('
         else if(Store.get('owned',[]).includes(sid))sk=`<small style="color:#6bd34a">✅ ${esc(s.n)}</small>`;
         else if(reached)sk=`<small style="color:#e5a23a">📬 ${esc(s.n)} · no Correio</small>`;
         else sk=`<small style="color:var(--mut)">🔒 ${esc(s.n)}</small>`}
-      return `<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-top:1px solid #ffffff14;text-align:left">${rkIcon(r,30)}<div style="flex:1;min-width:0"><b style="font-size:12px">${nm}</b> ${cl[ic]?'✅':reached?'':'🔒'}<div style="font-size:10px;color:var(--mut)">🪙${R.coins} · ⭐${R.xp} · ${ag?esc(ag.name):''} (60d) · avatar (30d)</div></div>${sk}</div>`}).join('');
+      return `<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-top:1px solid #ffffff14;text-align:left">${rkIcon(r,30)}<div style="flex:1;min-width:0"><b style="font-size:12px">${nm}</b> ${cl[ic]?'✅':reached?'':'🔒'}<div style="font-size:10px;color:var(--mut)">🪙${R.coins} · ⭐${R.xp} · ${ag?esc(ag.name):''} (60d) · avatar (60d)</div></div>${sk}</div>`}).join('');
     return `<div style="margin:14px 0 6px;font-size:11px;letter-spacing:2px;color:var(--mut)">RECOMPENSAS DA TEMPORADA${this.season?' '+esc(this.season.nome):''}</div>${rows}`},
   claimSkin(ic){
     const i=RK_FAM.indexOf(ic),st=myStats();if(i<0||!this.seasonActive()||rankPosition(st.rp,st.cm)<i)return;
@@ -5580,13 +5647,15 @@ const Online={shopOn:{sk:{},ag:{},av:{}},cav:{},db:null,ok:false,pid:Store.get('
   adopt(v,force){const st=myStats();
     if(force||(v.xp||0)>st.xp||(v.m||0)>st.matches){Object.assign(st,{xp:v.xp||0,rp:v.rp||0,cm:v.cm||0,coins:v.coins||0,matches:v.m||0,kills:v.k||0,wins:v.w||0,hs:v.h||0});Store.set('stats',st)}
     const own=String(v.own||'').split(',').filter(Boolean);Store.set('owned',force?own:[...new Set(Store.get('owned',[]).concat(own))]);
-    if(force){if(v.sh){try{Store.set('seasonHist',JSON.parse(v.sh))}catch(_){}}if(v.cfg){try{const c=JSON.parse(v.cfg);Object.keys(DEF).forEach(k=>{if(c[k]!==undefined&&k!=='name')S[k]=c[k]})}catch(_){}}S.name=v.n||S.name;saveS();Store.set('bio',v.b||'');Store.set('avatar',typeof v.avatar==='string'?v.avatar:'');Store.set('avExp',v.avatares&&typeof v.avatares==='object'?v.avatares:{});Store.set('agExp',v.agentes&&typeof v.agentes==='object'?v.agentes:{});Store.set('rwClaimed',v.rewardsClaimed&&typeof v.rewardsClaimed==='object'?v.rewardsClaimed:{});Store.set('friends',String(v.fr||'').split(',').filter(Boolean));
+    if(force){if(v.historicoPartidas){const hp=Array.isArray(v.historicoPartidas)?v.historicoPartidas:Object.values(v.historicoPartidas);Store.set('matchHist',hp.filter(Boolean).slice(0,20))}if(v.sh){try{Store.set('seasonHist',JSON.parse(v.sh))}catch(_){}}if(v.cfg){try{const c=JSON.parse(v.cfg);Object.keys(DEF).forEach(k=>{if(c[k]!==undefined&&k!=='name')S[k]=c[k]})}catch(_){}}S.name=v.n||S.name;saveS();Store.set('bio',v.b||'');Store.set('avatar',typeof v.avatar==='string'?v.avatar:'');Store.set('avExp',v.avatares&&typeof v.avatares==='object'?v.avatares:{});Store.set('agExp',v.agentes&&typeof v.agentes==='object'?v.agentes:{});Store.set('rwClaimed',v.rewardsClaimed&&typeof v.rewardsClaimed==='object'?v.rewardsClaimed:{});Store.set('friends',String(v.fr||'').split(',').filter(Boolean));
       const old=Store.get('frReq',[]);Store.set('frReq',String(v.pq||'').split(',').filter(Boolean).map(id=>old.find(r=>r.id===id&&r.state==='pending')||{id,n:'',state:'pending',ts:Date.now()}));   // pedidos enviados ainda pendentes
       Store.set('seenN',[...new Set(Store.get('seenN',[]).concat(String(v.sn||'').split(',').filter(Boolean)))].slice(-30));
       if(v.eq){try{const q=JSON.parse(v.eq);if(q.s){Object.keys(eqSkins).forEach(k=>delete eqSkins[k]);Object.assign(eqSkins,q.s);Store.set('skins',eqSkins)}if(q.a){Object.assign(eqAgent,q.a);Store.set('agent',eqAgent)}}catch(_){}}}},
+  recordMatch(e){const h=Store.get('matchHist',[]);h.unshift(e);Store.set('matchHist',h.slice(0,20))},   // [HIST] guarda a partida (as 20 mais recentes); o sync() logo em seguida envia
   sync(){if(!this.ok||!this.user||!this.pid||!this._loaded)return Promise.resolve(false);   // [FIX LOGIN] sem perfil carregado do Firebase, nunca grava
     const st=myStats();try{this.badge()}catch(_){}   // subiu de patente? a recompensa já aparece no Correio
     const pl={id:this.pid,n:S.name||'Player',xp:st.xp,lv:lvlOf(st.xp),rp:st.rp,cm:st.cm,rk:rankOf(st.rp,st.cm,this.pid).n,coins:st.coins,own:Store.get('owned',[]).join(','),m:st.matches,k:st.kills,w:st.wins,h:st.hs||0,b:esc(Store.get('bio','')).slice(0,80),uid:this.user.uid,em:this.user.email||'',fr:this.friends().join(','),pq:Friends.pending().map(r=>r.id).join(','),sn:Store.get('seenN',[]).join(','),eq:JSON.stringify({s:eqSkins,a:eqAgent}),tm:UI.opt.team==='CT'?'CT':'T',avatar:Store.get('avatar','')||'',avatares:Store.get('avExp',{}),agentes:Store.get('agExp',{}),rewardsClaimed:Store.get('rwClaimed',{}),ag:agentOf(UI.opt.team==='CT'?'CT':'T').id,ak:(skinOf('ak47')||{}).id||'',cfg:JSON.stringify(S),sh:JSON.stringify(Store.get('seasonHist',[])),ls:firebase.database.ServerValue.TIMESTAMP};
+    const mh=Store.get('matchHist',[]);if(mh.length)pl.historicoPartidas=mh;   // [HIST] últimas 20 partidas (nunca envia vazio por cima do servidor)
     const sg=JSON.stringify(Object.assign({},pl,{ls:0}));if(this._sig===sg&&Date.now()-(this._sigT||0)<60000)return Promise.resolve(true);   // só envia se mudou (ou a cada 60s p/ 'visto por último')
     this._sig=sg;this._sigT=Date.now();return this.db.ref('players/'+this.pid).update(pl).then(()=>{Store.set('dirty',0);return true}).catch(e=>{this._sig=null;Store.set('dirty',1);console.warn('sync falhou',e&&e.code);return false})},
   friends(){return Store.get('friends',[])},
@@ -5651,7 +5720,7 @@ const Online={shopOn:{sk:{},ag:{},av:{}},cav:{},db:null,ok:false,pid:Store.get('
       fin({rid,me:pl.find(x=>x.pid===this.pid),others:pl.filter(x=>x.pid!==this.pid),host:i.host})}).catch(()=>fin(null));
     const mine=me.on('value',s=>{const v=s.val();if(v&&v.room&&!done)join(v.room)});
     const lis=q.on('value',s=>{cur=s.val()||{}});
-    me.set({n:S.name,t:T}).catch(()=>fin(null));me.onDisconnect().remove();
+    me.set({n:S.name,t:T,av:String(Store.get('avatar','')||'').slice(0,60)}).catch(()=>fin(null));me.onDisconnect().remove();
     const bar=$('#ldBar');                                   // tempo limite adaptativo: sozinho na fila → 8s e completa com bots; com outros jogadores → até 20s para tentar chegar a 10
     const iv=setInterval(()=>{const el=(Date.now()-t0)/1000,now=Date.now()+off,fresh=Object.entries(cur).filter(([k,v])=>!v.room&&now-(v.t||0)<7000).map(e=>e[0]).sort();
       const lim=fresh.length>=2?20:8,mm=Math.floor(el/60),ss=String(Math.floor(el%60)).padStart(2,'0');
@@ -5661,10 +5730,10 @@ const Online={shopOn:{sk:{},ag:{},av:{}},cav:{},db:null,ok:false,pid:Store.get('
       if(el>=lim+(mk?8:fresh.length>=2?4:0))return fin(null);          // não achou ninguém a tempo: bots completam a partida
       if(!mk&&fresh[0]===this.pid&&fresh.length>=2&&(el>=lim||fresh.length>=max)){mk=true;
         const pl=fresh.slice(0,max),rid='r'+Date.now()+this.pid,p={},cnt={T:0,CT:0};
-        pl.slice().sort(()=>Math.random()-.5).forEach((pid,i)=>{const team=i%2?'CT':'T';p[pid]={n:esc((cur[pid]||{}).n||'Player'),team,ti:cnt[team]++}});
+        pl.slice().sort(()=>Math.random()-.5).forEach((pid,i)=>{const team=i%2?'CT':'T';p[pid]={n:esc((cur[pid]||{}).n||'Player'),team,ti:cnt[team]++,av:/^[\w-]{0,60}$/.test((cur[pid]||{}).av||'')?((cur[pid]||{}).av||''):''}});
         const up={};up['rooms/'+rid+'/info']={map:o.map||'dunas',size:o.size,host:this.pid,p};pl.forEach(pid=>up['queue/'+key+'/'+pid+'/room']=rid);
         this.db.ref().update(up).catch(()=>{mk=false})}},1000)},
-  begin(R){this.room=R;this.peers={};R.others.forEach(p=>{const b=new Bot(p.team,'x');b.remote=true;b.rid=p.pid;b.name=p.n;b.born=Date.now();Game.bots.push(b)});
+  begin(R){this.room=R;this.peers={};R.others.forEach(p=>{const b=new Bot(p.team,'x');b.remote=true;b.rid=p.pid;b.name=p.n;b.av=p.av||'';b.born=Date.now();Game.bots.push(b)});
     const rr=this.db.ref('rooms/'+R.rid);this.refs=[rr.child('s'),rr.child('e')];
     const sc=s=>{if(s.key!==this.pid)this.peers[s.key]=Object.assign(s.val()||{},{rx:Date.now()})};this.refs[0].on('child_added',sc);this.refs[0].on('child_changed',sc);
     this.refs[1].on('child_added',s=>this.onEv(s.val()));this.refs[0].child(this.pid).onDisconnect().remove();
