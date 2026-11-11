@@ -349,7 +349,7 @@ body.editing #cross{display:block}
 .t3sel button.on{opacity:1;box-shadow:0 0 0 1px var(--rc),0 0 12px color-mix(in srgb,var(--rc) 50%,transparent)}
 .t3sel img{width:100%;height:100%;object-fit:contain}.t3sel em{position:absolute;left:3px;top:1px;font-size:9px;font-style:normal;font-weight:700;color:var(--rc)}
 .top3 .pr{font-size:12px;font-weight:700;color:#e8c04a}
-.item.feat{box-shadow:0 0 0 1px var(--gold),0 0 14px #ffc83d33;position:relative}.item.feat::before{content:"★ POPULAR";position:absolute;right:0;top:0;z-index:2;font-size:8px;font-weight:700;letter-spacing:1px;background:var(--gold);color:#111;padding:2px 6px}
+.item.feat{box-shadow:0 0 0 1px var(--gold),0 0 14px #ffc83d33;position:relative}.item.feat::before{content:"POPULAR";position:absolute;right:0;top:0;z-index:2;font-size:8px;font-weight:700;letter-spacing:1px;background:var(--gold) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23111' stroke='%23111' stroke-width='1.5' stroke-linejoin='round'%3E%3Cpolygon points='12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2'/%3E%3C/svg%3E") no-repeat 5px center/10px 10px;color:#111;padding:2px 6px 2px 18px}
 /* Leaderboard */
 .lb-row{display:flex;align-items:center;padding:8px;border-bottom:1px solid #ffffff0a;font-size:13px}
 .lb-row:nth-child(odd){background:rgba(255,255,255,.02)}
@@ -487,7 +487,7 @@ button[data-av] svg{width:28px;height:28px}.avs svg{width:100%;height:100%;displ
   <button class="btn" id="pEdit">EDITAR LAYOUT DA HUD</button>
   <button class="btn" id="pQuit">ABANDONAR PARTIDA</button>
 </div>
-<div id="rotate">Gire o aparelho para o modo paisagem 📱↻</div>
+<div id="rotate">Gire o aparelho para o modo paisagem <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-5px;margin-left:6px"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/></svg><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-5px"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/utils/BufferGeometryUtils.js"></script>
@@ -3170,7 +3170,7 @@ const Thumb={r:null,sc:null,cam:null,cache:{},
     return this.cache[k]=this.shot(c.root,320,460,26)},
   inspect(id,done){
     const sk=SKINS.find(s=>s.id===id),pat=SKINPAT[id]||'plain',m=document.createElement('div');m.className='modal insp';
-    m.innerHTML=`<div class="ib"><div class="ih"><div class="ic" style="border-color:${sk.rc};color:${sk.rc}">◆</div><div><b>${W[sk.w].name} | ${sk.n}</b><small style="color:${sk.rc}">${sk.r}</small></div></div><div class="idesc">${SKINDESC[pat]}</div><canvas></canvas><div class="ibt"><button class="btn" id="inRst">↻</button><button class="btn g" id="inEq">${!isOwned(sk)?'COMPRAR 🪙'+skinPrice(sk):skinOf(sk.w)===sk?'EQUIPADO':'EQUIPAR'}</button><button class="btn" id="inCl">FECHAR</button></div><small class="ihint">Arraste para girar</small></div>`;
+    m.innerHTML=`<div class="ib"><div class="ih"><div class="ic" style="border-color:${sk.rc};color:${sk.rc}">◆</div><div><b>${W[sk.w].name} | ${sk.n}</b><small style="color:${sk.rc}">${sk.r}</small></div></div><div class="idesc">${SKINDESC[pat]}</div><canvas></canvas><div class="ibt"><button class="btn" id="inRst">↻</button><button class="btn g" id="inEq">${!isOwned(sk)?'COMPRAR '+SI.coin+skinPrice(sk):skinOf(sk.w)===sk?'EQUIPADO':'EQUIPAR'}</button><button class="btn" id="inCl">FECHAR</button></div><small class="ihint">Arraste para girar</small></div>`;
     document.body.appendChild(m);
     const cv=m.querySelector('canvas'),w=Math.min(innerWidth*.92,780)|0,h=Math.min(innerHeight*.45,320)|0;cv.style.width=w+'px';cv.style.height=h+'px';
     const r=new THREE.WebGLRenderer({canvas:cv,antialias:true,alpha:true});r.outputEncoding=THREE.sRGBEncoding;r.toneMapping=THREE.ACESFilmicToneMapping;r.shadowMap.enabled=S.shadows!==false;r.shadowMap.type=THREE.PCFSoftShadowMap;r.setPixelRatio(Math.min(devicePixelRatio,2));r.setSize(w,h,false);r.setClearColor(0x000000,0);
@@ -3190,7 +3190,7 @@ const Thumb={r:null,sc:null,cam:null,cache:{},
     m.querySelector('#inEq').onclick=e=>{if(!isOwned(sk)){if(buySkin(sk))e.target.textContent='EQUIPAR';return}eqSkins[sk.w]=id;Store.set('skins',eqSkins);e.target.textContent='EQUIPADO'}},
   inspectTop(ids,done,toShop){
     const sks=ids.map(i=>SKINS.find(s=>s.id===i)).filter(Boolean),m=document.createElement('div');m.className='modal insp top3';
-    m.innerHTML=`<div class="ib ib2"><div class="cvw"><canvas></canvas><span class="t3tag">★ ARMA POPULAR · TOP 3</span></div><div class="col"><div class="ih"><div class="ic" id="t3ic">◆</div><div id="t3hd"></div></div><div class="idesc" id="t3ds" style="margin:0"></div><div class="t3sel">${sks.map((s,i)=>`<button data-i="${i}" style="--rc:${s.rc}"><em>#${i+1}</em><img src="${this.weapon(s.id)}" alt=""></button>`).join('')}</div><div class="ibt"><button class="btn" id="inRst">↻</button><button class="btn g" id="t3Shop">IR PARA A LOJA</button><button class="btn" id="inCl">FECHAR</button></div><small class="ihint">Arraste para girar · toque nas miniaturas</small></div></div>`;
+    m.innerHTML=`<div class="ib ib2"><div class="cvw"><canvas></canvas><span class="t3tag">${SI.star} ARMA POPULAR · TOP 3</span></div><div class="col"><div class="ih"><div class="ic" id="t3ic">◆</div><div id="t3hd"></div></div><div class="idesc" id="t3ds" style="margin:0"></div><div class="t3sel">${sks.map((s,i)=>`<button data-i="${i}" style="--rc:${s.rc}"><em>#${i+1}</em><img src="${this.weapon(s.id)}" alt=""></button>`).join('')}</div><div class="ibt"><button class="btn" id="inRst">↻</button><button class="btn g" id="t3Shop">IR PARA A LOJA</button><button class="btn" id="inCl">FECHAR</button></div><small class="ihint">Arraste para girar · toque nas miniaturas</small></div></div>`;
     document.body.appendChild(m);
     const cv=m.querySelector('canvas'),w=Math.max(260,Math.min(innerWidth*.97-300,540))|0,h=Math.max(200,Math.min(innerHeight*.72,320))|0;cv.style.width=w+'px';cv.style.height=h+'px';
     const r=new THREE.WebGLRenderer({canvas:cv,antialias:true,alpha:true});r.outputEncoding=THREE.sRGBEncoding;r.toneMapping=THREE.ACESFilmicToneMapping;r.shadowMap.enabled=S.shadows!==false;r.shadowMap.type=THREE.PCFSoftShadowMap;r.setPixelRatio(Math.min(devicePixelRatio,2));r.setSize(w,h,false);r.setClearColor(0x000000,0);
@@ -3201,7 +3201,7 @@ const Thumb={r:null,sc:null,cam:null,cache:{},
       const b=new THREE.Box3().setFromObject(mod),c=b.getCenter(new THREE.Vector3()),s=b.getSize(new THREE.Vector3());mod.position.sub(c);pv.add(mod);cur=mod;gn.position.y=-s.y/2-.13;
       const t=Math.tan(26*Math.PI/360);dist=Math.max(s.z*1.1/(2*t*(w/h)),s.y*2/(2*t))+.1;cam.position.set(0,.05,dist);cam.lookAt(0,0,0);
       m.querySelector('#t3ic').style.cssText=`border-color:${sk.rc};color:${sk.rc}`;
-      m.querySelector('#t3hd').innerHTML=`<b>${W[sk.w].name} | ${sk.n}</b><small style="color:${sk.rc}">#${i+1} · ${sk.r}</small><span class="pr">${isOwned(sk)?'✔ NA POSSE':'🪙 '+skinPrice(sk)}</span>`;
+      m.querySelector('#t3hd').innerHTML=`<b>${W[sk.w].name} | ${sk.n}</b><small style="color:${sk.rc}">#${i+1} · ${sk.r}</small><span class="pr">${isOwned(sk)?SI.check+' NA POSSE':SI.coin+' '+skinPrice(sk)}</span>`;
       m.querySelector('#t3ds').textContent=SKINDESC[SKINPAT[sk.id]||'plain']||'';
       m.querySelectorAll('.t3sel button').forEach(x=>x.classList.toggle('on',+x.dataset.i===i));ry=Math.PI/2+.5;rx=.12};
     show(0);
@@ -3233,18 +3233,18 @@ const Thumb={r:null,sc:null,cam:null,cache:{},
     Z.start=()=>{Z.d0=Z.dist;loop()};
     Z.close=done=>{GLModals.delete(Z.close);Z.alive=false;r.dispose();try{r.forceContextLoss()}catch(_){}m.remove();if(done)done()};GLModals.add(Z.close);
     return Z},
-  floatEmoji(cw,e){for(let i=0;i<4;i++)setTimeout(()=>{const s=document.createElement('span');s.className='fe';s.textContent=e;s.style.left=(30+Math.random()*40)+'%';s.style.top=(18+Math.random()*30)+'%';s.style.fontSize=(24+Math.random()*16)+'px';cw.appendChild(s);setTimeout(()=>s.remove(),1800)},i*130)},
+  floatEmoji(cw,e){for(let i=0;i<4;i++)setTimeout(()=>{const s=document.createElement('span');s.className='fe';s.innerHTML=e;s.style.left=(30+Math.random()*40)+'%';s.style.top=(18+Math.random()*30)+'%';s.style.fontSize=(24+Math.random()*16)+'px';cw.appendChild(s);setTimeout(()=>s.remove(),1800)},i*130)},
   inspectAgent(team,id,done){
     const ag=AGENTS[team].find(a=>a.id===id),rc=RAR[ag.t][1],
-      S=this.stage(`<b style="font-size:17px;display:block;line-height:1">${ag.name}</b><small style="color:${rc}">${RAR[ag.t][0]} · ${team==='T'?'Terrorista':'Contra-terrorista'}</small>`,rc,ag.desc,`<div class="pb" id="pb"></div><div class="pb eb" id="eb"></div><small class="ihint" style="margin:0">Arraste para girar · toque num emoji</small>`);
+      S=this.stage(`<b style="font-size:17px;display:block;line-height:1">${ag.name}</b><small style="color:${rc}">${RAR[ag.t][0]} · ${team==='T'?'Terrorista':'Contra-terrorista'}</small>`,rc,ag.desc,`<div class="pb" id="pb"></div><div class="pb eb" id="eb"></div><small class="ihint" style="margin:0">Arraste para girar · toque num ícone</small>`);
     const c=makeBotMesh(team,ag,true),root=c.root,sk=skinOf('ak47'),sid=sk&&sk.id;S.sc.add(root);
     c.setWeapon('ak47',sid);S.dist=4.3;S.tgt.set(0,.92,0);S.pit=.08;
     let base='gun',em=null,et=0,ph=0,tt=0,armed=true;
     const P=[['gun','Armado'],['idle','Parado'],['walk','Andar'],['run','Correr']],
-      E=[['😎','wave'],['🔥','celebrate'],['😂','laugh'],['👏','clap'],['❤️','heart'],['😡','angry'],['💀','fall'],['🕺','dance']];
+      E=[[SI.smile,'wave'],[SI.flame,'celebrate'],[SI.laugh,'laugh'],[SI.clap,'clap'],[SI.heart,'heart'],[SI.angry,'angry'],[SI.skull,'fall'],[SI.music,'dance']];
     const pb=S.m.querySelector('#pb'),eb=S.m.querySelector('#eb');
     P.forEach(([k,l])=>{const b=document.createElement('button');b.textContent=l;if(k===base)b.className='on';b.onclick=()=>{base=k;em=null;[...pb.children].forEach(x=>x.className='');b.className='on'};pb.appendChild(b)});
-    E.forEach(([e,k])=>{const b=document.createElement('button');b.textContent=e;b.onclick=()=>{em=k;et=0;this.floatEmoji(S.cw,e);Snd.tone(700+Math.random()*300,.05,.1)};eb.appendChild(b)});
+    E.forEach(([e,k])=>{const b=document.createElement('button');b.innerHTML=e;b.onclick=()=>{em=k;et=0;this.floatEmoji(S.cw,e);Snd.tone(700+Math.random()*300,.05,.1)};eb.appendChild(b)});
     const arm=(i,x,y,z)=>c.pose(c.arms[i],V3(x,y,z)),rest=(i,dz=0,dy=0)=>arm(i,(i?1:-1)*.3,-.03+dy,.04+dz);
     S.fns.push(dt=>{tt+=dt;if(em){et+=dt;if(et>(em==='dance'?3.4:2.4))em=null}
       const run=base==='run',mv=base==='walk'||run;ph+=dt*(mv?(run?10:6):0);const s=Math.sin(ph);
@@ -3261,7 +3261,7 @@ const Thumb={r:null,sc:null,cam:null,cache:{},
         else if(e==='angry'){const q=Math.sin(t*26)*.02;arm(0,-.22,.3+q,.3);arm(1,.22,.3-q,.3);c.legL.rotation.x=Math.max(0,Math.sin(t*8))*.6;c.hd.rotation.x=.2;c.tor.rotation.z=Math.sin(t*26)*.015}
         else if(e==='fall'){const f=t<.45?t/.45:t<1.6?1:Math.max(0,1-(t-1.6)/.7);root.rotation.x=-f*Math.PI/2;root.position.y=f*.13;rest(0);rest(1)}
         else if(e==='dance'){const w=Math.sin(t*8);arm(0,-.33,.7+w*.4,.1);arm(1,.33,.7-w*.4,.1);root.rotation.y=Math.sin(t*4)*.5;c.tor.rotation.z=w*.1;root.position.y=Math.abs(w)*.06;c.legL.rotation.x=Math.max(0,w)*.4;c.legR.rotation.x=Math.max(0,-w)*.4}}});
-    const eq=S.eq,owned=()=>isOwnedAg(ag),lab=()=>{eq.textContent=!owned()?'COMPRAR 🪙'+(ag.price||PRICE[ag.t]):eqAgent[team]===id?'EQUIPADO':'EQUIPAR'};lab();
+    const eq=S.eq,owned=()=>isOwnedAg(ag),lab=()=>{eq.innerHTML=!owned()?'COMPRAR '+SI.coin+(ag.price||PRICE[ag.t]):eqAgent[team]===id?'EQUIPADO':'EQUIPAR'};lab();
     eq.onclick=()=>{if(!owned()){if(buyAgent(ag))lab();else Snd.tone(150,.1);return}eqAgent[team]=id;Store.set('agent',eqAgent);lab()};
     S.m.querySelector('#inRst').onclick=()=>{S.yaw=.5;S.pit=.08;S.dist=S.d0;base='gun';em=null;[...pb.children].forEach((x,i)=>x.className=i?'':'on')};
     S.m.querySelector('#inCl').onclick=()=>S.close(done);S.start()},
@@ -3289,7 +3289,7 @@ const Thumb={r:null,sc:null,cam:null,cache:{},
         if(p.grow&&p.max-p.life<p.gt)p.m.scale.setScalar(p.m.scale.x+p.grow*dt);
         p.m.material.opacity=p.op*(g.g==='smoke'?Math.min(1,k*3.2):k)}
       if(boom&&!parts.length){boom=false;nm.visible=true;btn.disabled=false;btn.textContent='▶ DETONAR'}});
-    const eq=S.eq,lab=()=>{eq.textContent=!isOwned(g)?'COMPRAR 🪙'+skinPrice(g):(eqG[g.g]===g.id||(!eqG[g.g]&&g.n==='Default'))?'EQUIPADO':'EQUIPAR'};lab();
+    const eq=S.eq,lab=()=>{eq.innerHTML=!isOwned(g)?'COMPRAR '+SI.coin+skinPrice(g):(eqG[g.g]===g.id||(!eqG[g.g]&&g.n==='Default'))?'EQUIPADO':'EQUIPAR'};lab();
     eq.onclick=()=>{if(!isOwned(g)){if(buySkin(g))lab();else Snd.tone(150,.1);return}eqG[g.g]=g.id;Store.set('gskin',eqG);lab()};
     S.m.querySelector('#inRst').onclick=()=>{S.yaw=.5;S.pit=.18;S.dist=S.d0};
     S.m.querySelector('#inCl').onclick=()=>S.close(done);S.start()}
@@ -4340,6 +4340,46 @@ const SI={
   calendar:_si('<rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/>'),
   scroll:_si('<path d="M15 12h-5"/><path d="M15 8h-5"/><path d="M19 17V5a2 2 0 0 0-2-2H4"/><path d="M8 21h12a2 2 0 0 0 2-2v-1a1 1 0 0 0-1-1H11a1 1 0 0 0-1 1v1a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v2a1 1 0 0 0 1 1h3"/>'),
   x:_si('<path d="M18 6 6 18"/><path d="m6 6 12 12"/>'),
+  coin:_si('<circle cx="12" cy="12" r="10"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 18V6"/>'),
+  star:_si('<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>'),
+  gift:_si('<rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13"/><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5A4.8 8 0 0 1 12 8a4.8 8 0 0 1 4.5-5 2.5 2.5 0 0 1 0 5"/>'),
+  flag:_si('<path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" x2="4" y1="22" y2="15"/>'),
+  bomb:_si('<circle cx="11" cy="13" r="9"/><path d="M14.35 4.65 16.3 2.7a2.41 2.41 0 0 1 3.4 0l1.6 1.6a2.4 2.4 0 0 1 0 3.4l-1.95 1.95"/><path d="m22 2-1.5 1.5"/>'),
+  mail:_si('<rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>'),
+  chat:_si('<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>'),
+  flame:_si('<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>'),
+  medal:_si('<path d="M7.21 15 2.66 7.14a2 2 0 0 1 .13-2.2L4.4 2.8A2 2 0 0 1 6 2h12a2 2 0 0 1 1.6.8l1.6 2.14a2 2 0 0 1 .14 2.2L16.79 15"/><path d="M11 12 5.12 2.2"/><path d="m13 12 5.88-9.8"/><path d="M8 7h8"/><circle cx="12" cy="17" r="5"/><path d="M12 18v-2h-.5"/>'),
+  ok:_si('<circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/>'),
+  check:_si('<path d="M20 6 9 17l-5-5"/>'),
+  lock:_si('<rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>'),
+  cart:_si('<circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/>'),
+  pack:_si('<path d="M4 10a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/><path d="M8 21v-5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v5"/><path d="M8 10h8"/>'),
+  gear:_si('<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>'),
+  target:_si('<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>'),
+  shield:_si('<path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/>'),
+  palette:_si('<circle cx="13.5" cy="6.5" r=".5"/><circle cx="17.5" cy="10.5" r=".5"/><circle cx="8.5" cy="7.5" r=".5"/><circle cx="6.5" cy="12.5" r=".5"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/>'),
+  user:_si('<path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>'),
+  image:_si('<rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>'),
+  warn:_si('<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/>'),
+  ban:_si('<circle cx="12" cy="12" r="10"/><path d="m4.9 4.9 14.2 14.2"/>'),
+  pause:_si('<rect x="14" y="4" width="4" height="16" rx="1"/><rect x="6" y="4" width="4" height="16" rx="1"/>'),
+  hourglass:_si('<path d="M5 22h14"/><path d="M5 2h14"/><path d="M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22"/><path d="M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2"/>'),
+  mega:_si('<path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/>'),
+  power:_si('<path d="M12 2v10"/><path d="M18.4 6.6a9 9 0 1 1-12.77.04"/>'),
+  smile:_si('<circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" x2="9.01" y1="9" y2="9"/><line x1="15" x2="15.01" y1="9" y2="9"/>'),
+  laugh:_si('<circle cx="12" cy="12" r="10"/><path d="M18 13a6 6 0 0 1-6 5 6 6 0 0 1-6-5h12Z"/><line x1="9" x2="9.01" y1="9" y2="9"/><line x1="15" x2="15.01" y1="9" y2="9"/>'),
+  angry:_si('<circle cx="12" cy="12" r="10"/><path d="M16 16s-1.5-2-4-2-4 2-4 2"/><path d="M7.5 8 10 9"/><path d="m14 9 2.5-1"/><path d="M9 10h.01"/><path d="M15 10h.01"/>'),
+  clap:_si('<path d="M7 10v12"/><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z"/>'),
+  heart:_si('<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>'),
+  skull:_si('<circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><path d="M8 20v2h8v-2"/><path d="m12.5 17-.5-1-.5 1h1z"/><path d="M16 20a2 2 0 0 0 1.56-3.25 8 8 0 1 0-11.12 0A2 2 0 0 0 8 20"/>'),
+  music:_si('<path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>'),
+  plug:_si('<path d="M12 22v-5"/><path d="M9 8V2"/><path d="M15 8V2"/><path d="M18 8v5a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V8Z"/>'),
+  award:_si('<circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/>'),
+  ninja:_si('<circle cx="12" cy="12" r="9"/><path d="M3.3 10h17.4v4H3.3z"/><circle cx="9" cy="12" r=".7"/><circle cx="15" cy="12" r=".7"/>'),
+  eye:_si('<path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>'),
+  alien:_si('<path d="M12 3c-4.4 0-8 3.1-8 7.5 0 4.6 3.3 8.6 8 10.5 4.7-1.9 8-5.9 8-10.5C20 6.1 16.4 3 12 3Z"/><path d="M7.5 10.5c1 .3 2.5 1 3 2"/><path d="M16.5 10.5c-1 .3-2.5 1-3 2"/>'),
+  bot:_si('<path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/>'),
+  lion:_si('<circle cx="12" cy="12" r="5"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9 7 7M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/><path d="M10.5 11h.01M13.5 11h.01"/>'),
   clock:_si('<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>'),
   trophy:_si('<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>'),
   down:_si('<path d="m6 9 6 6 6-6"/>')
@@ -4384,7 +4424,7 @@ const Shop={open:false,
   render(){const col=(t,l)=>`<div><h4>${t}</h4>${l}</div>`;
     const wi=(id,i)=>{const w=W[id],own=Player.loadout.primary===id||Player.loadout.pistol===id;
       return`<button class="si ${own?'eqp':''} ${Player.money<w.price?'no':''}" data-b="${id}"><img src="${Thumb.icon(id)}" alt=""><b>${i+1}. ${w.name}</b><span>${own?'EQUIPADO':'$'+w.price}</span><em>$${w.price}</em></button>`};
-    const eq=(x,i)=>{const n=Player.nades[x.id],sf=n!==undefined?` (${n})`:(x.id==='kit'&&Player.kit?' ✔':'');
+    const eq=(x,i)=>{const n=Player.nades[x.id],sf=n!==undefined?` (${n})`:(x.id==='kit'&&Player.kit?' '+SI.check:'');
       const vp=Player.vestP||0,hp=Player.helmP||0,own=x.id==='vest'?vp>=60:x.id==='helm'?hp>=40:x.id==='vesthelm'?(vp>=60&&hp>=40):false;
       return`<button class="si ${own?'eqp':''} ${Player.money<x.price&&!own?'no':''}" data-b="${x.id}">${n!==undefined?`<img class="col" src="${Thumb.nade(x.id)}" alt="">`:`<i>${ICO[x.id]}</i>`}<b>${i+1}. ${x.name}${sf}</b>${own?'<span>EQUIPADO</span>':''}<em>$${x.price}</em></button>`};
     $('#shop').innerHTML=`<div id="shopBox"><div id="shopHead"><div><span class="m">$${Player.money}</span>${Game.phase==='buy'?'Tempo de compra restante '+Math.ceil(Game.timer)+'s':'Modo treino'}</div>
@@ -4481,7 +4521,7 @@ const Drops={list:[],n:0,cur:null,
     this.cur=P.alive?this.near(P.pos,1.8,P.team==='CT'):null;const pb=document.querySelector('.hbtn[data-id=pick]');if(pb)pb.classList.toggle('near',!!this.cur);
     if(pb){const key=this.cur?this.cur.w:'';if(pb._ic!==key){pb._ic=key;      // mostra o ÍCONE do item que será pego (estilo Standoff 2)
       let src='';if(key){try{src=key==='c4'?'':(key==='frag'||key==='flash'||key==='smoke')?Thumb.nade(key):Thumb.icon(key)}catch(e){}}
-      pb.innerHTML=key?(src?`<img src="${src}" alt="" style="display:block;width:64px;max-width:100%;margin:0 auto 1px;pointer-events:none"><small style="font-size:9px">PEGAR</small>`:`<span style="font-size:20px;display:block;line-height:1">💣</span><small style="font-size:9px">PEGAR</small>`):'PEGAR'}}
+      pb.innerHTML=key?(src?`<img src="${src}" alt="" style="display:block;width:64px;max-width:100%;margin:0 auto 1px;pointer-events:none"><small style="font-size:9px">PEGAR</small>`:`<span style="font-size:20px;display:block;line-height:1">${SI.bomb}</span><small style="font-size:9px">PEGAR</small>`):'PEGAR'}}
     const cd=this.c4();if(cd&&!Game.c4h)for(const b of Game.bots)if(b.team==='T'&&b.alive&&!b.remote&&Math.hypot(b.pos.x-cd.x,b.pos.z-cd.z)<1.4){this.take(cd,b);break}
     {const val=w=>(w.cat||(w.kind==='pistol'?1:0))*100000+(w.price||0);      // categoria primeiro (pistola<SMG<rifle), depois preço
      for(const b of Game.bots){if(!b.alive||b.remote||b.noPick>0||b.vis||b.act||!W[b.wid])continue;
@@ -4641,7 +4681,8 @@ const Game={mode:'menu',phase:'none',timer:0,round:1,score:{T:0,CT:0},bots:[],op
     const mm=document.getElementById('menuMain');if(mm)mm.innerHTML='';
     document.querySelectorAll('.cta').forEach(e=>e.remove())},
   start(opts){Online.stopTimers();Thumb.fg.length=0;Thumb.bg.length=0;this.stopMenu();Object.assign(this.opts,opts);const o=this.opts;if(World.map!==o.map||World.texLo!==(S.quality==='baixa'))buildMap(o.map||'dunas');
-    Player.team=o.team==='R'?(Math.random()<.5?'T':'CT'):o.team;o.teamR=Player.team;if(o.room)Player.team=o.room.me.team;
+    Player.team=o.team==='R'?(Math.random()<.5?'T':'CT'):o.team;o.teamR=Player.team;if(o.room)Player.team=o.room.me.team;this.ot=Player.team;   // [RECONEXÃO] lado ORIGINAL do jogador na partida
+    
     this.bots.forEach(b=>{World.scene.remove(b.m.root);disposeTree(b.m.root)});this.bots=[];
     const en=Player.team==='T'?'CT':'T',names=NAMES.slice().sort(()=>Math.random()-.5);
     if(o.mode==='treino'&&!o.room){const nb=10;for(let i=0;i<nb;i++)this.bots.push(new Bot(en,'Dummy'+(i||'')));if(o.map==='treino'){const bb=new Bot(en,'Quadro');bb.board=true;this.bots.push(bb);try{if(this.ti){this.ti.run=null;this.ti.B.bot=null;this.ti.dP=this.ti.dS=this.ti.dB=1}}catch(e){window._tsErr='start/ti: '+(e&&e.message)}}}   // TREINO: só 1 boneco (time oposto ao seu)
@@ -4651,14 +4692,16 @@ const Game={mode:'menu',phase:'none',timer:0,round:1,score:{T:0,CT:0},bots:[],op
     for(let i=0;i<o.size;i++)this.bots.push(new Bot(en,names.pop()))}
     this.score={T:0,CT:0};this.round=1;this.over=false;Player.money=o.eco==='treino'?16000:1200;Player.kills=0;Player.headshots=0;Player.deaths=0;Player.plantsOk=0;Player.defuses=0;Player.mvps=0;Player.shotsF=0;Player.shotsH=0;Player.assists=0;Player.objectiveDone=false;
     this.mode='game';this.matchT0=Date.now();$('#hud').classList.remove('hidden','preview');this.paused=false;$('#pauseBtn').style.display=(o.room||Online.room)?'none':'';HUDui.radar=$('#radar');HUDui.crosshair();HUD.apply();
-    World.camera.fov=S.fov;World.camera.updateProjectionMatrix();this.newRound(true)},
+    World.camera.fov=S.fov;World.camera.updateProjectionMatrix();this.newRound(true);try{Rejoin.save(true)}catch(_){}},
   botLoadout(tm){const r=this.round,eco=this.opts.eco==='treino';
     const pool=eco?['ak47','galil','awp','ssg08','p90','mac10','nova']:r<2?['glock','deagle']:r<3?['mac10','p90','nova','glock','deagle']:['ak47','galil','ak47','mac10','p90','ssg08','awp','nova'];
     const w0=pool[(Math.random()*pool.length)|0];return tm==='CT'?({ak47:'m4a4',galil:'m4a1s',glock:'usp'}[w0]||w0):w0},
   swapSides(){const f=t=>t==='T'?'CT':'T';const sc=this.score;this.score={T:sc.CT,CT:sc.T};
     Player.team=f(Player.team);Player.money=1200;
     const old=this.bots;this.bots=[];
-    old.forEach(b=>{World.scene.remove(b.m.root);try{disposeTree(b.m.root)}catch(_){}const nb=new Bot(f(b.team),'x');nb.name=b.name;if(b.remote){nb.remote=true;nb.rid=b.rid;nb.born=Date.now()}this.bots.push(nb)})},
+    old.forEach(b=>{World.scene.remove(b.m.root);try{disposeTree(b.m.root)}catch(_){}const nb=new Bot(f(b.team),'x');nb.name=b.name;nb.av=b.av;nb.kills=b.kills;nb.deaths=b.deaths;nb.assists=b.assists;   // K/D/A não se perde na troca de lados
+      if(b.remote){nb.remote=true;nb.rid=b.rid;nb.born=Date.now()}else if(b.aiOf){nb.rid=b.rid;nb.aiOf=b.aiOf}   // jogador desconectado continua com bot no lugar
+      this.bots.push(nb)})},
   newRound(first){if(World.renderer){World.shDirty=true;World.renderer.shadowMap.needsUpdate=true}const sw=!first&&this.swapAt()&&this.round===this.swapAt()+1;if(sw)this.swapSides();
     if(this.bomb.mesh)World.scene.remove(this.bomb.mesh);Drops.clear();this.bomb={state:'idle'};this.plan={t:World.sites[(Math.random()*2)|0]};Nade.clear();
     const pt=Player.team,en=pt==='T'?'CT':'T',sp=World.spawns;
@@ -4678,12 +4721,12 @@ const Game={mode:'menu',phase:'none',timer:0,round:1,score:{T:0,CT:0},bots:[],op
     this.c4h=h;if(h.isPlayer)Player.loadout.c4='c4'},
   big(t,s,ms){const b=$('#banner');$('#bT').textContent=t;$('#bS').textContent=s||'';b.style.display='block';clearTimeout(this._b);if(ms)this._b=setTimeout(()=>b.style.display='none',ms)},
   endRound(winner,reason){this.phase='end';this.timer=4.5;try{BotBrain.hEnd(winner)}catch(_){}try{this.bots.forEach(b=>BotBrain.finish(b,winner))}catch(e){try{console.warn('score',e)}catch(_){}}try{BotBrain.afterRound()}catch(_){}   // SCORE do round (bots)
-    this.score[winner]++;
+    this.score[winner]++;try{Rejoin.live()}catch(_){}   // [RECONEXÃO] placar vivo da sala
     const mv=this.bots.concat([Player]).sort((x,y)=>(this.kills[y.isPlayer?'__p':y.name]||0)-(this.kills[x.isPlayer?'__p':x.name]||0))[0];
     const mvn=mv?(mv.isPlayer?S.name:mv.name):'—';this.lastMvp=mv;if(mv&&mv.isPlayer)Player.mvps=(Player.mvps||0)+1;
     this.big(winner==='T'?'OS TERRORISTAS VENCERAM':'OS CONTRA-TERRORISTAS VENCERAM',`${reason} · MVP: ${mvn}`,0);
     if(Player.team===winner)Player.money=Math.min(16000,Player.money+3000);else Player.money=Math.min(16000,Player.money+1400);
-    if(this.score[winner]>=this.win()){this.over=true;this.timer=3.5}Shop.close()},
+    if(this.score[winner]>=this.win()){this.over=true;this.timer=3.5;try{this.persistResult()}catch(e){console.warn('persistResult',e)}}Shop.close()},
   checkEnd(){
     if(this.phase!=='live'||this.opts.mode==='treino')return;   // treino nunca termina o round
     const b=this.bomb;
@@ -4702,7 +4745,27 @@ const Game={mode:'menu',phase:'none',timer:0,round:1,score:{T:0,CT:0},bots:[],op
     const mvp=Object.assign({n:String(top.isPlayer?S.name:top.name||'Player').slice(0,20),k:top.kills||0,d:top.deaths||0,a:top.assists||0,ally:top.team===my?1:0},top.isPlayer?{me:1}:{});
     Online.recordMatch({ts:Online.srvNow?Online.srvNow():Date.now(),r:won?1:0,sc:[this.score[my]||0,this.score[en]||0],map:o.map||'dunas',mode:o.mode||'rank',
       dur:Math.max(1,Math.round((Date.now()-(this.matchT0||Date.now()))/1000)),k:Player.kills||0,d:Player.deaths||0,a:Player.assists||0,t:my,team:ally,mvp})},
-  matchOver(){this.mode='over';const won=this.score[Player.team]>=this.win();
+  /* [RESULTADO ANTES DO FIM] assim que alguém chega ao placar final: calcula vitória/derrota, K/D/A, XP, moedas e RP, aplica no perfil,
+     grava no histórico e em players/<id>/sessao (fin:1 + res) e sincroniza — ANTES da animação (3,5s) da tela de fim.
+     Se o app fechar nessa janela, o resultado já está salvo e a reconexão NÃO recalcula por sorteio. matchOver() só reaproveita (this._fr). */
+  persistResult(){
+    const o=this.opts;if(this._fr||!o||o.mode==='treino'||!Online.pid)return;
+    const my=Player.team,en=my==='T'?'CT':'T',won=this.score[my]>=this.win();
+    const st=myStats(),k=Player.kills||0,h=Player.headshots||0,obj=Player.objectiveDone||false;
+    const isMvp=this.bots.concat([Player]).sort((x,y)=>(y.kills||0)-(x.kills||0))[0]===Player;
+    const xp0=st.xp,rk0=rankOf(st.rp,st.cm,Online.pid),lv0=lvlOf(xp0);
+    const rw=award(st,won,k,h,obj,isMvp);
+    this._fr={won,rw,xp0,rk0,lv0};
+    try{this.recordMatchHistory(won)}catch(e){console.warn('histórico de partidas',e)}
+    let s=null;try{s=Rejoin.snap()}catch(_){}
+    const res=JSON.parse(JSON.stringify({w:won?1:0,sc:[this.score[my]||0,this.score[en]||0],k,d:Player.deaths||0,a:Player.assists||0,xp:rw.xp||0,coins:rw.coins||0,rp:rw.rp||0,ts:Online.srvNow?Online.srvNow():Date.now(),map:o.map||'dunas',mode:o.mode||'rank'}));
+    const fin=Object.assign({},s||{pid:Online.pid},{fin:1,res});
+    try{Store.set('sess',fin)}catch(_){}                                   // local: reconexão nunca paga de novo
+    try{Rejoin.fim()}catch(_){}                                            // resultado da sala (rooms/<rid>/fim)
+    try{if(Online.ok&&Online.db)Online.db.ref('players/'+Online.pid+'/sessao').set(Object.assign({},fin,{hb:0})).catch(()=>{})}catch(_){}
+    try{Online.sync()}catch(_){}},
+  matchOver(){this.mode='over';try{Rejoin.fim();Rejoin.clear()}catch(e){}   // [RECONEXÃO] partida acabou: libera a vaga
+    const won=this.score[Player.team]>=this.win();
     const st=myStats();
     const k=Player.kills||0;
     const h=Player.headshots||0;
@@ -4710,25 +4773,26 @@ const Game={mode:'menu',phase:'none',timer:0,round:1,score:{T:0,CT:0},bots:[],op
     const mvpBots=this.bots.concat([Player]).sort((x,y)=>(y.kills||0)-(x.kills||0));   // abates acumulados da partida
     const isMvp=mvpBots[0]===Player;
     
-    const xp0=st.xp,rk0=rankOf(st.rp,st.cm,Online.pid),lv0=lvlOf(xp0);
-    const rw=award(st,won,k,h,obj,isMvp);
+    const F=this._fr;this._fr=null;   // resultado já calculado/salvo em persistResult()
+    const xp0=F?F.xp0:st.xp,rk0=F?F.rk0:rankOf(st.rp,st.cm,Online.pid),lv0=F?F.lv0:lvlOf(xp0);
+    const rw=F?F.rw:award(st,won,k,h,obj,isMvp);
     const nxtLvl=lvlOf(st.xp);
     const rk=rankOf(st.rp,st.cm,Online.pid);
     const prog=(xp,l)=>l>=100?100:Math.max(0,Math.min(100,(xp-xpForLvl(l))/(xpForLvl(l+1)-xpForLvl(l))*100)),p0=prog(xp0,lv0),p1=prog(st.xp,nxtLvl);
     const rkH=r=>`${rkIcon(r,32)}${r.n}`;
     const dth=Player.deaths||0,ast=Player.assists||0,sF=Player.shotsF||0,acc=sF?Math.min(100,Math.round((Player.shotsH||0)/sF*100)):0,hsr=k?Math.round(h/k*100):0,mvs=Player.mvps||0;
 
-    try{this.recordMatchHistory(won)}catch(e){console.warn('histórico de partidas',e)}
+    try{if(!F)this.recordMatchHistory(won)}catch(e){console.warn('histórico de partidas',e)}
     const rwHtml=rankRewardsPopup(rw);
     let html=`<div class="box"><h2>${won?'VITÓRIA':'DERROTA'}</h2>
     <div style="margin:6px 0 12px;font-size:24px">${this.score[Player.team]} : ${this.score[Player.team==='T'?'CT':'T']}</div>
     <div style="font-size:13px;color:var(--mut);margin-bottom:10px;text-align:left;background:#0008;padding:10px;border-radius:4px">
         <div style="display:flex;justify-content:space-between"><span>XP Ganho:</span><b style="color:var(--blue)">+${rw.xp} XP</b></div>
-        <div style="display:flex;justify-content:space-between"><span>Moedas:</span><b style="color:var(--gold)">+${rw.coins} 🪙</b></div>
+        <div style="display:flex;justify-content:space-between"><span>Moedas:</span><b style="color:var(--gold)">+${rw.coins} ${SI.coin}</b></div>
         <div style="display:flex;justify-content:space-between"><span>K / D / A:</span><b>${k} / ${dth} / ${ast}</b></div>
         <div style="display:flex;justify-content:space-between"><span>Precisão de disparos:</span><b>${acc}%</b></div>
         <div style="display:flex;justify-content:space-between"><span>Taxa de Headshots:</span><b>${hsr}%</b></div>
-        <div style="display:flex;justify-content:space-between"><span>Medalhas MVP:</span><b>${mvs?'🏅'.repeat(Math.min(mvs,10))+' ×'+mvs:'0'}</b></div>
+        <div style="display:flex;justify-content:space-between"><span>Medalhas MVP:</span><b>${mvs?SI.medal.repeat(Math.min(mvs,10))+' ×'+mvs:'0'}</b></div>
         ${rw.rp !== 0 ? `<div style="display:flex;justify-content:space-between"><span>Pontos de Ranking:</span><b style="color:${rw.rp>0?'var(--green)':'var(--red)'}">${rw.rp>0?'+':''}${rw.rp} RP</b></div>` : ''}
         <div style="margin-top:5px;border-top:1px solid #ffffff1a;padding-top:5px"><div style="display:flex;justify-content:space-between"><span>Nível Atual:</span><b id="lvA">${lv0}</b></div><div style="height:8px;background:#ffffff1a;border-radius:4px;overflow:hidden;margin-top:4px"><i id="xpI" style="display:block;height:100%;width:${p0}%;background:var(--blue);transition:width 1.2s ease"></i></div></div>
         <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px"><span>Patente:</span><b id="rkA" style="color:${rk0.c};display:flex;align-items:center;gap:6px;transition:transform .35s">${rkH(rk0)}</b></div>
@@ -4758,7 +4822,7 @@ const Game={mode:'menu',phase:'none',timer:0,round:1,score:{T:0,CT:0},bots:[],op
     if(Player.vm)Player.vm.visible=false},
   pause(on){if(this.mode!=='game'||(on&&(this.opts.room||Online.room)))return;   // ONLINE: não existe pausa
     this.paused=on;$('#pause').classList.toggle('hidden',!on);Controls.fireHeld=false;Controls.mx=Controls.my=0},
-  quit(){clearAllTimers();['menu','lbTags','lbName','lbLeft','lbRight','partyBar'].forEach(i=>{const e=document.getElementById(i);if(e)e.style.display=''});Nade.clear();Drops.clear();Player.setScope(false);Online.leave();Online.startTimers();setTimeout(()=>{if(Game.mode==='menu'&&Thumb.prewarm)Thumb.prewarm()},4000);this.mode='menu';this.paused=false;this.phase='none';$('#hud').classList.add('hidden');$('#pause').classList.add('hidden');Shop.close();
+  quit(){this._fr=null;try{if(Rejoin.active()){Rejoin.save(true);Rejoin.release()}}catch(_){}clearAllTimers();['menu','lbTags','lbName','lbLeft','lbRight','partyBar'].forEach(i=>{const e=document.getElementById(i);if(e)e.style.display=''});Nade.clear();Drops.clear();Player.setScope(false);Online.leave();Online.startTimers();setTimeout(()=>{if(Game.mode==='menu'&&Thumb.prewarm)Thumb.prewarm()},4000);this.mode='menu';this.paused=false;this.phase='none';$('#hud').classList.add('hidden');$('#pause').classList.add('hidden');Shop.close();
     this.bots.forEach(b=>{World.scene.remove(b.m.root);disposeTree(b.m.root)});this.bots=[];if(Player.vm){World.camera.remove(Player.vm);Player.vm=null}
     World.camera.position.set(0,12,30);World.camera.fov=S.fov;World.camera.updateProjectionMatrix();$('#menu').style.display='';$('#menu').classList.remove('hidden');clearInterval(UI._frT);UI.view='lobby';
     {const tb=document.getElementById('lbTags');if(tb)tb.remove();Lobby.tagBox=null;Lobby.tg={}}   // recria nametags e personagem do lobby do zero
@@ -4919,7 +4983,7 @@ const ProfileView={el:null,
       if(fr) return;
       Store.set('bio',ta.value.trim().slice(0,80));
       try{await Online.sync()}catch(_){}
-      dirty=true;sv.textContent='SALVO ✓';
+      dirty=true;sv.innerHTML='SALVO '+SI.check;
       setTimeout(()=>{if(sv.isConnected)sv.textContent='SALVAR PERFIL'},1200);
     };
 
@@ -4928,7 +4992,7 @@ const ProfileView={el:null,
     if(chg)chg.onclick=()=>{
       const md=document.createElement('div');md.className='modal';md.style.zIndex=60;
       md.innerHTML=`<div class="box" style="max-width:90vw"><h2 style="margin:0 0 6px">TROCAR NOME</h2>
-        <div style="font-size:12px;color:var(--mut);margin-bottom:8px">Custo: <b style="color:var(--gold)">800 🪙</b> · Seu saldo: <b style="color:var(--gold)">${myStats().coins} 🪙</b></div>
+        <div style="font-size:12px;color:var(--mut);margin-bottom:8px">Custo: <b style="color:var(--gold)">800 ${SI.coin}</b> · Seu saldo: <b style="color:var(--gold)">${myStats().coins} ${SI.coin}</b></div>
         <input class="pf-inp" id="pnIn" maxlength="14" placeholder="Novo nome (3 a 14 caracteres)" style="width:100%;box-sizing:border-box">
         <div id="pnMsg" style="min-height:16px;font-size:11px;color:var(--red);margin:6px 0"></div>
         <div style="display:flex;gap:8px;justify-content:center"><button class="btn" id="pnNo">CANCELAR</button><button class="btn g" id="pnOk">CONFIRMAR</button></div></div>`;
@@ -5275,9 +5339,9 @@ function diffOfRank(i){return i<=1?'facil':i<=3?'normal':i<=5?'dificil':'muito_d
 function agentById(id){return AGENTS.T.find(a=>a.id===id)||AGENTS.CT.find(a=>a.id===id)||null}
 function buyCAvatar(id){const c=Online.cav[id],st=myStats(),ow=Store.get('owned',[]),p=c?+c.price||0:0;if(!c||ow.includes('c_'+id)||st.coins<p)return false;st.coins-=p;Store.set('stats',st);ow.push('c_'+id);Store.set('owned',ow);Online.sync();return true}
 function rankRewardsPopup(rw){let h='';
-  if(rw.bonus)h+=`<div style="font-size:12px;color:#ff8a3d;margin-bottom:8px">🔥 Bônus de partida muito difícil: +${rw.bonus.xp} XP · +${rw.bonus.coins} 🪙</div>`;
+  if(rw.bonus)h+=`<div style="font-size:12px;color:#ff8a3d;margin-bottom:8px">${SI.flame} Bônus de partida muito difícil: +${rw.bonus.xp} XP · +${rw.bonus.coins} ${SI.coin}</div>`;
   if(rw.ranks&&rw.ranks.length){const tc=rw.ranks.reduce((a,x)=>a+x.coins,0),tx=rw.ranks.reduce((a,x)=>a+x.xp,0);
-    h+=`<div style="text-align:left;background:#0008;border:1px solid var(--gold);border-radius:4px;padding:10px;margin-bottom:10px;max-height:34vh;overflow:auto"><div style="color:var(--gold);font-weight:800;letter-spacing:1px;margin-bottom:6px">🎁 RECOMPENSAS DE PATENTE</div>${rw.ranks.map(x=>`<div style="font-size:12px;display:flex;justify-content:space-between;gap:8px;padding:3px 0;border-top:1px solid #ffffff14"><b>${x.n}</b><span>🪙${x.coins} · ⭐${x.xp} · ${x.agent} · avatar</span></div>`).join('')}<div style="margin-top:6px;display:flex;justify-content:space-between;font-weight:800"><span>TOTAL</span><span>🪙${tc} · ⭐${tx}</span></div></div>`}
+    h+=`<div style="text-align:left;background:#0008;border:1px solid var(--gold);border-radius:4px;padding:10px;margin-bottom:10px;max-height:34vh;overflow:auto"><div style="color:var(--gold);font-weight:800;letter-spacing:1px;margin-bottom:6px">${SI.gift} RECOMPENSAS DE PATENTE</div>${rw.ranks.map(x=>`<div style="font-size:12px;display:flex;justify-content:space-between;gap:8px;padding:3px 0;border-top:1px solid #ffffff14"><b>${x.n}</b><span>${SI.coin}${x.coins} · ${SI.star}${x.xp} · ${x.agent} · avatar</span></div>`).join('')}<div style="margin-top:6px;display:flex;justify-content:space-between;font-weight:800"><span>TOTAL</span><span>${SI.coin}${tc} · ${SI.star}${tx}</span></div></div>`}
   return h}
 function award(st,won,k,h,obj,mvp){
   const o=Game.opts;
@@ -5399,15 +5463,15 @@ const Online={shopOn:{sk:{},ag:{},av:{}},cav:{},db:null,ok:false,pid:Store.get('
       let sid=rw[nm];sid=Array.isArray(sid)?sid[0]:sid;let sk='';
       if(sid){const s=SKINS.find(x=>x.id===sid);
         if(!s)sk='<small style="color:var(--mut)">Skin indisponível</small>';
-        else if(Store.get('owned',[]).includes(sid))sk=`<small style="color:#6bd34a">✅ ${esc(s.n)}</small>`;
-        else if(reached)sk=`<small style="color:#e5a23a">📬 ${esc(s.n)} · no Correio</small>`;
-        else sk=`<small style="color:var(--mut)">🔒 ${esc(s.n)}</small>`}
-      return `<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-top:1px solid #ffffff14;text-align:left">${rkIcon(r,30)}<div style="flex:1;min-width:0"><b style="font-size:12px">${nm}</b> ${cl[ic]?'✅':reached?'':'🔒'}<div style="font-size:10px;color:var(--mut)">🪙${R.coins} · ⭐${R.xp} · ${ag?esc(ag.name):''} (60d) · avatar (60d)</div></div>${sk}</div>`}).join('');
+        else if(Store.get('owned',[]).includes(sid))sk=`<small style="color:#6bd34a">${SI.ok} ${esc(s.n)}</small>`;
+        else if(reached)sk=`<small style="color:#e5a23a">${SI.mail} ${esc(s.n)} · no Correio</small>`;
+        else sk=`<small style="color:var(--mut)">${SI.lock} ${esc(s.n)}</small>`}
+      return `<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-top:1px solid #ffffff14;text-align:left">${rkIcon(r,30)}<div style="flex:1;min-width:0"><b style="font-size:12px">${nm}</b> ${cl[ic]?SI.ok:reached?'':SI.lock}<div style="font-size:10px;color:var(--mut)">${SI.coin}${R.coins} · ${SI.star}${R.xp} · ${ag?esc(ag.name):''} (60d) · avatar (60d)</div></div>${sk}</div>`}).join('');
     return `<div style="margin:14px 0 6px;font-size:11px;letter-spacing:2px;color:var(--mut)">RECOMPENSAS DA TEMPORADA${this.season?' '+esc(this.season.nome):''}</div>${rows}`},
   claimSkin(ic){
     const i=RK_FAM.indexOf(ic),st=myStats();if(i<0||!this.seasonActive()||rankPosition(st.rp,st.cm)<i)return;
     let sid=(this.seasonRewards||{})[RK_NAME[i]];sid=Array.isArray(sid)?sid[0]:sid;const s=SKINS.find(x=>x.id===sid);if(!s)return;
-    const ow=Store.get('owned',[]);if(!ow.includes(sid)){ow.push(sid);Store.set('owned',ow);this.sync();Pmsg('🎁 Skin resgatada: '+s.n)}},
+    const ow=Store.get('owned',[]);if(!ow.includes(sid)){ow.push(sid);Store.set('owned',ow);this.sync();Pmsg('{{gift}} Skin resgatada: '+s.n)}},
   claimRanks(st){     // recompensas acumulativas: todas as patentes até a atual que ainda não foram resgatadas nesta temporada
     const pos=rankPosition(st.rp,st.cm),cl=Store.get('rwClaimed',{}),out=[];
     for(let i=0;i<=pos;i++){const ic=RK_FAM[i];if(cl[ic])continue;const R=RANK_REWARDS[ic];cl[ic]=1;
@@ -5455,7 +5519,7 @@ const Online={shopOn:{sk:{},ag:{},av:{}},cav:{},db:null,ok:false,pid:Store.get('
     if(mA){const n=+mA[1];ok=n===0||(n<=5&&ow.includes('av'+n))}else if(mR)ok=+av[mR[1]]>now;else if(/^c_/.test(cur||''))ok=ow.includes(cur);else if(cur)ok=false;
     if(!ok){Store.set('avatar','a0');ch=1}
     if(ch){this.sync();if(Game.mode==='menu'&&UI.tab==='play')UI.go('play',UI.view)}
-    msgs.forEach(n=>Pmsg('⚠️ Seu agente '+n+' expirou. Voltamos para o agente padrão.'));
+    msgs.forEach(n=>Pmsg('{{warn}} Seu agente '+n+' expirou. Voltamos para o agente padrão.'));
   }catch(e){console.warn('checkExpired',e)}},
 
   async onUser(u){this.user=u;this._loaded=false;   // [FIX LOGIN] nenhum sync() pode gravar enquanto o perfil do Firebase não foi lido
@@ -5510,6 +5574,7 @@ const Online={shopOn:{sk:{},ag:{},av:{}},cav:{},db:null,ok:false,pid:Store.get('
       if(fresh){await this.sync()}                                            // jogador novo: grava o perfil zerado
       else{this.db.ref('players/'+p).update({ls:firebase.database.ServerValue.TIMESTAMP}).catch(()=>{})}   // jogador existente: só o último acesso (update de 1 campo)
       this.listen();
+      setTimeout(()=>{try{Rejoin.check()}catch(e){console.warn('reconexão',e)}},900);   // [RECONEXÃO] partida em andamento? volta sozinho
       if(Game.mode==='menu'&&UI.tab==='play'&&UI.view==='lobby')UI.go('play','lobby');
       prog('100%','Pronto!');
       setTimeout(() => { if(loadEl){loadEl.style.opacity = '0'; setTimeout(() => loadEl.remove(), 400);} }, 300);   // destrói a tela de loading
@@ -5547,12 +5612,12 @@ const Online={shopOn:{sk:{},ag:{},av:{}},cav:{},db:null,ok:false,pid:Store.get('
     const ate=bn&&+bn.ate>0?+bn.ate:0,pid=(bn&&bn.id)||this.pid,el=document.createElement('div');el.id='banScreen';
     el.style.cssText='position:fixed;inset:0;z-index:2147483000;background:radial-gradient(ellipse at 50% 30%,#3a0d0d 0%,#0b0e12 70%);color:#fff;display:flex;align-items:center;justify-content:center;overflow:auto;font-family:Rajdhani,Arial,sans-serif;-webkit-user-select:none;user-select:none;touch-action:pan-y';
     el.innerHTML='<div style="width:min(92vw,520px);margin:auto;padding:18px 14px;text-align:center;box-sizing:border-box">'+
-      '<div style="font-size:34px;line-height:1">⛔</div>'+
+      '<div style="font-size:34px;line-height:1;color:#e5534b;display:flex;justify-content:center">'+SI.ban+'</div>'+
       '<h1 style="margin:6px 0 2px;font-size:30px;letter-spacing:4px;color:#e5534b">CONTA SUSPENSA</h1>'+
       '<div style="font-size:15px;color:#dde">Sua conta foi banida temporariamente.</div>'+
       '<div style="margin:14px 0 4px;padding:10px;border:1px solid #e5534b66;border-radius:8px;background:#0008">'+
         '<div id="banTm" style="font-size:18px;font-weight:700;color:#f0b429"></div>'+
-        '<div id="banCk" style="font-size:12px;color:#9aa;margin-top:3px;letter-spacing:1px"></div></div>'+
+        '<div style="font-size:12px;color:#9aa;margin-top:3px;letter-spacing:1px;display:flex;align-items:center;justify-content:center;gap:5px">'+SI.clock+'<span id="banCk"></span></div></div>'+
       '<div style="font-size:16px;margin:10px 0 16px">Motivo: <b id="banMt" style="color:#fff"></b></div>'+
       '<div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">'+
         '<button id="banRetry" style="flex:1;min-width:150px;padding:11px 8px;border:0;border-radius:8px;background:#f0b429;color:#111;font:700 14px Rajdhani,Arial,sans-serif;letter-spacing:2px">TENTAR NOVAMENTE</button>'+
@@ -5592,14 +5657,14 @@ const Online={shopOn:{sk:{},ag:{},av:{}},cav:{},db:null,ok:false,pid:Store.get('
     const out=pend.map(ic=>{const i=RK_FAM.indexOf(ic),R=RANK_REWARDS[ic],ag=agentById(R.agent);if(!ts[ic]){ts[ic]=Date.now();ch=1}
       let sid=rw[RK_NAME[i]];sid=Array.isArray(sid)?sid[0]:sid;if(sid&&!SKINS.find(x=>x.id===sid))sid='';
       const perm=!!(ag&&Store.get('owned',[]).includes(ag.id)&&!Store.get('agExp',{})[ic]);   // agente já comprado em definitivo: não ganha validade (igual earnAgent)
-      return{id:'rk:'+ic,rk:ic,local:1,r:1,t:'🏅 Patente '+RK_NAME[i]+' alcançada!',ts:ts[ic],coins:R.coins,xp:R.xp,agent:ag?ag.id:'',agentDays:perm?0:60,avatar:'r_'+ic,avDays:60,skins:sid||'',b:'Parabéns! Colete as recompensas da patente '+RK_NAME[i]+':'}});
+      return{id:'rk:'+ic,rk:ic,local:1,r:1,t:'Patente '+RK_NAME[i]+' alcançada!',ts:ts[ic],coins:R.coins,xp:R.xp,agent:ag?ag.id:'',agentDays:perm?0:60,avatar:'r_'+ic,avDays:60,skins:sid||'',b:'Parabéns! Colete as recompensas da patente '+RK_NAME[i]+':'}});
     if(ch)Store.set('rkMailTs',ts);return out}catch(e){return[]}},
-  rkNotify(){try{const seen=Store.get('rkSeen',[]),nw=rkPending(myStats()).filter(ic=>!seen.includes(ic));if(!nw.length)return;Store.set('rkSeen',seen.concat(nw));if(Game.mode==='menu')Pmsg('📬 Recompensa de patente chegou no Correio!')}catch(e){}},
-  claimRkMail(ic){if(!this.seasonActive())return Pmsg('🏁 Recompensas liberam quando a temporada estiver ativa.');
+  rkNotify(){try{const seen=Store.get('rkSeen',[]),nw=rkPending(myStats()).filter(ic=>!seen.includes(ic));if(!nw.length)return;Store.set('rkSeen',seen.concat(nw));if(Game.mode==='menu')Pmsg('{{mail}} Recompensa de patente chegou no Correio!')}catch(e){}},
+  claimRkMail(ic){if(!this.seasonActive())return Pmsg('{{flag}} Recompensas liberam quando a temporada estiver ativa.');
     const i=RK_FAM.indexOf(ic),st=myStats(),cl=Store.get('rwClaimed',{});if(i<0||cl[ic]||rankPosition(st.rp,st.cm)<i)return;
     const R=RANK_REWARDS[ic];cl[ic]=1;Store.set('rwClaimed',cl);st.coins+=R.coins;st.xp+=R.xp;Store.set('stats',st);
     this.earnAvatar(ic);const ag=this.earnAgent(ic);this.claimSkin(ic);this.checkExpired();this.sync();
-    Pmsg('🎁 +'+R.coins+' 🪙 · +'+R.xp+' XP'+(ag?' · '+ag.name:'')+' · avatar');const ce=document.querySelector('#lbCoins b');if(ce)ce.textContent=myStats().coins},
+    Pmsg('{{gift}} +'+R.coins+' {{coin}} · +'+R.xp+' XP'+(ag?' · '+ag.name:'')+' · avatar');const ce=document.querySelector('#lbCoins b');if(ce)ce.textContent=myStats().coins},
   showNotice(){this.badge()},   // sem popup: o aviso do ADM fica só na seção AVISOS do Correio
   async claim(id){if(String(id).startsWith('rk:'))return this.claimRkMail(String(id).slice(3));const m=(this.mails||[]).find(x=>x.id===id);if(!m||m.c)return;
     const r=await this.db.ref('mail/'+this.pid+'/'+id+'/c').transaction(c=>c?undefined:1);if(!r.committed)return;
@@ -5735,8 +5800,9 @@ const Online={shopOn:{sk:{},ag:{},av:{}},cav:{},db:null,ok:false,pid:Store.get('
         this.db.ref().update(up).catch(()=>{mk=false})}},1000)},
   begin(R){this.room=R;this.peers={};R.others.forEach(p=>{const b=new Bot(p.team,'x');b.remote=true;b.rid=p.pid;b.name=p.n;b.av=p.av||'';b.born=Date.now();Game.bots.push(b)});
     const rr=this.db.ref('rooms/'+R.rid);this.refs=[rr.child('s'),rr.child('e')];
-    const sc=s=>{if(s.key!==this.pid)this.peers[s.key]=Object.assign(s.val()||{},{rx:Date.now()})};this.refs[0].on('child_added',sc);this.refs[0].on('child_changed',sc);
+    const sc=s=>{if(s.key!==this.pid){this.peers[s.key]=Object.assign(s.val()||{},{rx:Date.now()});const ab=Game.bots.find(x=>x.rid===s.key&&x.aiOf);if(ab){ab.remote=true;ab.aiOf=null}}};   // jogador que caiu voltou: reassume o personagemthis.refs[0].on('child_added',sc);this.refs[0].on('child_changed',sc);
     this.refs[1].on('child_added',s=>this.onEv(s.val()));this.refs[0].child(this.pid).onDisconnect().remove();
+    try{const pr=rr.child('pres/'+this.pid);pr.set(1);pr.onDisconnect().set(0)}catch(_){}   // status na sala: 1 = conectado · 0 = desconectado (a vaga continua dele)
     this.tx=setInterval(()=>this.tick(),100)},
   tick(){if(!this.room)return;const P=Player;this.refs[0].child(this.pid).set({x:+P.pos.x.toFixed(2),z:+P.pos.z.toFixed(2),y:+(P.pos.y||0).toFixed(2),ry:+(P.yaw+Math.PI).toFixed(2),w:(P.cur==='c4'||P.isNade(P.cur))?'knife':P.cur,a:P.alive?1:0}).catch(()=>{})},
   ev(o){if(this.room)this.refs[1].push(Object.assign({f:this.pid},o)).catch(()=>{})},
@@ -5750,15 +5816,17 @@ const Online={shopOn:{sk:{},ag:{},av:{}},cav:{},db:null,ok:false,pid:Store.get('
     else if(e.t==='df')Game.defuse(null);
     else if(e.t==='nd')Nade.throw(rem,e.ty,V(e.o),V(e.v))},
   hitRemote(b,dmg,att,head,wn){if(!b.alive||wn==='Granada'||wn==='C4')return false;this.ev({t:'h',to:b.rid,d:Math.round(dmg),h:head?1:0,w:wn});return false},
+  /* jogador caiu/sumiu: um BOT assume o lugar dele (a vaga nunca é liberada) */
+  aiTake(b){if(!b||b.aiOf)return;b.remote=false;b.aiOf=b.rid;b.path=[];b.target=null;b.cd=.3},
   updRemote(b,dt){const s=this.peers[b.rid],r=b.m.root;
     if(!b.alive){if(b.fall<1){b.fall=Math.min(1,b.fall+dt*2.2);r.rotation.x=-b.fall*Math.PI/2;r.position.y=b.fall*.12}return}
-    if(!s){if(Date.now()-b.born>12000){b.alive=false;b.fall=0}return}
-    if(Date.now()-s.rx>8000){b.alive=false;b.fall=0;return}
+    if(!s){if(Date.now()-b.born>12000)this.aiTake(b);return}
+    if(Date.now()-s.rx>8000){this.aiTake(b);return}
     b.t+=dt;const k=Math.min(1,dt*12),dx=s.x-b.pos.x,dz=s.z-b.pos.z;b.pos.x+=dx*k;b.pos.z+=dz*k;b.pos.y+=((s.y||0)-b.pos.y)*k;
     let dy=s.ry-r.rotation.y;dy=Math.atan2(Math.sin(dy),Math.cos(dy));r.rotation.y+=dy*k;
     if(s.w&&s.w!==b.wid&&W[s.w]){b.wid=s.w;b.m.setWeapon(s.w,defSkin(s.w))}
     const mv=Math.hypot(dx,dz)>.05,sw=mv?Math.sin(b.t*9)*.7:0;b.m.legL.rotation.x=sw;b.m.legR.rotation.x=-sw;b.m.tor.position.y=.92+(mv?Math.abs(Math.sin(b.t*9))*.03:0)},
-  leave(){if(!this.room)return;clearInterval(this.tx);try{this.refs[0].child(this.pid).remove();this.refs.forEach(r=>r.off())}catch(e){}this.room=null;this.peers={}},
+  leave(){if(!this.room)return;clearInterval(this.tx);try{this.db.ref('rooms/'+this.room.rid+'/pres/'+this.pid).set(0)}catch(_){}try{this.refs[0].child(this.pid).remove();this.refs.forEach(r=>r.off())}catch(e){}this.room=null;this.peers={}},
   install(){const G=Game,N=Nade,me=this,f2=n=>+n.toFixed(2);
     const pl=G.plant;G.plant=function(p,by){const ok=this.bomb.state==='idle';pl.call(this,p,by);if(ok&&by&&by.isPlayer)me.ev({t:'pl',x:f2(p.x),z:f2(p.z)})};
     const df=G.defuse;G.defuse=function(by){const ok=this.bomb.state==='planted';df.call(this,by);if(ok&&by&&by.isPlayer)me.ev({t:'df'})};
@@ -5768,6 +5836,137 @@ const Online={shopOn:{sk:{},ag:{},av:{}},cav:{},db:null,ok:false,pid:Store.get('
 };
 
 /* ---------------- Menus ---------------- */
+/* ===================== RECONEXÃO NA PARTIDA =====================
+   • A vaga do jogador é RESERVADA até o fim da partida (a sala nunca aceita ninguém no lugar dele).
+   • Enquanto a partida roda, o jogo guarda um "retrato" da partida (aparelho + players/<id>/sessao): sala, time, placar, round, itens e K/D/A.
+   • Caiu / fechou o app: a sala marca rooms/<rid>/pres/<id>=0 (desconectado) e os OUTROS aparelhos põem um BOT no lugar dele.
+   • Abriu o jogo de novo antes do fim → volta sozinho para a mesma sala, mesmo time, itens e placar (pode cair e voltar várias vezes).
+   • Sem ninguém na sala (ou contra bots) a partida "continua" mesmo assim: os rounds que faltam são resolvidos por bots (50/50) e
+     o resultado final é aplicado quando ele volta. Quem caiu NÃO ganha nada pelas ações dos bots depois que saiu.
+   • Fim da partida: Vitória +300 moedas / +100 RP base · Derrota +150 moedas / +50 RP base + modificadores do que ele fez até cair.
+   • rooms/<rid>/live = placar vivo · rooms/<rid>/fim = resultado final (todos os aparelhos gravam o mesmo). */
+const Rejoin={RS:90,_busy:false,_resuming:false,_fb:0,_bar:null,_lost:false,HB_TTL:30000,
+  /* [TRAVA 2 APARELHOS] cada aparelho tem um ID fixo; a partida em andamento grava players/<id>/sessao/{dev,hb} (hb = hora do SERVIDOR, a cada ~8s).
+     Outro aparelho só pode reconectar se o hb estiver velho (> 30s) ou for 0 (saiu/fechou). */
+  MSG_DUP:'Você já está em partida em outro aparelho. Feche no outro dispositivo para entrar aqui.',
+  _dev:(()=>{try{let d=localStorage.getItem('rjDevId');if(!d){d=Math.random().toString(36).slice(2,10)+Date.now().toString(36);localStorage.setItem('rjDevId',d)}return d}catch(_){return 'd'+Math.random().toString(36).slice(2,10)}})(),
+  hbOk(v){try{const now=Online.srvNow?Online.srvNow():Date.now();return !!(v&&v.dev&&v.dev!==this._dev&&+v.hb>0&&now-(+v.hb)<this.HB_TTL)}catch(_){return false}},
+  beat(){if(!this.active()){this._lost=false;return}
+    if(this._lost||!Online.ok||!Online.db||!Online.pid)return;
+    const ref=Online.db.ref('players/'+Online.pid+'/sessao');
+    ref.get().then(x=>{const v=x.val();
+      if(this.hbOk(v)){this._lost=true;Pmsg(this.MSG_DUP);try{Game.quit()}catch(_){}return}   // outro aparelho assumiu a vaga: este sai
+      ref.update({dev:this._dev,hb:firebase.database.ServerValue.TIMESTAMP}).catch(()=>{});
+      try{ref.child('hb').onDisconnect().set(0)}catch(_){}}).catch(()=>{})},
+  release(){try{if(this._lost||!Online.ok||!Online.db||!Online.pid||!this.pending())return;Online.db.ref('players/'+Online.pid+'/sessao/hb').set(0).catch(()=>{})}catch(_){}},
+  flip:x=>x==='T'?'CT':'T',
+  winOf:m=>({rank:10,classic:8}[m]||8),
+  swapOf:m=>({rank:9,classic:7}[m]||0),
+  teamAt(ot,rd,m){const sw=this.swapOf(m);return sw&&rd>sw?this.flip(ot):ot},
+  active(){const g=Game;return g.mode==='game'&&!g.over&&!!g.ot&&!!g.opts&&g.opts.mode!=='treino'&&!!Online.pid},
+  pending(){const s=Store.get('sess',null);return!!(s&&s.pid===Online.pid&&!s.fin)},
+  snap(){const g=Game,P=Player,o=g.opts,R=Online.room;
+    return JSON.parse(JSON.stringify({v:1,ts:Date.now(),pid:Online.pid,rid:R?R.rid:null,party:!!(R&&R.party),map:o.map,mode:o.mode,size:o.size,diff:o.diff,botRank:o.botRank||null,eco:o.eco,
+      ot:g.ot,team:P.team,round:g.round,score:{T:g.score.T,CT:g.score.CT},money:P.money,t0:g.matchT0||Date.now(),nm:S.name,av:Store.get('avatar','')||'',
+      st:{k:P.kills||0,h:P.headshots||0,d:P.deaths||0,a:P.assists||0,pl:P.plantsOk||0,df:P.defuses||0,mv:P.mvps||0,sf:P.shotsF||0,sh:P.shotsH||0,ob:P.objectiveDone?1:0},
+      lo:{primary:P.loadout.primary||null,pistol:P.loadout.pistol||null,knife:P.loadout.knife||'knife'},
+      ar:{armor:P.armor||0,helmet:!!P.helmet,vestP:P.vestP||0,helmP:P.helmP||0,kit:!!P.kit,nades:Object.assign({},P.nades||{})},
+      bots:g.bots.filter(b=>!b.board).map(b=>({n:b.name||'Bot',tm:b.team,k:b.kills||0,d:b.deaths||0,a:b.assists||0,av:b.av||'',rid:b.rid||''})),
+      room:R?{me:R.me,others:R.others,host:R.host}:null}))},
+  save(fb){if(this._resuming||this._lost||!this.active())return;try{const s=this.snap();Store.set('sess',s);
+      if(Online.ok&&Online.db&&(fb||Date.now()-this._fb>20000)){this._fb=Date.now();Online.db.ref('players/'+Online.pid+'/sessao').set(Object.assign({},s,{dev:this._dev,hb:firebase.database.ServerValue.TIMESTAMP})).catch(()=>{})}}catch(e){}},
+  clear(){try{Store.set('sess',null)}catch(_){}try{if(Online.ok&&Online.db&&Online.pid)Online.db.ref('players/'+Online.pid+'/sessao').remove().catch(()=>{})}catch(_){}},
+  live(){const R=Online.room;if(!R||!Online.db)return;Online.db.ref('rooms/'+R.rid+'/live').set({rd:Game.round,sc:{T:Game.score.T,CT:Game.score.CT},ts:firebase.database.ServerValue.TIMESTAMP}).catch(()=>{})},
+  fim(){const R=Online.room;if(!R||!Online.db)return;const g=Game,w=g.score.T>=this.winOf(g.opts.mode)?'T':'CT',v={sc:{T:g.score.T,CT:g.score.CT},rd:g.round,w,ts:firebase.database.ServerValue.TIMESTAMP};
+    Online.db.ref('rooms/'+R.rid+'/fim').transaction(c=>c||v).catch(()=>{})},
+  /* resolve rounds sem o jogador: bots contra bots (50/50), respeitando a troca de lados */
+  sim(m,r,sc,n){const W=this.winOf(m),SW=this.swapOf(m);sc={T:sc.T,CT:sc.CT};
+    for(let i=0;i<n;i++){const w=Math.random()<.5?'T':'CT';sc[w]++;if(sc[w]>=W)return{end:1,rd:r,sc,w,used:i+1};r++;if(SW&&r===SW+1)sc={T:sc.CT,CT:sc.T}}
+    return{end:0,r,sc,used:n}},
+  nudge(){Pmsg('{{plug}} Você tem uma partida em andamento. Reconectando…');this.check();return true},
+  async check(){
+    if(this._busy||Game.mode!=='menu'||!Online.ok||!Online.user||!Online.pid||!Online._loaded)return;
+    this._busy=true;
+    try{
+      let s=Store.get('sess',null);if(s&&s.pid!==Online.pid)s=null;
+      if(!s){try{const v=(await Online.db.ref('players/'+Online.pid+'/sessao').get()).val();if(v&&v.pid===Online.pid&&!v.fin&&v.map&&v.mode)s=v}catch(_){}}
+      if(!s)return;if(s.fin){if(s.res)Pmsg((s.res.w?'Vitória':'Derrota')+' salva: '+s.res.sc[0]+' x '+s.res.sc[1]+' · '+(s.res.xp||0)+' XP · '+(s.res.coins||0)+' moedas'+(s.res.rp?' · '+(s.res.rp>0?'+':'')+s.res.rp+' RP':''));this.clear();return}
+      const m=s.mode,SW=this.swapOf(m),now=Date.now(),nz=q=>({T:+(q&&q.T)||0,CT:+(q&&q.CT)||0});
+      let fim=null,live=null;
+      if(s.rid){try{const rr=Online.db.ref('rooms/'+s.rid),a=await rr.child('fim').get(),b=await rr.child('live').get();fim=a.val();live=b.val()}catch(_){}}
+      let go=null;
+      if(!fim){
+        let r=s.round,sc=nz(s.score),bt=s.ts||now;
+        if(live&&live.sc&&live.rd>=s.round){r=live.rd+1;sc=nz(live.sc);if(SW&&r===SW+1)sc={T:sc.CT,CT:sc.T};bt=+live.ts||bt}
+        const others=!!(s.rid&&live&&+live.ts&&now-live.ts<150000);   // ainda há gente jogando na sala: não adianta nada
+        if(!others){const k=Math.floor((now-bt)/(this.RS*1000));
+          if(k>0){const q=this.sim(m,r,sc,k);
+            if(q.end){fim={sc:q.sc,rd:q.rd,w:q.w,ts:bt+q.used*this.RS*1000};
+              if(s.rid){try{const tx=await Online.db.ref('rooms/'+s.rid+'/fim').transaction(c=>c||{sc:fim.sc,rd:fim.rd,w:fim.w,ts:firebase.database.ServerValue.TIMESTAMP});const v=tx.snapshot&&tx.snapshot.val();if(v&&v.sc)fim=v}catch(_){}}}
+            else{r=q.r;sc=q.sc}}}
+        if(!fim)go={r,sc}}
+      if(fim){await this.settle(s,fim);return}
+      if(Online.db){try{const v=(await Online.db.ref('players/'+Online.pid+'/sessao').get()).val();if(this.hbOk(v)){Pmsg(this.MSG_DUP);return}}catch(_){}}   // [TRAVA 2 APARELHOS]
+      this._lost=false;
+      Pmsg('{{plug}} Reconectando à partida…');
+      await UI.rejoin(s,go)
+    }finally{this._busy=false}},
+  /* volta para a partida: estado da partida + itens + K/D/A (só o que ele fez até cair) */
+  apply(s,st){const g=Game,P=Player,SW=this.swapOf(s.mode);
+    try{
+      g.ot=s.ot;if(SW&&st.r>SW)g.swapSides();                       // a troca de lados já aconteceu
+      g.score={T:st.sc.T,CT:st.sc.CT};g.round=st.r;g.over=false;g.matchT0=s.t0||Date.now();
+      const x=s.st||{};P.kills=x.k||0;P.headshots=x.h||0;P.deaths=x.d||0;P.assists=x.a||0;P.plantsOk=x.pl||0;P.defuses=x.df||0;P.mvps=x.mv||0;P.shotsF=x.sf||0;P.shotsH=x.sh||0;P.objectiveDone=!!x.ob;
+      const mine=s.bots||[];
+      ['T','CT'].forEach(tm=>{const src=mine.filter(q=>q.tm===tm&&!q.rid);g.bots.filter(b=>b.team===tm&&!b.remote&&!b.aiOf&&!b.board).forEach((b,i)=>{const q=src[i];if(q){b.name=q.n;b.kills=q.k;b.deaths=q.d;b.assists=q.a;b.av=q.av}})});
+      g.bots.filter(b=>b.rid).forEach(b=>{const q=mine.find(z=>z.rid===b.rid);if(q){b.kills=q.k;b.deaths=q.d;b.assists=q.a}});
+      g.newRound(true);
+      const lo=s.lo||{},ar=s.ar||{};
+      if(lo.primary)P.loadout.primary=lo.primary;if(lo.pistol)P.loadout.pistol=lo.pistol;P.loadout.knife=lo.knife||'knife';
+      P.armor=ar.armor||0;P.helmet=!!ar.helmet;P.vestP=ar.vestP||0;P.helmP=ar.helmP||0;P.kit=!!ar.kit;P.nades=Object.assign({frag:0,flash:0,smoke:0},ar.nades||{});
+      [P.loadout.primary,P.loadout.pistol].forEach(id=>{if(id)P.giveAmmo(id)});
+      P.equip(P.loadout.primary||P.loadout.pistol||P.loadout.knife);P.money=Math.max(0,s.money|0);HUDui.dirty=true;
+    }catch(e){console.warn('reconexão/apply',e)}
+    this._resuming=false;this.save(true)},
+  /* partida terminou enquanto ele estava fora: aplica o resultado final do time + o que ele fez até cair */
+  async settle(s,fim){
+    const m=s.mode,te=this.teamAt(s.ot,fim.rd,m),won=fim.w===te,me=+(fim.sc||{})[te]||0,en=+(fim.sc||{})[this.flip(te)]||0,x=s.st||{};
+    Store.set('sess',Object.assign({},s,{fin:1}));                                   // nunca paga duas vezes
+    const okAv=a=>/^[\w-]{0,60}$/.test(a||'')?(a||''):'';
+    const ally=[{n:String(s.nm||S.name||'Player').slice(0,20),av:okAv(s.av),k:x.k||0,d:x.d||0,a:x.a||0,me:1}].concat((s.bots||[]).filter(b=>b.tm===s.team).map(b=>({n:String(b.n||'Player').slice(0,20),av:okAv(b.av),k:b.k||0,d:b.d||0,a:b.a||0}))).sort((p,q)=>q.k-p.k||p.d-q.d);
+    const all=[{n:ally.find(p=>p.me).n,k:x.k||0,d:x.d||0,a:x.a||0,me:1,ally:1}].concat((s.bots||[]).map(b=>({n:String(b.n||'Player').slice(0,20),k:b.k||0,d:b.d||0,a:b.a||0,ally:b.tm===s.team?1:0}))).sort((p,q)=>q.k-p.k||p.d-q.d);
+    const top=all[0],mvp=Object.assign({n:top.n,k:top.k,d:top.d,a:top.a,ally:top.ally},top.me?{me:1}:{});
+    const ts=+fim.ts||Date.now();
+    Online.recordMatch({ts,r:won?1:0,sc:[me,en],map:s.map||'dunas',mode:s.mode||'rank',dur:Math.max(1,Math.round((ts-(s.t0||ts))/1000)),k:x.k||0,d:x.d||0,a:x.a||0,t:te,team:ally,mvp});
+    // recompensa: base (vitória/derrota) + modificadores do que ELE fez até cair (placar e lado da hora da queda)
+    const gO=Game.opts,gS=Game.score,pT=Player.team,pv=[Player.plantsOk,Player.defuses,Player.mvps,Player.deaths];let rw={xp:0,coins:0,rp:0};
+    try{Game.opts=Object.assign({},gO,{mode:s.mode,diff:s.diff});Game.score={T:+(s.score||{}).T||0,CT:+(s.score||{}).CT||0};Player.team=s.team;Player.plantsOk=x.pl||0;Player.defuses=x.df||0;Player.mvps=x.mv||0;Player.deaths=x.d||0;
+      rw=award(myStats(),won,x.k||0,x.h||0,!!x.ob,false)}
+    catch(e){console.warn('reconexão/settle',e)}
+    finally{Game.opts=gO;Game.score=gS;Player.team=pT;Player.plantsOk=pv[0];Player.defuses=pv[1];Player.mvps=pv[2];Player.deaths=pv[3]}
+    try{await Online.sync()}catch(_){}
+    this.clear();
+    const md=document.createElement('div');md.className='modal';
+    md.innerHTML=`<div class="box"><h2>${won?'VITÓRIA':'DERROTA'}</h2><div style="margin:6px 0 4px;font-size:24px">${me} : ${en}</div>
+      <div style="font-size:12px;color:var(--mut);margin-bottom:10px;display:flex;align-items:center;justify-content:center;gap:6px">${SI.plug} Você ficou desconectado — a partida terminou com bots no seu lugar</div>
+      <div style="font-size:13px;color:var(--mut);margin-bottom:10px;text-align:left;background:#0008;padding:10px;border-radius:4px">
+        <div style="display:flex;justify-content:space-between"><span>XP Ganho:</span><b style="color:var(--blue)">+${rw.xp||0} XP</b></div>
+        <div style="display:flex;justify-content:space-between"><span>Moedas:</span><b style="color:var(--gold)">+${rw.coins||0} ${SI.coin}</b></div>
+        <div style="display:flex;justify-content:space-between"><span>K / D / A (até cair):</span><b>${x.k||0} / ${x.d||0} / ${x.a||0}</b></div>
+        ${rw.rp?`<div style="display:flex;justify-content:space-between"><span>Pontos de Ranking:</span><b style="color:${rw.rp>0?'var(--green)':'var(--red)'}">${rw.rp>0?'+':''}${rw.rp} RP</b></div>`:''}
+      </div><button class="btn g">OK</button></div>`;
+    document.body.appendChild(md);md.querySelector('button').onclick=()=>{md.remove();try{UI.go('play','lobby')}catch(_){}}},
+  /* botão do lobby quando saiu da partida de propósito (a vaga continua dele até o fim) */
+  barTick(){try{let b=this._bar;const show=Game.mode==='menu'&&!this._busy&&this.pending()&&!document.querySelector('#loading:not(.hidden)');
+      if(show&&!b){b=this._bar=document.createElement('button');b.className='btn g';b.style.cssText='position:fixed;left:50%;top:8px;transform:translateX(-50%);z-index:60;display:flex;align-items:center;gap:6px;padding:8px 14px';b.innerHTML=SI.plug+'<span>VOLTAR À PARTIDA</span>';b.onclick=()=>this.check();document.body.appendChild(b)}
+      else if(!show&&b){b.remove();this._bar=null}}catch(_){}}
+};
+setInterval(()=>{if(Rejoin.active())Rejoin.save()},4000);
+setInterval(()=>Rejoin.beat(),8000);   // [TRAVA 2 APARELHOS] batida de coração
+setInterval(()=>Rejoin.barTick(),1500);
+document.addEventListener('visibilitychange',()=>{if(document.hidden)Rejoin.save(true)});
+window.addEventListener('pagehide',()=>{Rejoin.save(true);if(Rejoin.active())Rejoin.release()});
+
 /* ---------------- Amigos: pedidos REAIS via Firebase (pendente → aceito) ----------------
    friendReq/<destino>/<origem> = {n,ts}   → caixa de entrada de pedidos do jogador "destino"
    friendEv/<origem>/<destino>  = {t:'acc'|'rm',ts} → aviso entregue a quem enviou (aceitou / removeu)
@@ -5814,7 +6013,7 @@ const Friends={inbox:[],names:{},ui:null,
 };
 
 /* ---------------- Avatares (lista fixa; salvo em players/<id>/avatar) ---------------- */
-const AVATARS=['🎖️','🥷','🕵️','👽','🤖','🦁'],AV_NAMES=['Padrão','Ninja','Espião','Alien','Robô','Leão'];
+const AVATARS=[SI.award,SI.ninja,SI.eye,SI.alien,SI.bot,SI.lion],AV_NAMES=['Padrão','Ninja','Espião','Alien','Robô','Leão'];
 const AVR=['ferro','bronze','prata','ouro','platina','diamante','mestre','elite','lenda','desafiante','imortal'];
 const avRank=ic=>RANKS.filter(r=>r.ic===ic).sort((a,b)=>a.rp-b.rp)[0]||null;
 const avRk=id=>{const m=/^r_(\w+)$/.exec(typeof id==='string'?id:'');return m&&AVR.includes(m[1])?avRank(m[1]):null};
@@ -5826,7 +6025,7 @@ const avPcard=(id,name)=>{const rk=avRk(id);return rk?`<div class="av rk">${Rank
 const avHtml=(id,name,px)=>{px=px||22;const rk=avRk(id);if(rk)return`<span class="avs rk" style="width:${px}px;height:${px}px">${RankIcon(rk.ic,rk.t,rk.c)}</span>`;const e=avOf(id);return`<span class="avs" style="width:${px}px;height:${px}px;font-size:${Math.round(px*.62)}px">${e||esc((name||'?')[0]||'?').toUpperCase()}</span>`};
 
 /* ---------------- Mensagem rápida no menu ---------------- */
-const Pmsg=t=>{const d=document.createElement('div');d.className='pmsg';d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),2800)};
+const Pmsg=t=>{const d=document.createElement('div');d.className='pmsg';d.innerHTML=String(t).replace(/[<>&]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c])).replace(/\{\{(\w+)\}\}/g,(m,k)=>SI[k]||'');document.body.appendChild(d);setTimeout(()=>d.remove(),2800)};
 
 /* ---------------- Chat: 3 canais · chat/global/<push> · chat/dm/<idA_idB>/<push> (amigos, some em 24h) · chat/party/<líder>/<push> (equipe)
    mensagem = {id,n,t,ts,lv,rp,cm,av} ---------------- */
@@ -5850,8 +6049,8 @@ const Chat={el:null,ref:null,last:0,tab:'global',peer:null,tm:null,
     const list=el.querySelector('#chList'),row=el.querySelector('#chRow'),bk=el.querySelector('#chBack'),p=this.path();list.innerHTML='';row.style.display=p?'':'none';bk.style.display='none';
     if(this.tab==='friends'&&!this.peer){      // lista de amigos: 1 conversa por amigo
       const fl=Friends.list();if(!fl.length){list.innerHTML='<div style="color:var(--mut)">Você ainda não tem amigos. Adicione pelo botão AMIGOS do menu.</div>';return}
-      fl.forEach(id=>{const b=document.createElement('button');b.className='btn';b.style.cssText='text-align:left;padding:7px 10px;font-size:12px';b.textContent='💬 …';
-        Friends.name(id).then(n=>{b.innerHTML='💬 '+n});b.onclick=()=>{this.peer=id;this.show()};list.appendChild(b)});return}
+      fl.forEach(id=>{const b=document.createElement('button');b.className='btn';b.style.cssText='text-align:left;padding:7px 10px;font-size:12px';b.innerHTML=SI.chat+' …';
+        Friends.name(id).then(n=>{b.innerHTML=SI.chat+' '+n});b.onclick=()=>{this.peer=id;this.show()};list.appendChild(b)});return}
     if(this.tab==='friends'){bk.style.display='flex';bk.innerHTML='<button class="btn" style="padding:2px 8px;font-size:11px">‹ AMIGOS</button><small>mensagens somem em 24h</small>';bk.querySelector('button').onclick=()=>{this.peer=null;this.show()}}
     if(!p)return;
     let q=Online.db.ref(p).orderByChild('ts');
@@ -5923,7 +6122,7 @@ const UI={tab:'play',view:'lobby',stab:'video',itab:'skins',iw:'all',ir:'all',
   botPick(){const st=myStats(),p=rankPosition(st.rp,st.cm);if(p<0)return{diff:'facil',rank:0};      // 50% mesma patente · 25% uma abaixo · 25% uma acima
     const r=Math.random();let i=p;if(r>=.5)i+=r<.75?-1:1;i=Math.max(0,Math.min(RK_FAM.length-1,i));return{diff:diffOfRank(i),rank:i}},
   seasonBadge(){const t=Online.season;if(t===undefined)return'';const on=Online.seasonActive(),d=on?Math.max(1,Math.ceil((t.fim-Date.now())/864e5)):0;
-    return `<div id="lbSeason" style="padding:3px 10px;border-radius:12px;font-size:10px;font-weight:800;letter-spacing:.5px;background:#000b;white-space:nowrap;${on?'color:#ffc83d;border:1px solid #ffc83d99':'color:#9aa5b1;border:1px solid #9aa5b166'}">${on?'🏁 TEMPORADA '+esc(t.nome)+' · '+d+'d':'⏸️ TEMPORADA PAUSADA'}</div>`},
+    return `<div id="lbSeason" style="padding:3px 10px;border-radius:12px;font-size:10px;font-weight:800;letter-spacing:.5px;background:#000b;white-space:nowrap;${on?'color:#ffc83d;border:1px solid #ffc83d99':'color:#9aa5b1;border:1px solid #9aa5b166'}">${on?SI.flag+' TEMPORADA '+esc(t.nome)+' · '+d+'d':SI.pause+' TEMPORADA PAUSADA'}</div>`},
   fixOpt(){const o=this.opt;if(!['dunas','mercado','vila','usina','miragem','dune','province','rust','sandstone','arena','treinoext','treino'].includes(o.map))o.map='dunas';if(o.mode==='comp')o.mode='rank';else if(o.mode==='casual')o.mode='classic';else if(!['rank','classic','treino'].includes(o.mode))o.mode='rank';if(o.mode==='treino')o.map='treino';else if(o.map==='treino'||(o.mode==='classic'&&!['province','rust','sandstone','miragem'].includes(o.map)))o.map=o.mode==='classic'?'province':'dunas';if(!o.tb||o.tb==='normal')o.tb='andando';['diff','size','eco'].forEach(k=>delete o[k])},
   /* Desmonta a tela atual: timers de UI, modais (inclusive os com WebGL próprio), Chat, ProfileView e DOM do menu.
      full=true (entrar na partida) também remove overlays do lobby e o login/loading. */
@@ -5967,7 +6166,7 @@ const UI={tab:'play',view:'lobby',stab:'video',itab:'skins',iw:'all',ir:'all',
     let k=0;const iv=setInterval(()=>{let t=(k++%2)?'CT':'T';if(!free(t))t=other(t);
       if(!free(t)){clearInterval(iv);setTimeout(()=>{m.remove();cb(side)},550);return}on(t,'bot')},140)},
   showTeamSelect(cb,opt){const old=document.getElementById('teamSel');if(old)old.remove();
-    const d={T:{n:'TERRORISTAS',o:'💣 Plantar a bomba',c:'#f0b429'},CT:{n:'CONTRA-TERRORISTAS',o:'🛡️ Desarmar a bomba',c:'#4da3ff'}},m=document.createElement('div');m.id='teamSel';
+    const d={T:{n:'TERRORISTAS',o:SI.bomb+' Plantar a bomba',c:'#f0b429'},CT:{n:'CONTRA-TERRORISTAS',o:SI.shield+' Desarmar a bomba',c:'#4da3ff'}},m=document.createElement('div');m.id='teamSel';
     const card=t=>{let im='',nm='';try{const ag=agentOf(t);nm=ag.name||'';im=Thumb.agent(t,ag.id)}catch(e){}
       return`<div class="tsc" data-t="${t}" style="--tc:${d[t].c}"><span class="tsTag">${t}</span><img src="${im}" alt=""><div class="tsInfo"><i>${nm.toUpperCase()}</i><b>${d[t].n}</b><small>${d[t].o}</small>${opt&&opt.squares?'<div class="tsq" data-t="'+t+'"><em></em><em></em><em></em><em></em><em></em></div>':''}</div></div>`};
     m.innerHTML=`<h1>ESCOLHA SEU LADO</h1><div class="tsr">${card('T')}<div class="tsvs">VS</div>${card('CT')}</div><p class="tsh">Toque em um lado para começar</p>`;
@@ -5995,7 +6194,7 @@ const UI={tab:'play',view:'lobby',stab:'video',itab:'skins',iw:'all',ir:'all',
       m.querySelector('#rkBody').innerHTML = `<div class="rkg">${reg}</div><div style="margin:14px 0 8px;font-size:11px;letter-spacing:2px;color:var(--mut)">IMORTAL · VARIAÇÕES DO RANKING</div><div class="rkg">${im}</div>${Online.rewardsHtml(st)}`;
       m.querySelectorAll('[data-rsk]').forEach(b=>b.onclick=()=>{Online.claimSkin(b.dataset.rsk);draw(false)});
       const pend=rkPending(st),cbx=m.querySelector('#rkClaimBox');   // grade = só visualização; recompensas ficam no Correio
-      cbx.innerHTML=pend.length?'<small style="display:block;margin-bottom:8px;color:#e5a23a">📬 '+pend.length+' recompensa(s) de patente esperando no Correio.</small>':'';
+      cbx.innerHTML=pend.length?'<small style="display:block;margin-bottom:8px;color:#e5a23a">'+SI.mail+' '+pend.length+' recompensa(s) de patente esperando no Correio.</small>':'';
       if (first) { const cu = m.querySelector('.rkc.cur'); if (cu) cu.scrollIntoView({ block: 'center' }); }
     };
     draw(true);
@@ -6071,17 +6270,17 @@ const UI={tab:'play',view:'lobby',stab:'video',itab:'skins',iw:'all',ir:'all',
       <aside id="lbLeft">
         ${this.seasonBadge()}
         <div class="lbPRow"><div class="pcard" id="lbPcard">${avPcard(Store.get('avatar',''),nm)}<div class="pi"><b>${nm}</b><small class="pid">ID ${Online.pid||'—'}</small><small><span>NÍVEL ${lvl}</span></small><div class="xp"><i style="width:${pct}%"></i></div></div></div>
-          <div class="coinp" id="lbCoins"><span>🪙</span><b>${st.coins}</b></div></div>
-        <button class="btn" id="chBtn">💬 CHAT</button>
+          <div class="coinp" id="lbCoins"><span>${SI.coin}</span><b>${st.coins}</b></div></div>
+        <button class="btn" id="chBtn">${SI.chat} CHAT</button>
         <div class="pop" id="lbNew"><small>ARMA POPULAR<i>TOP 3 · AWP</i></small><div class="row">${POP_AWP.map((id,i)=>{const k=SKINS.find(x=>x.id===id);return k?`<div style="--rc:${k.rc}"><em>#${i+1}</em>${wp(k)}</div>`:''}).join('')}</div></div>
-        <button class="lbBig" id="lbShop"><span>🛒</span>LOJA</button>
-        <button class="lbBig" id="lbInv"><span>🎒</span>INVENTÁRIO</button>
+        <button class="lbBig" id="lbShop"><span>${SI.cart}</span>LOJA</button>
+        <button class="lbBig" id="lbInv"><span>${SI.pack}</span>INVENTÁRIO</button>
       </aside>
       <aside id="lbRight">
-        <div class="rtop"><button class="lbBig" id="lbSet" style="flex:1"><span>⚙️</span>CONFIGURAÇÕES</button><button class="lbBig sq" id="lbMail">✉<sup id="mailBadge" style="display:none"></sup></button></div>
-        <div class="rkrow"><button class="rkbtn" id="lbRkBadge">${rkBadgeHtml(rkO)}${pend?'<i class="dot"></i>':''}</button><div class="rkinfo">${st.cm?rpLine(st,Online.pid):'Jogue ranqueado<br>para obter patente'}</div><button class="btn" id="lbRank" style="padding:6px 8px">🏆</button></div>
+        <div class="rtop"><button class="lbBig" id="lbSet" style="flex:1"><span>${SI.gear}</span>CONFIGURAÇÕES</button><button class="lbBig sq" id="lbMail">${SI.mail}<sup id="mailBadge" style="display:none"></sup></button></div>
+        <div class="rkrow"><button class="rkbtn" id="lbRkBadge">${rkBadgeHtml(rkO)}${pend?'<i class="dot"></i>':''}</button><div class="rkinfo">${st.cm?rpLine(st,Online.pid):'Jogue ranqueado<br>para obter patente'}</div><button class="btn" id="lbRank" style="padding:6px 8px">${SI.trophy}</button></div>
         <div class="frp"><div class="frh"><span>AMIGOS</span><button class="btn" id="lbFr">AMIGOS${Friends.inbox.length?' ('+Friends.inbox.length+')':''}</button></div><div id="frList"><small class="frE">Carregando…</small></div></div>
-        <div class="modeRow"><div class="modec" id="lbMode" style="position:relative"><small>MODO DE JOGO</small><b>${this.modeName(this.opt.mode)}</b><span style="position:absolute;right:6px;top:50%;transform:translateY(-50%);font-size:15px">⚙️</span></div><button class="sqb" id="lbSquad">SOLO</button></div>
+        <div class="modeRow"><div class="modec" id="lbMode" style="position:relative"><small>MODO DE JOGO</small><b>${this.modeName(this.opt.mode)}</b><span style="position:absolute;right:6px;top:50%;transform:translateY(-50%);font-size:15px">${SI.gear}</span></div><button class="sqb" id="lbSquad">SOLO</button></div>
         <button class="play" id="lbPlay"><b>JOGAR</b><small>${(MN[this.opt.map]||'Dunas').toUpperCase()} · ${this.modeName(this.opt.mode)}</small></button>
       </aside>`;
     const d=$('#lbDrag');let px=null;     // arrastar para girar o agente
@@ -6133,10 +6332,10 @@ const UI={tab:'play',view:'lobby',stab:'video',itab:'skins',iw:'all',ir:'all',
   chips(label,key,arr){return`<div class="opt"><label>${label}</label><div class="chips">${arr.map(([v,l])=>`<button class="chip ${this.opt[key]==v?'on':''}" data-k="${key}" data-v="${v}">${l}</button>`).join('')}</div></div>`},
   setup(){this.fixOpt();let maps=[['Dunas','Cidade desértica',1,'dunas'],['Mercado','Mercado encoberto',1,'mercado'],['Vila','Vila de pedra',1,'vila'],['Usina','Complexo industrial',1,'usina'],['Miragem','Mercado e vielas',1,'miragem'],['Dune','Mapa 3D · Standoff 2',1,'dune'],['Province','Cidade murada',1,'province'],['Rust','Pátio enferrujado',1,'rust'],['Sandstone','Vila de arenito',1,'sandstone'],['Arena','Arena aberta com prédios',1,'arena'],['Treino Externo','Campo de treino aberto',1,'treinoext'],['Polygon','Mapa de treino',1,'treino']];
     maps=this.opt.mode==='treino'?maps.filter(m=>m[3]==='treino'):this.opt.mode==='classic'?maps.filter(m=>['province','rust','sandstone','miragem','arena','treinoext'].includes(m[3])):maps.filter(m=>m[3]!=='treino');   // treino: só a ilha · clássico: 4 mapas · ranqueado: todos
-    $('#menuMain').innerHTML=`<h2>JOGAR<small>${this.modeName(this.opt.mode)} · 5v5 · Online ou contra bots</small><button class="btn back" id="stBk">✕ VOLTAR</button></h2><div style="font-size:10px;color:var(--mut);letter-spacing:1.5px;margin-bottom:4px">SELECIONE O MAPA</div>
+    $('#menuMain').innerHTML=`<h2>JOGAR<small>${this.modeName(this.opt.mode)} · 5v5 · Online ou contra bots</small><button class="btn back" id="stBk">${SI.x} VOLTAR</button></h2><div style="font-size:10px;color:var(--mut);letter-spacing:1.5px;margin-bottom:4px">SELECIONE O MAPA</div>
     <div class="maps">${maps.map(m=>`<div class="map ${m[2]?'ok':''} ${m[3]&&m[3]===this.opt.map?'sel':''}" data-m="${m[3]||''}">${m[3]?`<img class="mi" data-mp="${m[3]}" alt="" ${Thumb.cache['m'+m[3]]?`src="${Thumb.cache['m'+m[3]]}"`:''}>`:''}<em>${m[2]?'JOGÁVEL':'EM DESENVOLVIMENTO'}</em><b>${m[0]}</b><i>${m[1]}</i></div>`).join('')}</div>
-    <div class="opts"><div class="opt" style="grid-column:1/-1"><label>MODO</label><div class="mcards">${[['rank','🏆','RANQUEADO'],['classic','💣','CLÁSSICO'],['treino','🎯','TREINO']].map(([v,ic,l])=>`<button class="mcard ${this.opt.mode===v?'on':''}" data-k="mode" data-v="${v}"><span class="ic">${ic}</span>${l}</button>`).join('')}</div></div>
-    <div class="opt"><label>REGRAS</label><div style="font-size:12px;color:var(--mut);line-height:1.5">${{rank:'Modo 5v5 competitivo. Você pode cair com gente da mesma patente que a sua ou uma patente acima/abaixo. Vence quem fizer 10 rounds.',classic:'Modo clássico de plantar e desarmar a bomba. Vence quem fizer 8 rounds.',treino:'Modo treinamento: compra livre com $16.000. A pessoa pode escolher o lado (T ou CT) ao iniciar. Vence quem fizer 8 rounds.'}[this.opt.mode]}${this.opt.mode==='rank'&&!Online.seasonActive()?'<br><b style="color:#e5a23a">🏁 Aguardando início da próxima temporada. Jogue Clássico ou Treino.</b>':''}</div></div></div>
+    <div class="opts"><div class="opt" style="grid-column:1/-1"><label>MODO</label><div class="mcards">${[['rank',SI.trophy,'RANQUEADO'],['classic',SI.bomb,'CLÁSSICO'],['treino',SI.target,'TREINO']].map(([v,ic,l])=>`<button class="mcard ${this.opt.mode===v?'on':''}" data-k="mode" data-v="${v}"><span class="ic">${ic}</span>${l}</button>`).join('')}</div></div>
+    <div class="opt"><label>REGRAS</label><div style="font-size:12px;color:var(--mut);line-height:1.5">${{rank:'Modo 5v5 competitivo. Você pode cair com gente da mesma patente que a sua ou uma patente acima/abaixo. Vence quem fizer 10 rounds.',classic:'Modo clássico de plantar e desarmar a bomba. Vence quem fizer 8 rounds.',treino:'Modo treinamento: compra livre com $16.000. A pessoa pode escolher o lado (T ou CT) ao iniciar. Vence quem fizer 8 rounds.'}[this.opt.mode]}${this.opt.mode==='rank'&&!Online.seasonActive()?'<br><b style="color:#e5a23a">${SI.flag} Aguardando início da próxima temporada. Jogue Clássico ou Treino.</b>':''}</div></div></div>
 `;
     $$('#menuMain .chip,#menuMain .mcard').forEach(c=>c.onclick=()=>{const v=c.dataset.v;this.opt[c.dataset.k]=isNaN(+v)?v:+v;Store.set('opts',this.opt);Lobby.refresh();this.setup()});
     $$('#menuMain .map.ok').forEach(c=>c.onclick=()=>{this.opt.map=c.dataset.m;Store.set('opts',this.opt);this.setup()});
@@ -6144,7 +6343,7 @@ const UI={tab:'play',view:'lobby',stab:'video',itab:'skins',iw:'all',ir:'all',
     const q=maps.filter(m=>m[3]),nx=i=>{if(i>=q.length||Game.mode!=='menu')return;const id=q[i][3],el=document.querySelector(`#menuMain img[data-mp="${id}"]`);
       if(!el)return;if(!el.getAttribute('src')){try{el.src=Thumb.map(id)}catch(e){console.warn('diorama',id,e)}}setTimeout(()=>nx(i+1),25)};setTimeout(()=>nx(0),30);
     },
-  launch(){if(Party.inParty()&&!Party.isHost())return Pmsg('Só o líder da party pode iniciar a partida.');if(this.opt.mode==='rank'&&!Online.seasonActive())return Pmsg('🏁 Aguardando início da próxima temporada. Jogue Clássico ou Treino.');Snd.init();
+  launch(){if(this.opt.mode!=='treino'&&Rejoin.pending())return Rejoin.nudge();if(Party.inParty()&&!Party.isHost())return Pmsg('Só o líder da party pode iniciar a partida.');if(this.opt.mode==='rank'&&!Online.seasonActive())return Pmsg('{{flag}} Aguardando início da próxima temporada. Jogue Clássico ou Treino.');Snd.init();
     try{const el=document.documentElement;(el.requestFullscreen||el.webkitRequestFullscreen||(()=>{})).call(el);screen.orientation&&screen.orientation.lock&&screen.orientation.lock('landscape').catch(()=>{})}catch(e){}
     this.fixOpt();const bp=this.botPick();const o=Object.assign({},this.opt,{size:5,diff:bp.diff,botRank:bp.rank,eco:this.opt.mode==='treino'?'treino':'padrao',team:'R'});$('#ldMap').textContent=(MN[o.map]||'Dunas').toUpperCase();try{buildLoadingBackground(o.map)}catch(e){}$('#ldMode').textContent=`${this.modeName(o.mode)} · 5v5 · BOTS ${(DIFF_LBL[o.diff]||o.diff)}`;
     const tips=['Agachar reduz a dispersão dos disparos.','Tiros na cabeça causam 3× de dano (1,7× com capacete).','Colete protege o corpo (60) e o capacete a cabeça (40); cada peça quebra sozinha.','Atire pelo botão FOGO e arraste a tela da direita para mirar.','Pule em caixas baixas para ganhar altura.'];
@@ -6158,7 +6357,7 @@ const UI={tab:'play',view:'lobby',stab:'video',itab:'skins',iw:'all',ir:'all',
       prewarmDune(setP).catch(e=>console.warn('[TS2] prewarm Dune falhou (segue sem ele)',e)).then(()=>{setP(.98,'Montando o mapa…');return Perf.nextFrame()}).then(cont)
     }else{const iv=setInterval(()=>{p+=25;bar.style.width=p+'%';tx.textContent=msgs[Math.min(3,p/25-1|0)];if(p>=100){clearInterval(iv);cont()}},300)}},
   /* membro da party: entra na sala criada pelo líder */
-  async partyJoin(go){if(Game.mode!=='menu'||!Online.ok)return;Snd.init();
+  async partyJoin(go){if(Game.mode!=='menu'||!Online.ok)return;if(Rejoin.pending())return Rejoin.nudge();Snd.init();
     try{const i=(await Online.db.ref('rooms/'+go.rid+'/info').get()).val();if(!i)return;
       const pl=Object.entries(i.p||{}).map(([pid,v])=>Object.assign({pid},v)),me=pl.find(x=>x.pid===Online.pid);if(!me)return;
       try{const el=document.documentElement;(el.requestFullscreen||el.webkitRequestFullscreen||(()=>{})).call(el);screen.orientation&&screen.orientation.lock&&screen.orientation.lock('landscape').catch(()=>{})}catch(e){}
@@ -6167,7 +6366,20 @@ const UI={tab:'play',view:'lobby',stab:'video',itab:'skins',iw:'all',ir:'all',
       const L=$('#loading');L.classList.remove('hidden');
       if(o.map==='dune'&&typeof prewarmDune==='function'){const _b=$('#ldBar'),_t=$('#ldTxt');_b.style.width='0%';try{await prewarmDune((f,m)=>{const q=Math.min(100,Math.round(f*100));_b.style.width=q+'%';_t.textContent=m+' '+q+'%'})}catch(e){console.warn('[TS2] prewarm Dune',e)}_t.textContent='Entrando na partida do líder…'}
       setTimeout(()=>{$('#menu').classList.add('hidden');L.classList.add('hidden');Online.setIg(1);Game.start(Object.assign({},o,{room:{rid:go.rid,me,others:pl.filter(x=>x.pid!==me.pid),host:i.host,party:true}}));MeshPhys.pre=Nav.pre=null},700)}catch(e){Pmsg('Não foi possível entrar na partida.')}},
-  inv(){const tabs=[['skins','🎨 SKINS'],['agents','👤 PERSONAGENS'],['avatars','🖼️ AVATARES']];
+  /* [RECONEXÃO] volta para a partida em andamento (mesma sala/time/placar/itens) */
+  async rejoin(s,st){if(Game.mode!=='menu')return false;Snd.init();const L=$('#loading');Rejoin._resuming=true;
+    try{try{const el=document.documentElement;(el.requestFullscreen||el.webkitRequestFullscreen||(()=>{})).call(el);screen.orientation&&screen.orientation.lock&&screen.orientation.lock('landscape').catch(()=>{})}catch(e){}
+      const o=Object.assign({},this.opt,{map:s.map,mode:s.mode,size:s.size||5,diff:s.diff||'normal',botRank:s.botRank,eco:s.eco||'padrao',team:s.ot});
+      $('#ldMap').textContent=(MN[o.map]||'Dunas').toUpperCase();try{buildLoadingBackground(o.map)}catch(e){}$('#ldMode').textContent='RECONEXÃO · '+(s.rid?'ONLINE':'BOTS');$('#ldTxt').textContent='Reconectando à partida…';$('#ldBar').style.width='100%';
+      L.classList.remove('hidden');
+      if(o.map==='dune'&&typeof prewarmDune==='function'){const _b=$('#ldBar'),_t=$('#ldTxt');_b.style.width='0%';try{await prewarmDune((f,m)=>{const q=Math.min(100,Math.round(f*100));_b.style.width=q+'%';_t.textContent=m+' '+q+'%'})}catch(e){console.warn('[TS2] prewarm Dune',e)}_t.textContent='Reconectando à partida…'}
+      await new Promise(r=>setTimeout(r,500));
+      const R2=s.rid&&s.room?{rid:s.rid,me:s.room.me,others:s.room.others||[],host:s.room.host,party:!!s.party}:null;
+      $('#menu').classList.add('hidden');L.classList.add('hidden');Online.setIg(1);
+      Game.start(Object.assign({},o,{room:R2}));MeshPhys.pre=Nav.pre=null;Rejoin.apply(s,st);return true}
+    catch(e){console.warn('rejoin',e);try{L.classList.add('hidden')}catch(_){}Pmsg('Não foi possível reconectar à partida.');return false}
+    finally{Rejoin._resuming=false}},
+  inv(){const tabs=[['skins',SI.palette+' SKINS'],['agents',SI.user+' PERSONAGENS'],['avatars',SI.image+' AVATARES']];
     if(!tabs.some(t=>t[0]===this.itab))this.itab='skins';
     const wf=[['all','TODAS'],['pistol','PISTOLAS'],['fuzil','FUZIS'],['rifle','RIFLES'],['knife','FACAS'],['nade','GRANADAS']],FUZ=['ak47','m4a1s','m4a4','galil'];
     if(!wf.some(t=>t[0]===this.iw))this.iw='all';
@@ -6189,7 +6401,7 @@ const UI={tab:'play',view:'lobby',stab:'video',itab:'skins',iw:'all',ir:'all',
       Object.keys(Online.cav).forEach(k=>{if(ow.includes('c_'+k))L.push({id:'c_'+k,h:avOf('c_'+k),nm:esc(Online.cav[k].n)})});
       AVR.forEach((ic,i)=>{const left=(+ex[ic]||0)-now;if(left>0)L.push({id:'r_'+ic,h:rkIcon(avRank(ic),44),nm:RK_NAME[i],sub:Math.ceil(left/864e5)+' dia(s) restantes'})});
       body=`<div class="inv">${L.map(a=>`<div class="item ${cur===a.id?'eq':''}" style="--rc:#9aa5b1"><div class="sk" style="height:64px;display:flex;align-items:center;justify-content:center;font-size:40px">${a.h}</div><b>${a.nm}</b>${a.sub?`<small>${a.sub}</small>`:''}<div class="bb"><button data-eav="${a.id}">${cur===a.id?'EQUIPADO':'EQUIPAR'}</button></div></div>`).join('')}</div>`}
-    $('#menuMain').innerHTML=`<h2>INVENTÁRIO<small>${sk.length+gs.length} itens · 🪙 ${myStats().coins} moedas</small><button class="btn back" id="bkLb">✕ VOLTAR</button></h2><div class="tabs">${tabs.map(t=>`<button data-t="${t[0]}" class="${this.itab===t[0]?'on':''}">${t[1]}</button>`).join('')}</div>${body}`;
+    $('#menuMain').innerHTML=`<h2>INVENTÁRIO<small>${sk.length+gs.length} itens · ${SI.coin} ${myStats().coins} moedas</small><button class="btn back" id="bkLb">${SI.x} VOLTAR</button></h2><div class="tabs">${tabs.map(t=>`<button data-t="${t[0]}" class="${this.itab===t[0]?'on':''}">${t[1]}</button>`).join('')}</div>${body}`;
     $('#bkLb').onclick=()=>this.go('play','lobby');
     $$('.tabs button[data-t]').forEach(b=>b.onclick=()=>{this.itab=b.dataset.t;this.inv()});
     $$('.tabs button[data-w]').forEach(b=>b.onclick=()=>{this.iw=b.dataset.w;this.inv()});
@@ -6214,7 +6426,7 @@ const UI={tab:'play',view:'lobby',stab:'video',itab:'skins',iw:'all',ir:'all',
       return`<div class="row"><span>${l}</span>${ctl}</div>`}).join('');
     const extra=this.stab==='ctrl'?`<div class="row"><span>Layout dos botões</span><button class="btn g" id="edHud">EDITAR LAYOUT DA HUD</button></div>`:'';
     $('#menuMain').innerHTML=`<div class="panel"><h2>CONFIGURAÇÕES</h2><div class="tabs">${tabs.map(t=>`<button data-t="${t[0]}" class="${this.stab===t[0]?'on':''}">${t[1]}</button>`).join('')}</div>${rows}${extra}
-      <div class="foot"><button class="btn" id="rsDef">RESTAURAR PADRÃO</button><div><button class="btn" id="stBack">VOLTAR</button> <button class="btn g" id="stApply">APLICAR</button></div></div><button class="btn out" id="stLogout">⏻ DESLOGAR</button></div>`;
+      <div class="foot"><button class="btn" id="rsDef">RESTAURAR PADRÃO</button><div><button class="btn" id="stBack">VOLTAR</button> <button class="btn g" id="stApply">APLICAR</button></div></div><button class="btn out" id="stLogout">${SI.power} DESLOGAR</button></div>`;
     const live=()=>{saveS();applyVideo();HUD.apply();HUDui.crosshair()};
     $$('.tabs button').forEach(b=>b.onclick=()=>{this.stab=b.dataset.t;this.set()});
     $$('#menuMain input[type=range]').forEach(i=>i.oninput=()=>{S[i.dataset.k]=+i.value;const u=this.schema[this.stab].find(r=>r[0]===i.dataset.k)[6];$('#v_'+i.dataset.k).textContent=i.value+u;live()});
@@ -6243,9 +6455,9 @@ const UI={tab:'play',view:'lobby',stab:'video',itab:'skins',iw:'all',ir:'all',
       if(x.k==='v'){own=ow.includes('c_'+s.id);col='#9aa5b1';rn='Avatar';nm=esc(s.n);img=`<span style="font-size:42px">${s.d?avSvg(s.d,46):esc(s.e)}</span>`;sub='Avatar'}
       else{own=x.k==='a'?isOwnedAg(s):isOwned(s);col=x.k==='a'?RAR[s.t][1]:s.rc;rn=x.k==='a'?RAR[s.t][0]:s.r;nm=x.k==='a'?s.name:s.n;
         if(x.k==='w'){img=`<img src="${Thumb.weapon(s.id)}" alt="">`;sub=W[s.w].name}else if(x.k==='g'){img=gPrev(s);sub=GN[s.g]}else{img=`<img src="${Thumb.agent(x.tm,s.id)}" alt="" style="height:96px">`;sub='Personagem '+x.tm}}
-      const btn=own?'<button disabled>✔ NA POSSE</button>':`<button data-b="${x.k}:${s.id}" data-tm="${x.tm||''}" style="color:#e8c04a">🪙 ${x.p}</button>`;
+      const btn=own?'<button disabled>'+SI.check+' NA POSSE</button>':`<button data-b="${x.k}:${s.id}" data-tm="${x.tm||''}" style="color:#e8c04a">${SI.coin} ${x.p}</button>`;
       return`<div class="item" style="--rc:${col}"><div class="sk" style="${x.k==='a'?'height:100px':x.k==='v'?'height:70px;display:flex;align-items:center;justify-content:center':''}">${img}</div><small>${sub}</small><b>${nm}</b><small style="color:${col}">${rn}</small><div class="bb">${btn}${x.k==='v'?'':`<button data-v="${x.k}:${s.id}:${x.tm||''}">VER</button>`}</div></div>`};
-    $('#menuMain').innerHTML=`<h2>LOJA<small>🪙 ${st.coins} moedas${msg?' · '+msg:''}</small><button class="btn back" id="bkLb">✕ VOLTAR</button></h2>${it.length?`<div class="inv">${it.map(card).join('')}</div>`:'<div class="panel" style="text-align:center;color:var(--mut)">🛒 Nenhum item disponível na loja no momento.<br><small>Volte mais tarde — novos itens aparecem quando forem liberados.</small></div>'}`;
+    $('#menuMain').innerHTML=`<h2>LOJA<small>${SI.coin} ${st.coins} moedas${msg?' · '+msg:''}</small><button class="btn back" id="bkLb">${SI.x} VOLTAR</button></h2>${it.length?`<div class="inv">${it.map(card).join('')}</div>`:'<div class="panel" style="text-align:center;color:var(--mut)">${SI.cart} Nenhum item disponível na loja no momento.<br><small>Volte mais tarde — novos itens aparecem quando forem liberados.</small></div>'}`;
     $('#menuMain').scrollTop=sc;$('#bkLb').onclick=()=>this.go('play','lobby');
     $$('[data-b]').forEach(b=>b.onclick=()=>{const [k,id]=b.dataset.b.split(':');const ok=k==='v'?buyCAvatar(id):k==='a'?buyAgent(AGENTS[b.dataset.tm].find(x=>x.id===id)):buySkin((k==='g'?GSKINS:SKINS).find(x=>x.id===id));this.smsg=ok?'Comprado!':'Moedas insuficientes';this.shop()});
     $$('[data-v]').forEach(b=>b.onclick=()=>{const [k,id,tm]=b.dataset.v.split(':'),cb=()=>this.shop();k==='w'?Thumb.inspect(id,cb):k==='a'?Thumb.inspectAgent(tm,id,cb):Thumb.inspectNade(id,cb)})},
@@ -6256,11 +6468,11 @@ const UI={tab:'play',view:'lobby',stab:'video',itab:'skins',iw:'all',ir:'all',
       if(gk)return{img:`<img src="${Thumb.nadeSkin(gk.id)}" alt="" style="height:72px;object-fit:contain">`,nm:GN[gk.g]+' | '+gk.n,r:gk.r,rc:gk.rc};
       if(tm){const a=AGENTS[tm].find(x=>x.id===id),ra=RAR[a.t]||['',''];return{img:`<img src="${Thumb.agent(tm,id)}" alt="" style="height:96px;object-fit:contain">`,nm:a.name,r:'Personagem '+tm+(ra[0]?' · '+ra[0]:''),rc:ra[1]||'#e8c04a'}}
     }catch(e){}
-    return{img:'<span style="font-size:28px">🎁</span>',nm:id,r:'',rc:'#e8c04a'}},
+    return{img:'<span style="font-size:28px;display:inline-flex">'+SI.gift+'</span>',nm:id,r:'',rc:'#e8c04a'}},
   /* cards extras do Correio: XP, Agente e Avatar (lê os campos xp / agent+agentDays / avatar+avDays da mensagem) */
   mailXp(m){const x=Math.floor(+m.xp)||0;if(x<=0)return'';
-    return`<div style="display:flex;align-items:center;gap:6px;padding:8px 10px;background:var(--panel2);border:1px solid var(--line);border-bottom:2px solid var(--blue)"><span style="font-size:22px">⭐</span><b style="color:var(--blue)">${x} XP</b></div>`},
-  mailDays(d){return d===undefined||d===null||d===''?'':(+d>0?'⏳ '+(+d)+' dias':'Já possui')},
+    return`<div style="display:flex;align-items:center;gap:6px;padding:8px 10px;background:var(--panel2);border:1px solid var(--line);border-bottom:2px solid var(--blue)"><span style="font-size:22px;display:inline-flex">${SI.star}</span><b style="color:var(--blue)">${x} XP</b></div>`},
+  mailDays(d){return d===undefined||d===null||d===''?'':(+d>0?SI.hourglass+' '+(+d)+' dias':'Já possui')},
   mailAgent(m){if(!m.agent)return'';const rw=this.mailReward(m.agent),dl=this.mailDays(m.agentDays);
     return`<div style="display:flex;align-items:center;gap:10px;padding:6px 10px;background:var(--panel2);border:1px solid var(--line);border-bottom:2px solid ${rw.rc}">${rw.img}<div><small style="color:var(--mut)">AGENTE</small><b style="display:block">${esc(rw.nm)}</b><small style="color:${rw.rc}">${esc(rw.r)}</small>${dl?`<small style="display:block;color:var(--gold)">${dl}</small>`:''}</div></div>`},
   mailAvatar(m){const id=String(m.avatar||'');if(!id)return'';let h='',nm='';
@@ -6273,11 +6485,11 @@ const UI={tab:'play',view:'lobby',stab:'video',itab:'skins',iw:'all',ir:'all',
   mail(){const all=(Online.mails||[]).concat(Online.rkMails()).sort((a,b)=>(b.ts||0)-(a.ts||0)),ns=(Online.notices||[]).slice().reverse(),d=t=>t?new Date(t).toLocaleDateString('pt-BR'):'',
       ids=m=>String(m.skins||m.skin||'').split(',').filter(Boolean),
       ms=all.filter(m=>!((m.coins||ids(m).length)&&m.c));      // mensagem com prêmio coletado some da caixa
-    $('#menuMain').innerHTML=`<h2>CORREIO<small>${ms.length} mensagens</small><button class="btn back" id="bkLb">✕ VOLTAR</button></h2>
-    ${ns.length?'<div class="ag-h">AVISOS</div>'+ns.map(n=>`<div class="panel" style="margin-bottom:6px"><b>📢 ${esc(n.t)}</b><div style="font-size:12px;color:var(--mut);white-space:pre-wrap">${esc(n.b)}</div></div>`).join(''):''}
+    $('#menuMain').innerHTML=`<h2>CORREIO<small>${ms.length} mensagens</small><button class="btn back" id="bkLb">${SI.x} VOLTAR</button></h2>
+    ${ns.length?'<div class="ag-h">AVISOS</div>'+ns.map(n=>`<div class="panel" style="margin-bottom:6px"><b>${SI.mega} ${esc(n.t)}</b><div style="font-size:12px;color:var(--mut);white-space:pre-wrap">${esc(n.b)}</div></div>`).join(''):''}
     <div class="ag-h">MENSAGENS</div>${ms.length?ms.map(m=>{const sl=ids(m),has=m.coins||sl.length||m.xp||m.agent||m.avatar;
-      return`<div class="panel" style="margin-bottom:6px;${m.r?'':'border-left:3px solid var(--gold)'}"><b>${esc(m.t)}</b> <small style="color:var(--mut)">${d(m.ts)}</small><div style="font-size:12px;color:var(--mut);white-space:pre-wrap;margin:4px 0">${esc(m.b)}</div>
-        ${has?`<div style="display:flex;gap:8px;align-items:stretch;flex-wrap:wrap;margin:6px 0">${m.coins?`<div style="display:flex;align-items:center;gap:6px;padding:8px 10px;background:var(--panel2);border:1px solid var(--line)"><span style="font-size:22px">🪙</span><b>${esc(m.coins)}</b><small style="color:var(--mut)">moedas</small></div>`:''}${this.mailXp(m)}${sl.map(id=>{const rw=this.mailReward(id);return`<div style="display:flex;align-items:center;gap:10px;padding:6px 10px;background:var(--panel2);border:1px solid var(--line);border-bottom:2px solid ${rw.rc}">${rw.img}<div><b style="display:block">${esc(rw.nm)}</b><small style="color:${rw.rc}">${esc(rw.r)}</small></div></div>`}).join('')}${this.mailAgent(m)}${this.mailAvatar(m)}</div><button class="btn g" data-cl="${m.id}">COLETAR</button>`:''}</div>`}).join(''):'<small style="color:var(--mut)">Nenhuma mensagem.</small>'}`;
+      return`<div class="panel" style="margin-bottom:6px;${m.r?'':'border-left:3px solid var(--gold)'}"><b style="display:inline-flex;align-items:center;gap:5px">${m.rk?SI.medal:''}${esc(m.t)}</b> <small style="color:var(--mut)">${d(m.ts)}</small><div style="font-size:12px;color:var(--mut);white-space:pre-wrap;margin:4px 0">${esc(m.b)}</div>
+        ${has?`<div style="display:flex;gap:8px;align-items:stretch;flex-wrap:wrap;margin:6px 0">${m.coins?`<div style="display:flex;align-items:center;gap:6px;padding:8px 10px;background:var(--panel2);border:1px solid var(--line)"><span style="font-size:22px;display:inline-flex">${SI.coin}</span><b>${esc(m.coins)}</b><small style="color:var(--mut)">moedas</small></div>`:''}${this.mailXp(m)}${sl.map(id=>{const rw=this.mailReward(id);return`<div style="display:flex;align-items:center;gap:10px;padding:6px 10px;background:var(--panel2);border:1px solid var(--line);border-bottom:2px solid ${rw.rc}">${rw.img}<div><b style="display:block">${esc(rw.nm)}</b><small style="color:${rw.rc}">${esc(rw.r)}</small></div></div>`}).join('')}${this.mailAgent(m)}${this.mailAvatar(m)}</div><button class="btn g" data-cl="${m.id}">COLETAR</button>`:''}</div>`}).join(''):'<small style="color:var(--mut)">Nenhuma mensagem.</small>'}`;
     $('#bkLb').onclick=()=>this.go('play','lobby');
     $$('[data-cl]').forEach(b=>b.onclick=async()=>{b.disabled=true;await Online.claim(b.dataset.cl);this.mail()});
     ms.filter(m=>!m.r).forEach(m=>Online.db.ref('mail/'+Online.pid+'/'+m.id+'/r').set(1).catch(()=>{}));
