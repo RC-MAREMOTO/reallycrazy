@@ -5524,7 +5524,8 @@ const Online={shopOn:{sk:{},ag:{},av:{}},cav:{},db:null,ok:false,pid:Store.get('
   rkMails(){try{const st=myStats(),pend=rkPending(st),ts=Store.get('rkMailTs',{}),rw=this.seasonRewards||{};let ch=0;
     const out=pend.map(ic=>{const i=RK_FAM.indexOf(ic),R=RANK_REWARDS[ic],ag=agentById(R.agent);if(!ts[ic]){ts[ic]=Date.now();ch=1}
       let sid=rw[RK_NAME[i]];sid=Array.isArray(sid)?sid[0]:sid;if(sid&&!SKINS.find(x=>x.id===sid))sid='';
-      return{id:'rk:'+ic,rk:ic,local:1,r:1,t:'🏅 Patente '+RK_NAME[i]+' alcançada!',ts:ts[ic],coins:R.coins,skins:sid||'',b:'Recompensa da patente '+RK_NAME[i]+': ⭐ '+R.xp+' XP · agente '+(ag?ag.name:'')+' (60 dias) · avatar (60 dias)'}});
+      const perm=!!(ag&&Store.get('owned',[]).includes(ag.id)&&!Store.get('agExp',{})[ic]);   // agente já comprado em definitivo: não ganha validade (igual earnAgent)
+      return{id:'rk:'+ic,rk:ic,local:1,r:1,t:'🏅 Patente '+RK_NAME[i]+' alcançada!',ts:ts[ic],coins:R.coins,xp:R.xp,agent:ag?ag.id:'',agentDays:perm?0:60,avatar:'r_'+ic,avDays:60,skins:sid||'',b:'Parabéns! Colete as recompensas da patente '+RK_NAME[i]+':'}});
     if(ch)Store.set('rkMailTs',ts);return out}catch(e){return[]}},
   rkNotify(){try{const seen=Store.get('rkSeen',[]),nw=rkPending(myStats()).filter(ic=>!seen.includes(ic));if(!nw.length)return;Store.set('rkSeen',seen.concat(nw));if(Game.mode==='menu')Pmsg('📬 Recompensa de patente chegou no Correio!')}catch(e){}},
   claimRkMail(ic){if(!this.seasonActive())return Pmsg('🏁 Recompensas liberam quando a temporada estiver ativa.');
@@ -6187,14 +6188,27 @@ const UI={tab:'play',view:'lobby',stab:'video',itab:'skins',iw:'all',ir:'all',
       if(tm){const a=AGENTS[tm].find(x=>x.id===id),ra=RAR[a.t]||['',''];return{img:`<img src="${Thumb.agent(tm,id)}" alt="" style="height:96px;object-fit:contain">`,nm:a.name,r:'Personagem '+tm+(ra[0]?' · '+ra[0]:''),rc:ra[1]||'#e8c04a'}}
     }catch(e){}
     return{img:'<span style="font-size:28px">🎁</span>',nm:id,r:'',rc:'#e8c04a'}},
+  /* cards extras do Correio: XP, Agente e Avatar (lê os campos xp / agent+agentDays / avatar+avDays da mensagem) */
+  mailXp(m){const x=Math.floor(+m.xp)||0;if(x<=0)return'';
+    return`<div style="display:flex;align-items:center;gap:6px;padding:8px 10px;background:var(--panel2);border:1px solid var(--line);border-bottom:2px solid var(--blue)"><span style="font-size:22px">⭐</span><b style="color:var(--blue)">${x} XP</b></div>`},
+  mailDays(d){return d===undefined||d===null||d===''?'':(+d>0?'⏳ '+(+d)+' dias':'Já possui')},
+  mailAgent(m){if(!m.agent)return'';const rw=this.mailReward(m.agent),dl=this.mailDays(m.agentDays);
+    return`<div style="display:flex;align-items:center;gap:10px;padding:6px 10px;background:var(--panel2);border:1px solid var(--line);border-bottom:2px solid ${rw.rc}">${rw.img}<div><small style="color:var(--mut)">AGENTE</small><b style="display:block">${esc(rw.nm)}</b><small style="color:${rw.rc}">${esc(rw.r)}</small>${dl?`<small style="display:block;color:var(--gold)">${dl}</small>`:''}</div></div>`},
+  mailAvatar(m){const id=String(m.avatar||'');if(!id)return'';let h='',nm='';
+    try{const rm=/^r_(\w+)$/.exec(id),ri=rm?AVR.indexOf(rm[1]):-1,am=/^a(\d+)$/.exec(id),cm=/^c_(.+)$/.exec(id);
+      if(ri>=0){h=rkIcon(avRank(rm[1]),44);nm='Avatar '+RK_NAME[ri]}
+      else if(am&&AVATARS[+am[1]]){h=AVATARS[+am[1]];nm='Avatar '+AV_NAMES[+am[1]]}
+      else if(cm&&Online.cav[cm[1]]){h=avOf(id);nm='Avatar '+esc(Online.cav[cm[1]].n)}}catch(e){}
+    if(!h)return'';const dl=this.mailDays(m.avDays);
+    return`<div style="display:flex;align-items:center;gap:10px;padding:6px 10px;background:var(--panel2);border:1px solid var(--line);border-bottom:2px solid #9aa5b1"><span style="display:flex;align-items:center;justify-content:center;width:52px;height:52px;font-size:34px;line-height:1">${h}</span><div><small style="color:var(--mut)">AVATAR</small><b style="display:block">${nm}</b>${dl?`<small style="display:block;color:var(--gold)">${dl}</small>`:''}</div></div>`},
   mail(){const all=(Online.mails||[]).concat(Online.rkMails()).sort((a,b)=>(b.ts||0)-(a.ts||0)),ns=(Online.notices||[]).slice().reverse(),d=t=>t?new Date(t).toLocaleDateString('pt-BR'):'',
       ids=m=>String(m.skins||m.skin||'').split(',').filter(Boolean),
       ms=all.filter(m=>!((m.coins||ids(m).length)&&m.c));      // mensagem com prêmio coletado some da caixa
     $('#menuMain').innerHTML=`<h2>CORREIO<small>${ms.length} mensagens</small><button class="btn back" id="bkLb">✕ VOLTAR</button></h2>
     ${ns.length?'<div class="ag-h">AVISOS</div>'+ns.map(n=>`<div class="panel" style="margin-bottom:6px"><b>📢 ${esc(n.t)}</b><div style="font-size:12px;color:var(--mut);white-space:pre-wrap">${esc(n.b)}</div></div>`).join(''):''}
-    <div class="ag-h">MENSAGENS</div>${ms.length?ms.map(m=>{const sl=ids(m),has=m.coins||sl.length;
+    <div class="ag-h">MENSAGENS</div>${ms.length?ms.map(m=>{const sl=ids(m),has=m.coins||sl.length||m.xp||m.agent||m.avatar;
       return`<div class="panel" style="margin-bottom:6px;${m.r?'':'border-left:3px solid var(--gold)'}"><b>${esc(m.t)}</b> <small style="color:var(--mut)">${d(m.ts)}</small><div style="font-size:12px;color:var(--mut);white-space:pre-wrap;margin:4px 0">${esc(m.b)}</div>
-        ${has?`<div style="display:flex;gap:8px;align-items:stretch;flex-wrap:wrap;margin:6px 0">${m.coins?`<div style="display:flex;align-items:center;gap:6px;padding:8px 10px;background:var(--panel2);border:1px solid var(--line)"><span style="font-size:22px">🪙</span><b>${esc(m.coins)}</b><small style="color:var(--mut)">moedas</small></div>`:''}${sl.map(id=>{const rw=this.mailReward(id);return`<div style="display:flex;align-items:center;gap:10px;padding:6px 10px;background:var(--panel2);border:1px solid var(--line);border-bottom:2px solid ${rw.rc}">${rw.img}<div><b style="display:block">${esc(rw.nm)}</b><small style="color:${rw.rc}">${esc(rw.r)}</small></div></div>`}).join('')}</div><button class="btn g" data-cl="${m.id}">COLETAR</button>`:''}</div>`}).join(''):'<small style="color:var(--mut)">Nenhuma mensagem.</small>'}`;
+        ${has?`<div style="display:flex;gap:8px;align-items:stretch;flex-wrap:wrap;margin:6px 0">${m.coins?`<div style="display:flex;align-items:center;gap:6px;padding:8px 10px;background:var(--panel2);border:1px solid var(--line)"><span style="font-size:22px">🪙</span><b>${esc(m.coins)}</b><small style="color:var(--mut)">moedas</small></div>`:''}${this.mailXp(m)}${sl.map(id=>{const rw=this.mailReward(id);return`<div style="display:flex;align-items:center;gap:10px;padding:6px 10px;background:var(--panel2);border:1px solid var(--line);border-bottom:2px solid ${rw.rc}">${rw.img}<div><b style="display:block">${esc(rw.nm)}</b><small style="color:${rw.rc}">${esc(rw.r)}</small></div></div>`}).join('')}${this.mailAgent(m)}${this.mailAvatar(m)}</div><button class="btn g" data-cl="${m.id}">COLETAR</button>`:''}</div>`}).join(''):'<small style="color:var(--mut)">Nenhuma mensagem.</small>'}`;
     $('#bkLb').onclick=()=>this.go('play','lobby');
     $$('[data-cl]').forEach(b=>b.onclick=async()=>{b.disabled=true;await Online.claim(b.dataset.cl);this.mail()});
     ms.filter(m=>!m.r).forEach(m=>Online.db.ref('mail/'+Online.pid+'/'+m.id+'/r').set(1).catch(()=>{}));
