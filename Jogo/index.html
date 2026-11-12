@@ -290,6 +290,7 @@ body.editing #cross{display:block}
 #hm::before,#hm::after{content:"";position:absolute;left:9px;top:-2px;width:2px;height:24px;background:#fff;transform:rotate(45deg)}#hm::after{transform:rotate(-45deg)}
 #hm.k::before,#hm.k::after{background:var(--red)}
 #fps{position:absolute;left:112px;top:6px;font-size:10px;color:#9f9;text-shadow:0 0 3px #000}
+#ping{position:absolute;left:112px;top:20px;font-size:10px;font-weight:700;display:flex;align-items:center;gap:3px;text-shadow:0 0 3px #000;white-space:nowrap}#ping svg{width:12px;height:12px;flex:none}
 #pauseBtn{position:absolute;pointer-events:auto;right:8px;top:34px;z-index:6;width:34px;height:34px;border-radius:6px;background:#000a;border:1px solid #fff4;color:#fff;font-weight:700;font-size:13px;font-family:inherit}
 /* ---------- SHOP / PAUSE ---------- */
 #shop{position:fixed;inset:0;z-index:30;background:#0006;display:flex;align-items:center;justify-content:center}
@@ -453,7 +454,7 @@ button[data-av] svg{width:28px;height:28px}.avs svg{width:100%;height:100%;displ
   <div id="zoneL"></div><div id="zoneR"></div>
   <div id="stick" data-w="stick"><div id="knob"></div></div>
   <div class="gameui">
-    <canvas id="radar" data-w="radar" width="340" height="340"></canvas><div id="fps" data-w="fps"></div>
+    <canvas id="radar" data-w="radar" width="340" height="340"></canvas><div id="fps" data-w="fps"></div><div id="ping" data-w="ping"></div>
     <div id="score"><div class="a" id="sA">0</div><div class="t" id="tm">0:00<small id="rd">ROUND 1</small></div><div class="b" id="sB">0</div></div>
     <div id="kf"></div>
     <div id="cross"></div><div id="hm"></div>
@@ -3326,7 +3327,7 @@ const NAMES=['Nego Ney','Chico não vê','Sou cego','Zé Droguinha','Tiro Certo'
 const DIFF={facil:{react:.9,acc:.22,rof:1.3,spd:3.1,hs:.04},normal:{react:.5,acc:.38,rof:1,spd:3.8,hs:.1},dificil:{react:.25,acc:.58,rof:.8,spd:4.5,hs:.2},muito_dificil:{react:.15,acc:.74,rof:.65,spd:5.1,hs:.3}};
 const BOT_FOV_COS=Math.cos(50*Math.PI/180),BOT_FIRE_COS=Math.cos(22*Math.PI/180),BOT_KEEP_COS=Math.cos(70*Math.PI/180);   // aquisição ±50° (100°), manter alvo ±70°, atirar só alinhado ±22°
 const TRAIN_AG={id:'dummy',name:'Treino',t:0,suit:0xe8541c,pants:0xe8541c,vest:0xe8541c,skin:0xe8541c,helm:0xe8541c,mask:0xe8541c,gog:0xe8541c};   // boneco de treino laranja
-/* ---------------- Cérebro dos bots: curiosidade (rotas novas) + pulos aprendidos. Salva em localStorage e no Firebase: memoria_bots/<nome>/{pulos_sucesso, mapas/<mapa>/{atalhos_descobertos,rotas_usadas,melhor_tempo,curiosidade}} ---------------- */
+/* ---------------- Cérebro dos bots: curiosidade (rotas novas) + pulos aprendidos. Salva em localStorage e no Firebase: memoria_ct|memoria_tr/bots/<nome~TIME>/{pulos_sucesso, mapas/<mapa>/{atalhos_descobertos,rotas_usadas,melhor_tempo,curiosidade}} ---------------- */
 /* ---- SCORE (recompensa/punição): pontos por evento durante o round → finish() no fim do round (Game.endRound).
    RECOMPENSAS: +100 plantar C4 · +100 desarmar C4 · +50 matar inimigo · +30 ganhar o round · +25 dropar arma p/ aliado · +20 cegar inimigo (Flash) · +20 ferir inimigo (HE)
      · +20 chegar vivo ao bombsite · +15 atalho de Parkour (rota vertical) · +15 dropar granada p/ aliado · +15 dar Boost · +15 fumaça útil · +10 pular obstáculo (máx 5/round) · +5 explorar área nova
@@ -3334,9 +3335,9 @@ const TRAIN_AG={id:'dummy',name:'Treino',t:0,suit:0xe8541c,pants:0xe8541c,vest:0
      · -50 cair no vazio (limbo; teleporta pro spawn) · -40 AFK no spawn · -30 morrer · -25 dano da própria HE · -20 preso na parede (2 s) · -15 se cegar com a própria Flash · -10 acampar (>40 s)
    APRENDIZADO: score>0 salva rotas, atalhos (inclusive Parkour) e PULOS do round. Score<0 descarta tudo isso e marca a rota como perigosa (celulas_perigosas).
    BUGS (terra/parede/limbo) viram celulas_proibidas (A* evita nos próximos rounds, penalidade pesada que decai a cada 10 rounds). Loop também marca as células do giro como perigosas.
-   ENXAME: memoria_global/<mapa> (veterano ensina, novato não; A* dá prioridade às rotas de veterano; proibidas BLOQUEIAM por 3 rounds, 3 hits = permanente na partida; memória recarregada a cada round).
-   SHADOW PLAYER: o jogador humano também é observado (hTick/hEnd). Score>0 + (chegou vivo ao site OU matou) → rota salva em memoria_global/<mapa>/rotas/<time|site>/H_<id> com h:1 (peso MAIOR que qualquer bot veterano); bots sombra seguem o humano a 5,5–11 m.
-   FIREBASE: memoria_bots/<nome>/{score, pulos_sucesso, granadas, erros/<mapa>/{contagem,eventos[60]}, mapas/<mapa>/{celulas_proibidas, celulas_perigosas, atalhos_*, rotas_usadas, ...}} ---- */
+   ENXAME: memoria_ct|memoria_tr/global/<mapa> (veterano ensina, novato não; A* dá prioridade às rotas de veterano; proibidas BLOQUEIAM por 3 rounds, 3 hits = permanente na partida; memória recarregada a cada round).
+   SHADOW PLAYER: o jogador humano também é observado (hTick/hEnd). Score>0 + (chegou vivo ao site OU matou) → rota salva em memoria_ct|memoria_tr/global/<mapa>/rotas/<time|site>/H_<id> com h:1 (peso MAIOR que qualquer bot veterano); bots sombra seguem o humano a 5,5–11 m.
+   FIREBASE: memoria_ct|memoria_tr/bots/<nome~TIME>/{score, pulos_sucesso, granadas, erros/<mapa>/{contagem,eventos[60]}, mapas/<mapa>/{celulas_proibidas, celulas_perigosas, atalhos_*, rotas_usadas, ...}} ---- */
 const BotBrain={C:{},L:{},CAMP:40,AFK:10,LOOP_T:8,GL:{},ENT:{},
   /* ===== REGRAS CONSOLIDADAS (C4, rota humana, marotar, retomar rota, aprendizado entre rounds) ===== */
   sp2(t){const a=(World.spawns[t]||[])[0];return a?(Array.isArray(a)?{x:a[0],z:a[1]}:{x:a.x,z:a.z}):null},
@@ -3364,20 +3365,26 @@ const BotBrain={C:{},L:{},CAMP:40,AFK:10,LOOP_T:8,GL:{},ENT:{},
   maroto(b,st){const c=this.sp2('CT'),dx=c?c.x-st.x:0,dz=c?c.z-st.z:-1,l=Math.hypot(dx,dz)||1;return this.mcover(b,st,{x:st.x+dx/l*14,z:st.z+dz/l*14},st.r+8)},   // T sem C4: cobertura virada pro lado dos CTs
   /* APRENDIZADO ENTRE ROUNDS: recarrega do Firebase score + atalhos (+ perigosas/proibidas e rotas globais via refresh) */
   learn(b){try{if(typeof Online==='undefined'||!Online.ok||!Online.db)return Promise.resolve();const c=this.get(b),m=this.mp(),M=this.M(b);
-    return Online.db.ref('memoria_bots/'+c.k).once('value').then(sn=>{const r=sn.val();if(!r)return;
+    return Online.db.ref(this.MB(b.team)+c.k).once('value').then(sn=>{const r=sn.val();if(!r)return;
       if(r.score&&(r.score.rounds||0)>=(c.sc.rounds||0)){const h=c.sc.historico;c.sc=r.score;c.sc.historico=r.score.historico||h||[]}
       const R=(r.mapas||{})[m];if(!R)return;
       for(const q in(R.atalhos_descobertos||{}))if(!M.at[q]||(R.atalhos_descobertos[q].t||1e9)<(M.at[q].t||1e9))M.at[q]=R.atalhos_descobertos[q];
       for(const q in(R.atalhos_parkour||{}))if(!M.pk[q]||(R.atalhos_parkour[q].t||1e9)<(M.pk[q].t||1e9))M.pk[q]=R.atalhos_parkour[q];
       for(const q in(R.melhor_tempo||{}))if(!M.best[q]||R.melhor_tempo[q]<M.best[q])M.best[q]=R.melhor_tempo[q];
       for(const q in(R.rotas_usadas||{}))if(typeof R.rotas_usadas[q]==='number'&&R.rotas_usadas[q]>(M.v[q]||0))M.v[q]=R.rotas_usadas[q]}).catch(()=>{})}catch(_){return Promise.resolve()}},
-  afterRound(){if(typeof Online==='undefined'||!Online.ok||!Online.db)return;setTimeout(()=>{try{this.loadGlobal(true);(Game.bots||[]).forEach(b=>{if(!b.remote&&!b.board){this.get(b)._rf=null;this.refresh(b,false)}})}catch(_){}},3500)},   // após os saves: todos recarregam e aplicam no round seguinte
+  afterRound(){if(typeof Online==='undefined'||!Online.ok||!Online.db)return;setTimeout(()=>{try{this.loadGlobal(true,'CT');this.loadGlobal(true,'T');(Game.bots||[]).forEach(b=>{if(!b.remote&&!b.board){this.get(b)._rf=null;this.refresh(b,false)}})}catch(_){}},3500)},   // após os saves: todos recarregam e aplicam no round seguinte
 
-  key(b){return String(b.name||'bot').replace(/^TS2 /,'').replace(/[.$#\[\]\/]/g,'_')},
+  /* [TIME] memória SEPARADA por time: memoria_ct (bots CT) e memoria_tr (bots TR). Em cada uma: bots/<nome~TIME> (memória individual) e global/<mapa>/... (rotas, parkour, táticas, lances, perigosas).
+     Rota CT e rota TR usam as MESMAS regras; o bot do time X só aprende/usa a memória do time X. */
+  tn(t){return t==='CT'?'ct':'tr'},
+  MB(t){return'memoria_'+this.tn(t)+'/bots/'},
+  MG(t,m){return'memoria_'+this.tn(t)+'/global/'+m},
+  GLt(t,m){const k=m+'|'+this.tn(t);return this.GL[k]||(this.GL[k]={rotas:{},parkour:{},taticas:{},lances:[],danger:{},rd:-9,p:null})},
+  key(b){return String(b.name||'bot').replace(/^TS2 /,'').replace(/[.$#\[\]\/]/g,'_')+'~'+(b.team==='CT'?'CT':'TR')},   // o mesmo nome em outro time = outra memória
   mp(){return World.map||'dunas'},
   get(b){const k=this.key(b);let c=this.C[k];if(c)return c;let l=null;try{l=JSON.parse(localStorage.getItem('ts2_brain_'+k)||'null')}catch(_){}
-    c=this.C[k]=l||{pj:[],mapas:{}};c.k=k;if(!c.sc)c.sc={total:0,rounds:0,media:0,ultimo:0,historico:[]};
-    try{if(typeof Online!=='undefined'&&Online.ok&&Online.db)Online.db.ref('memoria_bots/'+k).once('value').then(sn=>{const r=sn.val();if(!r)return;if(r.score&&!(c.sc&&c.sc.rounds>=(r.score.rounds||0))){c.sc=r.score;c.sc.historico=c.sc.historico||[]}
+    c=this.C[k]=l||{pj:[],mapas:{}};c.k=k;c.tm=b.team==='CT'?'CT':'T';if(!c.sc)c.sc={total:0,rounds:0,media:0,ultimo:0,historico:[]};
+    try{if(typeof Online!=='undefined'&&Online.ok&&Online.db)Online.db.ref(this.MB(b.team)+k).once('value').then(sn=>{const r=sn.val();if(!r)return;if(r.score&&!(c.sc&&c.sc.rounds>=(r.score.rounds||0))){c.sc=r.score;c.sc.historico=c.sc.historico||[]}
       (r.pulos_sucesso||[]).forEach(p=>this.addJ(c,p.x,p.z,p.m));
       if(r.granadas){c.gr=c.gr||{};for(const m in r.granadas)if(!c.gr[m])c.gr[m]=r.granadas[m]}
       if(r.erros){c.er=c.er||{};for(const m in r.erros)if(!c.er[m])c.er[m]=r.erros[m]}
@@ -3392,24 +3399,24 @@ const BotBrain={C:{},L:{},CAMP:40,AFK:10,LOOP_T:8,GL:{},ENT:{},
     try{if(typeof Online==='undefined'||!Online.ok||!Online.db){this.fbs='SEM Firebase: '+((typeof Online!=='undefined'&&Online.initErr)||'ainda conectando');return}if(!Online.auth||!Online.auth.currentUser){this.fbs='SEM LOGIN: entre na conta (regras exigem auth)';return}const m=this.mp(),M=c.mapas[m];let o={pulos_sucesso:c.pj,ultimo:Date.now(),score:c.sc};
       if(M){o['mapas/'+m+'/atalhos_descobertos']=M.at;o['mapas/'+m+'/rotas_usadas']=M.v;o['mapas/'+m+'/melhor_tempo']=M.best;o['mapas/'+m+'/curiosidade']=M.cur;o['mapas/'+m+'/celulas_perigosas']=M.dg||{};o['mapas/'+m+'/atalhos_parkour']=M.pk||{};o['mapas/'+m+'/celulas_proibidas']=M.fb||{};o['mapas/'+m+'/celulas_proibidas_rd']=M.fbr||{}}
       if(c.gr)o['granadas']=c.gr;if(c.er&&c.er[m])o['erros/'+m]=c.er[m];
-      o=JSON.parse(JSON.stringify(o));Online.db.ref('memoria_bots/'+c.k).update(o).then(()=>{this.fbs='OK salvou '+c.k+' '+new Date().toLocaleTimeString()}).catch(e=>{this.fbs='ERRO '+(e&&e.code||e);try{console.warn('[BotBrain] Firebase',e)}catch(_){}})}catch(e){this.fbs='ERRO '+(e&&e.message||e);try{console.warn('[BotBrain] save',e)}catch(_){}}},3000)},
+      o=JSON.parse(JSON.stringify(o));Online.db.ref(this.MB(c.tm)+c.k).update(o).then(()=>{this.fbs='OK salvou '+c.k+' '+new Date().toLocaleTimeString()}).catch(e=>{this.fbs='ERRO '+(e&&e.code||e);try{console.warn('[BotBrain] Firebase',e)}catch(_){}})}catch(e){this.fbs='ERRO '+(e&&e.message||e);try{console.warn('[BotBrain] save',e)}catch(_){}}},3000)},
   /* ===== SCORE ===== */
   ev(b,k,p,cap){const s=b._sc;if(!s||s.fin)return;const n=s.ev[k]||0;if(cap&&n>=cap)return;s.ev[k]=n+1;s.pts+=p},
   kill(a,v){if(a&&a!==v&&a._sc&&v&&v.team!==a.team)this.ev(a,'kill',50)},
-  /* ===== ERROS: tudo que deu errado fica em memoria_bots/<nome>/erros/<mapa> = {contagem:{tipo:n}, eventos:[últimos 60 {t,x,z,rd,w}]} (tipos: terra, terra_insistencia, limbo, loop, preso, tiro, morte, afk, camp, he_propria, flash_propria) ===== */
+  /* ===== ERROS: tudo que deu errado fica em memoria_ct|memoria_tr/bots/<nome~TIME>/erros/<mapa> = {contagem:{tipo:n}, eventos:[últimos 60 {t,x,z,rd,w}]} (tipos: terra, terra_insistencia, limbo, loop, preso, tiro, morte, afk, camp, he_propria, flash_propria) ===== */
   err(b,tp,x,z,w){try{const c=this.get(b),m=this.mp();c.er=c.er||{};const E=c.er[m]||(c.er[m]={contagem:{},eventos:[]});if(!E.contagem)E.contagem={};if(!E.eventos)E.eventos=[];
     E.contagem[tp]=(E.contagem[tp]||0)+1;E.eventos.push({t:tp,x:+(+x||0).toFixed(1),z:+(+z||0).toFixed(1),rd:Game.round||0,w:w?String(w):''});if(E.eventos.length>60)E.eventos.shift();E.ultimo=Date.now();this.save(c)}catch(_){}},
   /* marca a célula (e as vizinhas se r>0) como PROIBIDA (mapas/<mapa>/celulas_proibidas): o A* evita nos próximos rounds */
   forbid(b,x,z,r){try{const M=this.M(b),c=Nav.cell(x,z);for(let i=-r;i<=r;i++)for(let j=-r;j<=r;j++){const ci=c[0]+i,cj=c[1]+j;if(ci<0||cj<0||ci>=Nav.nx||cj>=Nav.nz)continue;const id=ci*Nav.nz+cj;M.fb[id]=Math.min(9,(M.fb[id]||0)+1);M.fbr[id]=Game.round||0}
     const ks=Object.keys(M.fb);if(ks.length>300)ks.sort((p,q)=>M.fb[p]-M.fb[q]).slice(0,ks.length-300).forEach(q=>{delete M.fb[q];delete M.fbr[q]});b._fb=M.fb;b._fbr=M.fbr;this.save(this.get(b))}catch(_){}},
   /* ======================= ENXAME (aprendizado coletivo) =======================
-     memoria_global/<mapa>/{rotas/<T|CT>|<site>/<bot>={s,t,p,rd,vivo,ok}, parkour/<chave>/<bot>, taticas/<time>/<bot>={x,z,s,rd}, lances/<bot>=[{k,w,x,z,ox,oz,s,t}], perigosas/<célula>/<bot>=pontos}
+     memoria_ct|memoria_tr/global/<mapa>/{rotas/<T|CT>|<site>/<bot>={s,t,p,rd,vivo,ok}, parkour/<chave>/<bot>, taticas/<time>/<bot>={x,z,s,rd}, lances/<bot>=[{k,w,x,z,ox,oz,s,t}], perigosas/<célula>/<bot>=pontos}
      • Score POSITIVO = VETERANO: ensina (rota, parkour, posição tática, granadas/drops que deram certo) e limpa as perigosas que ele pisou.
      • Score NEGATIVO = NOVATO: NÃO ensina; a rota dele é removida da memória global e as células dela viram "perigosas" para os outros. */
-  loadGlobal(force){const m=this.mp(),rd=Game.round||0,g=this.GL[m]||(this.GL[m]={rotas:{},parkour:{},taticas:{},lances:[],danger:{},rd:-9,p:null});
+  loadGlobal(force,t){t=t||'T';const m=this.mp(),rd=Game.round||0,g=this.GLt(t,m);
     if(!force&&g.rd===rd&&g.p)return g.p;g.rd=rd;
     if(typeof Online==='undefined'||!Online.ok||!Online.db){this.ingest(g,{});return g.p=Promise.resolve(g)}
-    g.p=Online.db.ref('memoria_global/'+m).once('value').then(sn=>{this.ingest(g,sn.val()||{});return g}).catch(()=>g);return g.p},
+    g.p=Online.db.ref(this.MG(t,m)).once('value').then(sn=>{this.ingest(g,sn.val()||{});return g}).catch(()=>g);return g.p},
   ingest(g,R){g.rotas={};g.parkour={};g.taticas={};g.lances=[];for(const q in g.danger)delete g.danger[q];
     const each=(o,f)=>{for(const key in(o||{})){const arr=[],ch=o[key];for(const by in(ch||{})){const v=ch[by];if(v&&typeof v==='object')arr.push(Object.assign({by},v))}f(key,arr)}};
     each(R.rotas,(k,a)=>{g.rotas[k]=a.filter(x=>x.p&&x.p.length>2&&x.s>0).map(x=>BotRoutes.norm(x)).sort((x,y)=>this.rank(y)-this.rank(x)).slice(0,5)});
@@ -3420,16 +3427,16 @@ const BotBrain={C:{},L:{},CAMP:40,AFK:10,LOOP_T:8,GL:{},ENT:{},
     try{const L=JSON.parse(localStorage.getItem('ts2_hr_'+this.mp())||'{}');for(const key in L){const h=L[key];if(!h||!h.p||h.p.length<3)continue;const a=g.rotas[key]||(g.rotas[key]=[]);if(!a.some(x=>x.h))a.unshift(BotRoutes.norm(Object.assign({by:'H_local',h:1,ok:0},h)))}}catch(_){}BotRoutes.hrc(g)},
   /* INÍCIO DE CADA ROUND: recarrega memória individual (proibidas/perigosas) + memória global do Firebase (sem amnésia entre rounds) */
   refresh(b,force){try{if(typeof Online==='undefined'||!Online.ok||!Online.db)return Promise.resolve(false);
-    const c=this.get(b),m=this.mp(),M=this.M(b),rd=Game.round||0;if(!force&&c._rf===m+':'+rd)return this.loadGlobal(false).then(()=>true);c._rf=m+':'+rd;
-    const pI=Online.db.ref('memoria_bots/'+c.k+'/mapas/'+m).once('value').then(sn=>{const R=sn.val();if(!R)return;
+    const c=this.get(b),m=this.mp(),M=this.M(b),rd=Game.round||0;if(!force&&c._rf===m+':'+rd)return this.loadGlobal(false,b.team).then(()=>true);c._rf=m+':'+rd;
+    const pI=Online.db.ref(this.MB(b.team)+c.k+'/mapas/'+m).once('value').then(sn=>{const R=sn.val();if(!R)return;
       for(const q in(R.celulas_proibidas||{})){const v=R.celulas_proibidas[q];if(typeof v==='number'&&v>(M.fb[q]||0))M.fb[q]=v}
       for(const q in(R.celulas_proibidas_rd||{})){const v=R.celulas_proibidas_rd[q];if(typeof v==='number'&&(M.fbr[q]==null||v>M.fbr[q]))M.fbr[q]=v}
       for(const q in(R.celulas_perigosas||{})){const v=R.celulas_perigosas[q];if(typeof v==='number'&&v>(M.dg[q]||0))M.dg[q]=v}}).catch(()=>{});
-    return Promise.all([pI,this.learn(b),this.loadGlobal(force)]).then(()=>true)}catch(_){return Promise.resolve(false)}},
+    return Promise.all([pI,this.learn(b),this.loadGlobal(force,b.team)]).then(()=>true)}catch(_){return Promise.resolve(false)}},
   rkey(b,r){if(r&&r.key)return r.key;const ss=World.sites||[];let bi=-1,bd=1e9;ss.forEach((q,i)=>{const d=Math.hypot(b.pos.x-q.x,b.pos.z-q.z);if(d<bd){bd=d;bi=i}});return bi<0?null:b.team+'|'+bi},
   /* FIM DO ROUND: filtro de qualidade — só quem fez score POSITIVO ensina */
   teach(b,pts,r,c){try{if(typeof Online==='undefined'||!Online.ok||!Online.db||!Online.auth||!Online.auth.currentUser)return;
-    const m=this.mp(),k=c.k,B='memoria_global/'+m+'/',o={},key=r?this.rkey(b,r):null,cells=r?Array.from(r.cells).slice(0,150):[];
+    const m=this.mp(),k=c.k,B=this.MG(b.team,m)+'/',o={},key=r?this.rkey(b,r):null,cells=r?Array.from(r.cells).slice(0,150):[];
     if(pts>0){   // ===== VETERANO =====
       if(r&&r.done&&key&&r.vet){const P=B+'rotas/'+key+'/'+k+'/';o[P+'s']=pts;o[P+'t']=r.vet.t;o[P+'p']=r.vet.p;o[P+'rd']=Game.round||0;o[P+'vivo']=b.alive?1:0}
       if(r&&r.P.pk)for(const kk in r.P.pk){const q=r.P.pk[kk];o[B+'parkour/'+kk+'/'+k]={t:q.t,s:pts,sub:q.subida,p:q.p,rd:Game.round||0}}
@@ -3442,10 +3449,10 @@ const BotBrain={C:{},L:{},CAMP:40,AFK:10,LOOP_T:8,GL:{},ENT:{},
       cells.forEach(id=>{o[B+'perigosas/'+id+'/'+k]=pts})}
     if(Object.keys(o).length)Online.db.ref().update(JSON.parse(JSON.stringify(o))).then(()=>{this.fbs='OK global '+(pts>0?'veterano':'novato')+' '+k+' '+new Date().toLocaleTimeString()}).catch(e=>{this.fbs='ERRO global '+(e&&e.code||e)})}catch(e){this.fbs='ERRO teach '+(e&&e.message||e)}},
   /* novato terminou uma rota ensinada vivo: o professor ganha +1 de "ok" (sobe no ranking das rotas) */
-  tcount(v){try{if(typeof Online==='undefined'||!Online.ok||!Online.db||!Online.auth||!Online.auth.currentUser)return;Online.db.ref('memoria_global/'+this.mp()+'/rotas/'+v.key+'/'+v.by+'/ok').transaction(n=>(n||0)+1)}catch(_){}},
+  tcount(v){try{if(typeof Online==='undefined'||!Online.ok||!Online.db||!Online.auth||!Online.auth.currentUser)return;Online.db.ref(this.MG(String(v.key).split('|')[0],this.mp())+'/rotas/'+v.key+'/'+v.by+'/ok').transaction(n=>(n||0)+1)}catch(_){}},
   setVC(b,all){const S=new Set();all.forEach(q=>{const c=Nav.cell(q.x,q.z);for(let i=-1;i<=1;i++)for(let j=-1;j<=1;j++){const ci=c[0]+i,cj=c[1]+j;if(ci>=0&&cj>=0&&ci<Nav.nx&&cj<Nav.nz)S.add(ci*Nav.nz+cj)}});b._vc=S},
   /* ROTA DE VETERANO: o aluno segue (com prioridade no A*) uma rota que deu score positivo para outro bot; 85% se é novato (score ≤0 / <5 rounds), 50% se já é bom */
-  vetRoute(b,p,hOnly){const g=this.GL[this.mp()];if(!g)return null;const k=this.key(b),c=this.get(b),hot=(c.sc.ultimo<=0||c.sc.rounds<5),ss=World.sites||[];
+  vetRoute(b,p,hOnly){const g=this.GL[this.mp()+'|'+this.tn(b.team)];if(!g)return null;const k=this.key(b),c=this.get(b),hot=(c.sc.ultimo<=0||c.sc.rounds<5),ss=World.sites||[];
     for(let i=0;i<ss.length;i++){const st=ss[i],key=b.team+'|'+i;if(Math.hypot(p.x-st.x,p.z-st.z)>st.r+(hOnly?11:6))continue;
       const lst=(g.rotas[key]||[]).filter(x=>x.by!==k);if(!lst.length||(hOnly&&!lst[0].h)||Math.random()>(lst[0].h?.95:(hot?.9:.75)))continue;
       const a=lst[0].h?lst[0]:this.bestBot(lst),all=a.p.map(q=>V3(q[0],0,q[1]));let ni=0,nd=1e9;all.forEach((q,j)=>{const d=Math.hypot(q.x-b.pos.x,q.z-b.pos.z);if(d<nd){nd=d;ni=j}});
@@ -3454,7 +3461,7 @@ const BotBrain={C:{},L:{},CAMP:40,AFK:10,LOOP_T:8,GL:{},ENT:{},
       const post=Nav.find(e.x,e.z,p.x,p.z,ps);b._rt.vused={by:a.by,key};this.setVC(b,all);BotRoutes.attach(b,a,all);return pre.concat(w,post)}
     return null},
   /* ======================= SHADOW PLAYER (aprendizado por observação do MESTRE HUMANO) =======================
-     • ROTA: quando o humano CHEGA VIVO a um bombsite, a trilha é gravada NA HORA (hSaveRoute) em memoria_global/<mapa>/rotas/<time|site>/H_<id> (h:1),
+     • ROTA: quando o humano CHEGA VIVO a um bombsite, a trilha é gravada NA HORA (hSaveRoute) em memoria_ct|memoria_tr/global/<mapa>/rotas/<time|site>/H_<id> (h:1),
        INDEPENDENTE de score, K/D/A, de morrer depois ou do time perder o round. Os bots aliados guardam o caminho (e copiam o atalho).
      • HIERARQUIA: rota de humano (h:1) pesa MAIS que a de qualquer bot veterano (rank/ingest/vetRoute).
      • VISÃO DO TIME: todo bot aliado vivo recebe a posição X,Y,Z do humano a cada frame (b._hv), sem depender de linha de visão, distância ou de ele estar agachado/parado.
@@ -3471,28 +3478,30 @@ const BotBrain={C:{},L:{},CAMP:40,AFK:10,LOOP_T:8,GL:{},ENT:{},
     this.H={r:Game.round||0,t:0,dT:0,seq:[],tr:[],trT:0,last:-1,k:Player.kills||0,kills:0,kx:null,pts:0,ev:{},done:0,saved:0,key:null,vet:null,climb:0,py:null,js:0,air:false,dead:0,fin:0,why:{},p3:[],pj:[],pc:[],gp:null,jt:null,ra:false,p3T:0}}catch(_){this.H=null}},
   hEv(k,p,cap){const H=this.H;if(!H||H.fin)return;const n=H.ev[k]||0;if(cap&&n>=cap)return;H.ev[k]=n+1;H.pts+=p},
   hTick(dt){this.hud();const H=this.H;if(!H||H.fin||Game.phase!=='live')return;try{
-    if(!Player.alive){if(!H.dead){H.dead=1;this.hEv('death',-30,1)}return}
+    if(!Player.alive){if(!H.dead){H.dead=1;this.hEv('death',-30,1);this.hAutoSave()}return}   // [ROTA AUTO] morreu: salva a rota gravada até aqui
     H.t+=dt;const P=Player.pos,c=Nav.cell(P.x,P.z),id=c[0]*Nav.nz+c[1];
-    if(id!==H.last){H.last=id;if(H.seq.length<260&&!H.done)H.seq.push(id)}
+    if(!H.mv&&Player.moving)H.mv=1;   // [ROTA AUTO] a gravação começa quando o jogador começa a se mover
+    if(H.mv&&id!==H.last){H.last=id;if(H.seq.length<260&&!H.done)H.seq.push(id)}
     H.trT-=dt;if(H.trT<=0){H.trT=.5;H.tr.push({x:P.x,z:P.z});if(H.tr.length>60)H.tr.shift()}   // trilha: amostra a cada 0,5 s mesmo com o jogador agachado/andando devagar/parado
     {const dy=P.y-(H.py===null?P.y:H.py);H.py=P.y;if(!Player.air&&dy>.02&&dy<=.65)H.climb+=dy;if(Player.air&&!H.air)H.js++;H.air=!!Player.air}
-    BotRoutes.rec(H,dt);
+    if(H.mv)BotRoutes.rec(H,dt);
     const nk=(Player.kills||0)-H.k;if(nk>0){H.k=Player.kills;H.kills+=nk;for(let i=0;i<nk;i++)this.hEv('kill',50);H.kx={x:P.x,z:P.z}}
     if(!H.done&&H.t>=3){const ss=World.sites||[];for(let i=0;i<ss.length;i++){const st=ss[i];if(Math.hypot(P.x-st.x,P.z-st.z)>st.r+3)continue;
       H.done=1;H.key=Player.team+'|'+i;H.vet={t:+H.t.toFixed(1),p:H.seq.filter((_,j)=>j%2===0).map(q=>this.cellXY(q))};this.hEv('site',20,1);this.hSaveRoute();break}}
     // VISÃO DO TIME: posição X,Y,Z do humano entregue a todo aliado vivo (sem linha de visão, sem limite de distância)
     const al=this.hAllies();al.forEach(b=>{b._hv={x:P.x,y:P.y,z:P.z,c:Player.crouch||0}});
     H.dT-=dt;if(H.dT<=0){H.dT=.4;al.forEach(b=>this.shadow(b,true))}}catch(e){try{this.err0=String(e&&e.message)}catch(_){}}},
-  /* BOTÃO ⏺ SALVAR ROTA: grava AGORA a trilha do humano (mesmo sem ter chegado ao site) na chave do bombsite mais próximo */
-  hSaveNow(){try{const H=this.H;if(!H||H.fin||Game.phase!=='live'||!Player.alive||H.seq.length<3)return false;
+  /* [ROTA AUTO] grava a rota SEM botão: a gravação começa quando o jogador começa a se mover no round e termina ao MORRER ou quando o ROUND ACABA.
+     (Se ele já chegou ao bombsite, a rota foi gravada na hora e aqui nada é regravado.) Chave = time|bombsite mais próximo de onde a gravação terminou. */
+  hAutoSave(){try{const H=this.H;if(!H||H.saved||Game.opts.mode==='treino'||H.seq.length<3)return false;
     if(!H.done){const key=this.siteKey(Player.team,Player.pos.x,Player.pos.z);if(!key)return false;H.done=1;H.key=key;H.vet={t:+H.t.toFixed(1),p:H.seq.filter((_,j)=>j%2===0).map(q=>this.cellXY(q))}}
-    if(H.vet.p.length<3)return false;H.saved=0;this.hSaveRoute();return H.saved===1}catch(_){return false}},
+    if(H.vet.p.length<3)return false;this.hSaveRoute();return H.saved===1}catch(_){return false}},
   /* GRAVA A ROTA ao chegar vivo ao bombsite — sem exigir score positivo / K/D/A / vitória */
   hSaveRoute(){try{const H=this.H;if(!H||!H.done||H.saved||!H.vet||H.vet.p.length<3)return;H.saved=1;
     const key=H.key,path=H.vet.p,t=H.vet.t,m=this.mp(),rd=Game.round||0,pts=H.pts,sc=Math.min(2000,100+Math.max(0,pts));   // s>0 sempre (regra do Firebase); sc=100 base + pontos
     const hk='H_'+((typeof Online!=='undefined'&&Online.pid)||'local'),nm=String((typeof S!=='undefined'&&S&&S.name)||'Player').slice(0,20);
     const E={s:sc,t,p:path,rd,vivo:1,h:1,kl:H.kills,n:nm,p3:H.p3.slice(),pontos_pulo:H.pj.slice(),pontos_agachar:H.pc.slice()};   // p = células X,Z (compatível) · p3 = X,Y,Z · pontos_pulo/pontos_agachar = [{x,y,z}]
-    const g=this.GL[m]||(this.GL[m]={rotas:{},parkour:{},taticas:{},lances:[],danger:{},rd:-9,p:null});
+    const g=this.GLt(Player.team,m);
     const old=(g.rotas[key]||[]).find(x=>x.by===hk);E.ok=old?old.ok||0:0;
     g.rotas[key]=[Object.assign({by:hk},E)].concat((g.rotas[key]||[]).filter(x=>x.by!==hk)).sort((x,y)=>this.rank(y)-this.rank(x)).slice(0,5);
     const allies=Game.bots.filter(b=>!b.remote&&!b.board&&b.team===Player.team);let best=1e9;allies.forEach(b=>{const q=this.M(b).best[key];if(q&&q<best)best=q});
@@ -3502,16 +3511,17 @@ const BotBrain={C:{},L:{},CAMP:40,AFK:10,LOOP_T:8,GL:{},ENT:{},
     try{const k2='ts2_hr_'+m,L2=JSON.parse(localStorage.getItem(k2)||'{}');L2[key]={s:sc,t,p:path,rd,vivo:1,n:nm,p3:H.p3,pontos_pulo:H.pj,pontos_agachar:H.pc};localStorage.setItem(k2,JSON.stringify(L2))}catch(_){}
     try{console.log('[SHADOW] rota do humano GRAVADA',key,path.length+' pontos',t+'s')}catch(_){}
     if(typeof Online==='undefined'||!Online.ok||!Online.db||!Online.auth||!Online.auth.currentUser){this.fbs='SHADOW: sem Firebase (rota só local)';return}
-    const B='memoria_global/'+m+'/',o={},R=B+'rotas/'+key+'/'+hk+'/';
+    const B=this.MG(Player.team,m)+'/',o={},R=B+'rotas/'+key+'/'+hk+'/';
     o[R+'s']=sc;o[R+'t']=t;o[R+'p']=path;o[R+'rd']=rd;o[R+'vivo']=1;o[R+'h']=1;o[R+'kl']=H.kills;o[R+'n']=nm;o[R+'p3']=H.p3;o[R+'pontos_pulo']=H.pj;o[R+'pontos_agachar']=H.pc;   // campo a campo: não zera o "ok" (professor)
     if(PK)o[B+'parkour/'+key+'/'+hk]=PK;
     Online.db.ref().update(JSON.parse(JSON.stringify(o))).then(()=>{this.fbs='OK mestre humano '+hk+' '+new Date().toLocaleTimeString()}).catch(e=>{this.fbs='ERRO mestre '+(e&&e.code||e)})}catch(e){try{console.warn('[SHADOW]',e)}catch(_){}}},
   /* FIM DO ROUND: só posição tática (a rota já foi gravada ao chegar ao site) */
-  hEnd(winner){try{const H=this.H;if(!H||H.fin||Game.opts.mode==='treino')return;H.fin=1;if(winner&&winner===Player.team)H.pts+=30;
+  hEnd(winner){try{const H=this.H;if(!H||H.fin||Game.opts.mode==='treino')return;const wasDone=H.done;this.hAutoSave();H.fin=1;   // [ROTA AUTO] round acabou: salva a rota (se ainda não foi salva)
+    if(winner&&winner===Player.team)H.pts+=30;
     try{console.log('[SHADOW] round do humano '+(H.pts>0?'+':'')+H.pts,H.ev,H.done?'rota gravada':'sem rota')}catch(_){}
-    if(!(H.done||H.kills>0)||typeof Online==='undefined'||!Online.ok||!Online.db||!Online.auth||!Online.auth.currentUser)return;
+    if(!(wasDone||H.kills>0)||typeof Online==='undefined'||!Online.ok||!Online.db||!Online.auth||!Online.auth.currentUser)return;
     const tx=H.kx||(Player.alive?{x:Player.pos.x,z:Player.pos.z}:null);if(!tx)return;
-    const hk='H_'+(Online.pid||'local'),o={};o['memoria_global/'+this.mp()+'/taticas/'+Player.team+'/'+hk]={x:+tx.x.toFixed(1),z:+tx.z.toFixed(1),s:Math.min(2000,100+Math.max(0,H.pts)),rd:Game.round||0,h:1};
+    const hk='H_'+(Online.pid||'local'),o={};o[this.MG(Player.team,this.mp())+'/taticas/'+Player.team+'/'+hk]={x:+tx.x.toFixed(1),z:+tx.z.toFixed(1),s:Math.min(2000,100+Math.max(0,H.pts)),rd:Game.round||0,h:1};
     Online.db.ref().update(JSON.parse(JSON.stringify(o))).catch(()=>{})}catch(e){try{console.warn('[SHADOW]',e)}catch(_){}}},
   /* peso: humano (h) SEMPRE acima de bot veterano */
   rank(x){return(x.h?5000:0)+(x.s||0)+(x.ok||0)*10},
@@ -3546,18 +3556,18 @@ const BotBrain={C:{},L:{},CAMP:40,AFK:10,LOOP_T:8,GL:{},ENT:{},
     e.textContent=t}catch(_){}},
   /* granada tática de veterano: bot perto da posição de onde um veterano jogou com sucesso tenta repetir o mesmo lance (flash/smoke/HE) */
   vetNade(b,dt){const s=b._sc;if(!s||s.fin||!b.alive||b.vis||b.coverT>0||b.nadeCd>0||Game.phase!=='live'||(s.vl||0)>=2)return;s.vn=(s.vn||0)-dt;if(s.vn>0)return;s.vn=1.2;
-    const g=this.GL[this.mp()];if(!g||!g.lances.length)return;const k=this.key(b),P=b.pos;
+    const g=this.GL[this.mp()+'|'+this.tn(b.team)];if(!g||!g.lances.length)return;const k=this.key(b),P=b.pos;
     for(const L of g.lances){if(L.by===k||L.t!==b.team||L.k==='drop'||!(b.gn[L.k]>0)||L.ox==null)continue;
       if(Math.hypot(P.x-L.ox,P.z-L.oz)>4||Math.random()>.6)continue;const d=Math.hypot(L.x-P.x,L.z-P.z);if(d<6||d>26)continue;
       if(Game.bots.some(x=>x!==b&&x.alive&&x.team===b.team&&Math.hypot(x.pos.x-L.x,x.pos.z-L.z)<8))continue;
       if(b.lobAt(L.k,V3(L.x,0,L.z),undefined,'veterano')){s.vl=(s.vl||0)+1;return}}},
   /* drop de arma/granada que deu certo para veteranos: o aluno repete com mais frequência */
-  dropP(b,p){try{const g=this.GL[this.mp()];if(g&&g.lances.filter(x=>x.k==='drop').length>=2)return Math.min(.85,p+.3)}catch(_){}return p},
+  dropP(b,p){try{const g=this.GL[this.mp()+'|'+this.tn(b.team)];if(g&&g.lances.filter(x=>x.k==='drop').length>=2)return Math.min(.85,p+.3)}catch(_){}return p},
   /* ENTRADAS DOS BOMBSITES (CT): pontos estreitos (poucas células livres em volta) num anel ao redor do site; usa posições táticas de veteranos quando existem */
   entry(b,st){try{const key=this.mp()+'|'+st.n;let E=this.ENT[key];
     if(!E){E=[];const R=st.r+6,cand=[];for(let a=0;a<28;a++){const an=a/28*Math.PI*2;for(const rr of[R-1.5,R,R+2]){const x=st.x+Math.cos(an)*rr,z=st.z+Math.sin(an)*rr,c=Nav.cell(x,z);if(!Nav.free(c[0],c[1]))continue;let open=0;for(let i=-2;i<=2;i++)for(let j=-2;j<=2;j++)if(Nav.free(c[0]+i,c[1]+j))open++;cand.push({x:Nav.x0+(c[0]+.5)*Nav.cs,z:Nav.z0+(c[1]+.5)*Nav.cs,open})}}
       cand.sort((p,q)=>p.open-q.open);for(const q of cand){if(E.length>=3)break;if(E.every(e=>Math.hypot(e.x-q.x,e.z-q.z)>7))E.push({x:q.x,z:q.z,face:Math.atan2(q.x-st.x,q.z-st.z)})}this.ENT[key]=E}
-    const g=this.GL[this.mp()],tp=((g&&g.taticas&&g.taticas.CT)||[]).filter(t=>Math.hypot(t.x-st.x,t.z-st.z)<st.r+14);
+    const g=this.GL[this.mp()+'|'+this.tn(b.team)],tp=((g&&g.taticas&&g.taticas.CT)||[]).filter(t=>Math.hypot(t.x-st.x,t.z-st.z)<st.r+14);
     if(tp.length&&Math.random()<.5){const t=tp[(Math.random()*tp.length)|0];return{x:t.x,z:t.z,face:Math.atan2(t.x-st.x,t.z-st.z)}}
     return E.length?E[b.idx%E.length]:null}catch(_){return null}},
   /* PRESO 3x no round: PARA, reconsulta o Firebase e recalcula a rota na hora, desviando da rota que falhou (rota alternativa / de veterano) */
@@ -3599,7 +3609,7 @@ const BotBrain={C:{},L:{},CAMP:40,AFK:10,LOOP_T:8,GL:{},ENT:{},
   /* ===== GRANADAS / AJUDA EM EQUIPE (score + memória) =====
      +25 dropar arma · +15 dropar granada · +15 dar Boost · +20 Flash cegou inimigo · +20 HE feriu inimigo · +15 Fumaça útil
      -15 se cegou com a própria Flash · -25 se feriu com a própria HE (morreu: -50 no total, contando os -30 da morte)
-     Firebase: memoria_bots/<nome>/granadas/<mapa> = {res:{flash|frag|smoke|drop:{n,ok,mal,pts}}, lances:[últimos 40]} */
+     Firebase: memoria_ct|memoria_tr/bots/<nome~TIME>/granadas/<mapa> = {res:{flash|frag|smoke|drop:{n,ok,mal,pts}}, lances:[últimos 40]} */
   nadeEnd(n,p,R){const b=n.owner;if(!b||b.isPlayer||b.remote||!b._sc)return;const t=n.type;let pts=0,r='vazio';
     if(t==='smoke'){const G=Game,bm=G.bomb,nr=(q,d)=>q&&Math.hypot(q.x-p.x,q.z-p.z)<d;
       const ok=n.why==='snipe'||(bm.state==='planted'&&nr(bm.pos,22))||G.bots.some(x=>x!==b&&x.alive&&x.team===b.team&&x.act&&nr(x.pos,22))||(G.c4h===b&&bm.state==='idle'&&G.plan&&nr(G.plan.t,22));
@@ -3633,7 +3643,7 @@ const BotBrain={C:{},L:{},CAMP:40,AFK:10,LOOP_T:8,GL:{},ENT:{},
     if(m<dt&&b.gnd){s.w+=dt;if(s.w>=2){s.w=0;this.ev(b,'preso',-20,3);this.err(b,'preso',b.pos.x,b.pos.z);this.forbid(b,b.pos.x,b.pos.z,0);this.failAt(b,b.pos.x,b.pos.z);s.pres=(s.pres||0)+1;if(s.pres>=3){s.pres=0;this.stuckReplan(b)}}}else s.w=0},
   /* chance de usar um atalho conforme o score das vezes que ele foi usado (a.s): 80% neutro, 95% se deu certo, 15% se deu errado */
   pUse(a){return a.s==null?.8:clamp(.8+a.s/400,.15,.95)},
-  /* FIM DO ROUND: fecha o score, aprende (salva ou descarta) e grava memoria_bots/<nome>/score */
+  /* FIM DO ROUND: fecha o score, aprende (salva ou descarta) e grava memoria_ct|memoria_tr/bots/<nome~TIME>/score */
   finish(b,winner){const s=b._sc;if(!s||s.fin||b.remote||b.fol||b.board)return;const r=b._rt;
     if(r){const n=Math.min(3,(r.nv/6)|0);for(let i=0;i<n;i++)this.ev(b,'explore',5)}
     if(winner&&b.team===winner)this.ev(b,'win',30);
@@ -3659,9 +3669,9 @@ const BotBrain={C:{},L:{},CAMP:40,AFK:10,LOOP_T:8,GL:{},ENT:{},
     this.save(c)},
   /* início de round: fecha o anterior (grava as rotas usadas) e, a cada 5 rounds, força rota alternativa */
   roundStart(b){if(b.remote||b.fol||b.board||Game.opts.mode==='treino')return;this.endRound(b);const M=this.M(b);
-    b._rr=null;b._rpP=null;b._c4go=false;b.maro=false;b._bv=M.v;b.explore=Game.round>0&&Game.round%5===0;b._rt={t:0,nv:0,n:0,cells:new Set(),seq:[],P:{at:{},best:{},cur:0},pj:[],used:null};b._jp=null;b._jc=0;b._dg=M.dg;b._fb=M.fb;b._fbr=M.fbr;b._vc=null;b._alt=false;b._short=false;b._hj=b._hc=null;{const g0=this.GL[this.mp()];b._gd=g0?g0.danger:null}
+    b._rr=null;b._rpP=null;b._c4go=false;b.maro=false;b._bv=M.v;b.explore=Game.round>0&&Game.round%5===0;b._rt={t:0,nv:0,n:0,cells:new Set(),seq:[],P:{at:{},best:{},cur:0},pj:[],used:null};b._jp=null;b._jc=0;b._dg=M.dg;b._fb=M.fb;b._fbr=M.fbr;b._vc=null;b._alt=false;b._short=false;b._hj=b._hc=null;{const g0=this.GL[this.mp()+'|'+this.tn(b.team)];b._gd=g0?g0.danger:null}
     if(Game.round>0&&Game.round%10===0&&M._fd!==Game.round){M._fd=Game.round;for(const q in M.fb)if(M.fb[q]<3&&--M.fb[q]<=0){delete M.fb[q];delete M.fbr[q]}}   // células com 3+ hits são permanentes; as demais decaem a cada 10 rounds
-    this.refresh(b).then(()=>{const g=this.GL[this.mp()];if(g)b._gd=g.danger}).catch(()=>{});   // SEM AMNÉSIA: recarrega memória individual + global no início de cada round
+    this.refresh(b).then(()=>{const g=this.GL[this.mp()+'|'+this.tn(b.team)];if(g)b._gd=g.danger}).catch(()=>{});   // SEM AMNÉSIA: recarrega memória individual + global no início de cada round
     if(this.dune()&&Nav.gaps&&M._gp!==Nav.gapKey){M._gp=Nav.gapKey;let ch=0;Nav.gaps.forEach(id=>{if((M.fb[id]||0)<5){M.fb[id]=5;ch=1}});if(ch)this.save(this.get(b))}   // vãos do Dune → mapas/dune/celulas_proibidas (nunca decaem: são re-gravados a cada carga)
     b._sc={pts:0,ev:{},t:0,sx:b.pos.x,sz:b.pos.z,sy:b.pos.y,px:b.pos.x,pz:b.pos.z,md:0,w:0,fin:0}},
   endRound(b){const r=b._rt;if(!r||!r.cells.size)return;const M=this.M(b);r.cells.forEach(id=>{M.v[id]=Math.min(9,(M.v[id]||0)+1)});b._rt=null;this.save(this.get(b))},
@@ -3703,7 +3713,7 @@ const BotBrain={C:{},L:{},CAMP:40,AFK:10,LOOP_T:8,GL:{},ENT:{},
 /*BR-START*/
 /* ===== [ROTAS] Rota do jogador em 3D + pontos de PULO / AGACHAR (sem clone/fantasma) =====
    • GRAVA (BotBrain.hTick → BotRoutes.rec): trilha X,Y,Z (p3) + pontos de decolagem de pulos que realmente venceram um obstáculo (pontos_pulo) + onde o jogador precisou agachar (pontos_agachar).
-   • SALVA junto da rota (hSaveRoute / botão ⏺ SALVAR ROTA): memoria_global/<mapa>/rotas/<time|site>/H_<id>/{p, p3, pontos_pulo, pontos_agachar} e localStorage (ts2_hr_<mapa>).
+   • SALVA junto da rota (hSaveRoute / hAutoSave, automático: sem botão): memoria_ct|memoria_tr/global/<mapa>/rotas/<time|site>/H_<id>/{p, p3, pontos_pulo, pontos_agachar} e localStorage (ts2_hr_<mapa>).
    • USA: vetRoute → BotRoutes.attach(b,rota) dá ao bot os pontos; Bot.update → BotBrain.hint força o PULO no ponto exato (e se o bot está batendo no obstáculo perto de um ponto) e o AGACHAR.
      Rotas antigas (sem pontos gravados) têm os pontos DERIVADOS da malha (degrau 0,6–1,15 m = pulo; teto baixo = agachar).
    • A*: células das rotas humanas do time têm desconto de custo (Nav.hrc) → qualquer bot prefere o caminho que o jogador já percorreu. */
@@ -4059,18 +4069,8 @@ class Bot{
       this.target.takeHit(dmg,this,head,w.name,this.pos)}}
 }
 
-/* ================= BOTÃO ⏺ SALVAR ROTA =================
-   (o sistema de Clone/Fantasma foi removido: nada de gravar/repetir movimento quadro a quadro.) O botão salva só as COORDENADAS da rota: trilha X,Y,Z + pontos de pulo + pontos de agachar. */
-const RotaBtn={btn:null,
-  init(){if(this.btn)return;try{Object.keys(localStorage).filter(k=>k.indexOf('ts2_clone_')===0).forEach(k=>localStorage.removeItem(k))}catch(_){}   // apaga gravações antigas do clone
-    const mk=()=>{const b=document.createElement('button');b.id='btnRec';b.textContent='\u23fa SALVAR ROTA';
-      b.style.cssText='position:fixed;right:10px;top:54px;z-index:40;display:none;background:#000a;color:#f0b429;border:1px solid #f0b429;border-radius:6px;font:700 11px Rajdhani,Arial,sans-serif;letter-spacing:1px;padding:6px 8px';
-      const go=e=>{e.stopPropagation();e.preventDefault();const ok=BotBrain.hSaveNow(),H=BotBrain.H;Game.hint(ok?('Rota salva: '+H.p3.length+' pontos 3D · '+H.pj.length+' pulos · '+H.pc.length+' agachadas'):'Chegue perto de um bombsite para gravar a rota',2200)};
-      b.addEventListener('pointerdown',go);b.addEventListener('touchstart',e=>e.stopPropagation(),{passive:true});document.body.appendChild(b);this.btn=b;
-      setInterval(()=>{b.style.display=(Game.mode==='game'&&Game.phase==='live'&&Player.alive&&Game.opts.mode!=='treino'&&!Player.remote)?'block':'none'},500)};
-    document.body?mk():addEventListener('DOMContentLoaded',mk)}
-};
-try{RotaBtn.init()}catch(_){}
+/* [ROTA AUTO] o botão ⏺ SALVAR ROTA foi removido: a rota do jogador é gravada sozinha (começa quando ele se move; salva quando MORRE ou o ROUND ACABA). Ver BotBrain.hTick / hAutoSave / hEnd. */
+try{Object.keys(localStorage).filter(k=>k.indexOf('ts2_clone_')===0).forEach(k=>localStorage.removeItem(k))}catch(_){}
 
 /* ---------------- Jogador ---------------- */
 const Player={
@@ -4245,7 +4245,7 @@ const HUD={editing:false,
   bs:Store.get('hudbtn',{}),   // tamanho/opacidade INDIVIDUAL por botão: {id:{sz,op}}
   sel:null,
   /* ===== widgets da HUD editáveis (minimapa, vida/colete, dinheiro, munição, FPS, pausar e joystick; a mira é FIXA no centro) ===== */
-  WD:{radar:['#radar','MINIMAPA'],vitals:['#vitals','VIDA / COLETE'],money:['#money','DINHEIRO'],ammo:['#ammo','MUNIÇÃO'],fps:['#fps','FPS'],pause:['#pauseBtn','PAUSAR'],stick:['#stick','JOYSTICK']},
+  WD:{radar:['#radar','MINIMAPA'],vitals:['#vitals','VIDA / COLETE'],money:['#money','DINHEIRO'],ammo:['#ammo','MUNIÇÃO'],fps:['#fps','FPS'],ping:['#ping','PING'],pause:['#pauseBtn','PAUSAR'],stick:['#stick','JOYSTICK']},
   wp:Store.get('hudw',{}),   // {id:{x,y,sz,op}}  x/y = centro em % da tela · sz/op em %
   isW(id){return !!(id&&this.WD[id])},
   pin(id){const o=this.wp[id]||(this.wp[id]={});if(o.x==null){const r=$(this.WD[id][0]).getBoundingClientRect();o.x=+((r.left+r.width/2)/innerWidth*100).toFixed(2);o.y=+((r.top+r.height/2)/innerHeight*100).toFixed(2)}return o},
@@ -4257,10 +4257,12 @@ const HUD={editing:false,
   /* amostras visíveis só enquanto edita: joystick (some fora do toque) e FPS (vazio quando desligado) */
   sampleOn(){this._smp={};const st=$('#stick'),fp=$('#fps');
     if(st){this._smp.st=st.style.display;st.style.display='block'}
-    if(fp&&!fp.textContent){this._smp.fp=1;fp.textContent='60 FPS'}},
+    if(fp&&!fp.textContent){this._smp.fp=1;fp.textContent='60 FPS'}
+    const pg=$('#ping');if(pg&&!pg.textContent){this._smp.pg=1;Ping._k=null;Ping.paint(pg,42)}},
   sampleOff(){const m=this._smp||{};
     if(m.st!==undefined)$('#stick').style.display=m.st;
     if(m.fp)$('#fps').textContent='';
+    if(m.pg){$('#ping').innerHTML='';Ping._k=null}
     this._smp=null},
   bindWidgets(){$$('[data-w]').forEach(el=>{const id=el.dataset.w;let d=null;
       el.addEventListener('pointerdown',e=>{if(!this.editing)return;e.preventDefault();e.stopPropagation();this.select(id);
@@ -4475,6 +4477,7 @@ const HUDui={dirty:true,rt:0,cache:{},
       this.set('#sA',Game.score[Player.team]);this.set('#sB',Game.score[Player.team==='T'?'CT':'T']);
       if(Shop.open&&Game.phase==='buy')$('#shopHead .m').nextSibling.textContent='Tempo de compra restante '+t+'s';
       $('#fps').textContent=S.fps?Math.min(60,Math.round(Game.fps))+' FPS':'';
+      Ping.tick();if(!HUD.editing)Ping.paint($('#ping'),Ping.ms);   // [PING] estilo Free Fire: ícone de sinal + ms
       if(!HUD.editing){const vis=(id,v,t)=>{const b=$('.hbtn[data-id='+id+']');b.style.display=v?'':'none';if(t)b.textContent=t};
         vis('scope',P.alive&&w.kind==='sniper');vis('frag',P.nades.frag>0,'GRANADA '+P.nades.frag);vis('flash',P.nades.flash>0,'FLASH '+P.nades.flash);vis('smoke',P.nades.smoke>0,'FUMAÇA '+P.nades.smoke);const cx=Game.actCtx();vis('act',!!cx,cx==='plant'?'PLANTAR':'DESARMAR')}
       const ra=this.radar;if(ra)this.drawRadar()}
@@ -4656,7 +4659,7 @@ const Game={mode:'menu',phase:'none',timer:0,round:1,score:{T:0,CT:0},bots:[],op
   /* ---------- bomba ---------- */
   siteAt(p){return World.sites.find(s=>Math.hypot(p.x-s.x,p.z-s.z)<s.r)||null},
   actCtx(){const b=this.bomb,P=Player;if(this.opts.mode==='treino'||!P.alive||this.phase!=='live')return null;
-    if(P.team==='T'&&b.state==='idle'&&this.siteAt(P.pos))return'plant';
+    if(P.team==='T'&&b.state==='idle'&&P.loadout&&P.loadout.c4&&this.siteAt(P.pos))return'plant';   // [C4] PLANTAR só aparece/funciona se o jogador TEM a C4 e está dentro do bombsite
     if(P.team==='CT'&&b.state==='planted'&&P.pos.distanceTo(b.pos)<2.4)return'defuse';return null},
   alert(p,r,team){for(const b of this.bots)if(b.alive&&b.team!==team&&!b.vis&&!b.act&&b.pos.distanceTo(p)<r&&Math.random()<.6){BotBrain.cSnap(b);b.last=p.clone();b.path=[]}},
   plant(pos,by){const b=this.bomb;if(b.state!=='idle')return;if(by&&by._sc)BotBrain.ev(by,'plant',100,1);if(by&&by.isPlayer)BotBrain.hEv('plant',100,1);this.lastPlanter=by||this.lastPlanter;this.c4h=null;const s=this.siteAt(pos);b.state='planted';b.t=40;
@@ -5399,6 +5402,21 @@ const myStats=()=>Object.assign({matches:0,kills:0,wins:0,hs:0,xp:0,rp:0,cm:0,co
 const FBCFG={apiKey:"AIzaSyAy0v0g8PdKrmI3kSGssfJ0U7mRJUPAYiE",authDomain:"tactical-strike-2.firebaseapp.com",databaseURL:"https://tactical-strike-2-default-rtdb.firebaseio.com",projectId:"tactical-strike-2",storageBucket:"tactical-strike-2.firebasestorage.app",messagingSenderId:"66384205564",appId:"1:66384205564:web:42890474c742544dfba979",measurementId:"G-CQPVZ4W7FJ"};
 
 /* ---------------- Online: perfil, amigos, fila de partida e sala (Firebase Realtime Database) ---------------- */
+/* [PING] latência real com o Firebase (estilo Free Fire): lê um nó minúsculo (sistema/lastId) a cada 3 s e mostra a MEDIANA das 3 últimas medidas.
+   Verde ≤60 ms · amarelo ≤120 ms · vermelho acima. Sem Firebase/login ou 2 falhas seguidas (timeout 5 s): o indicador some. */
+const Ping={ms:null,q:[],_at:0,_busy:false,_f:0,_k:null,
+  lv(ms){return ms<=60?3:ms<=120?2:1},
+  tick(){try{if(typeof Online==='undefined'||!Online.ok||!Online.db||!Online.auth||!Online.auth.currentUser){this.ms=null;this.q=[];return}
+    const now=Date.now();if(this._busy||document.hidden||now-this._at<3000)return;this._at=now;this._busy=true;const t0=performance.now();let done=false;
+    const fin=ok=>{if(done)return;done=true;this._busy=false;
+      if(ok){this._f=0;this.q.push(Math.round(performance.now()-t0));if(this.q.length>3)this.q.shift();const a=this.q.slice().sort((x,y)=>x-y);this.ms=a[a.length>>1]}
+      else if(++this._f>=2){this.ms=null;this.q=[]}};
+    setTimeout(()=>fin(false),5000);
+    Online.db.ref('sistema/lastId').once('value').then(()=>fin(true)).catch(()=>fin(false))}catch(_){this._busy=false}},
+  paint(el,ms){if(!el)return;const k=ms==null?'':Math.round(ms)+'|'+this.lv(ms);if(k===this._k)return;this._k=k;
+    if(ms==null){el.innerHTML='';return}
+    const l=this.lv(ms);el.style.color=['#ff4a4a','#ffd34a','#4cff6a'][l-1];
+    el.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M2 9a15 15 0 0 1 20 0" opacity="'+(l>=3?1:.25)+'"/><path d="M5 13a10 10 0 0 1 14 0" opacity="'+(l>=2?1:.25)+'"/><path d="M8.5 16.5a5 5 0 0 1 7 0"/><circle cx="12" cy="20" r="1.2" fill="currentColor" stroke="none"/></svg>'+Math.round(ms)+' ms'}};
 const Online={shopOn:{sk:{},ag:{},av:{}},cav:{},db:null,ok:false,pid:Store.get('pid',null),room:null,peers:{},refs:[],_rx:false,
   user:null,guest:false,top100Data:null,_loaded:false,
   init(){if(!Store.get('ownedInit',0)){Store.set('owned',Object.values(eqSkins));Store.set('ownedInit',1)}
@@ -5881,7 +5899,7 @@ const Online={shopOn:{sk:{},ag:{},av:{}},cav:{},db:null,ok:false,pid:Store.get('
   updRemote(b,dt){const s=this.peers[b.rid],r=b.m.root;
     if(!b.alive){if(b.fall<1){b.fall=Math.min(1,b.fall+dt*2.2);r.rotation.x=-b.fall*Math.PI/2;r.position.y=b.fall*.12}return}
     if(!s){if(Date.now()-b.born>12000||(this.bs&&this.bs[b.bid]&&this.bs[b.bid].rd===Game.round))this.aiTake(b);return}
-    if(Date.now()-s.rx>8000){this.aiTake(b);return}
+    if(Date.now()-s.rx>5000){this.aiTake(b);return}   // [IA 5s] sem sinal do jogador/Host por 5s: o bot no lugar dele vira IA
     b.t+=dt;const k=Math.min(1,dt*12),dx=s.x-b.pos.x,dz=s.z-b.pos.z;b.pos.x+=dx*k;b.pos.z+=dz*k;b.pos.y+=((s.y||0)-b.pos.y)*k;
     let dy=s.ry-r.rotation.y;dy=Math.atan2(Math.sin(dy),Math.cos(dy));r.rotation.y+=dy*k;
     if(s.w&&s.w!==b.wid&&W[s.w]){b.wid=s.w;b.m.setWeapon(s.w,defSkin(s.w))}
