@@ -4491,7 +4491,9 @@ const Drops={list:[],n:0,cur:null,
     const isN=wid==='frag'||wid==='flash'||wid==='smoke';
     const g=isN?buildNade(gSkin(wid)||{g:wid,id:'',n:'Default',c1:'#4b5320',c2:'#4b5320'}):weaponModel(wid,sk||null,false);g.scale.setScalar(isN?.6:(wid==='c4'?.95:.8));g.position.set(x,(isN?.12:(wid==='c4'?.1:.14))+((World.hg||World.low)?groundAt({x:x,z:z},99):0),z);g.rotation.set(0,Math.random()*6.28,(isN||wid==='c4')?0:Math.PI/2);World.scene.add(g);
     this.list.push({id,w:wid,x,z,a:ammo?{mag:ammo.mag,res:ammo.res}:null,m:g});if(wid==='c4'){try{BotBrain.c4Dropped(x,z)}catch(_){}}
-    if(net&&!isN&&Online.room)Online.ev({t:'dr',i:id,w:wid,x:+x.toFixed(2),z:+z.toFixed(2),a:ammo?[ammo.mag,ammo.res]:0,s:sk||''});return id},
+    if(net&&!isN&&Online.room)Online.ev({t:'dr',i:id,w:wid,x:+x.toFixed(2),z:+z.toFixed(2),a:ammo?[ammo.mag,ammo.res]:0,s:sk||''});
+    if(net&&!isN){try{Sync.dropSet(id,wid,x,z,ammo,sk)}catch(_){}}   // [CANAL] item no chão fica gravado no servidor
+    return id},
   remove(id){const i=this.list.findIndex(d=>d.id===id);if(i<0)return null;const d=this.list[i];World.scene.remove(d.m);this.list.splice(i,1);return d},
   clear(){this.list.forEach(d=>World.scene.remove(d.m));this.list=[]},
   c4(){return this.list.find(d=>d.w==='c4')||null},
@@ -4500,6 +4502,7 @@ const Drops={list:[],n:0,cur:null,
     const isN=d.w==='frag'||d.w==='flash'||d.w==='smoke';
     if(isN){const cap=d.w==='flash'?2:1;if(who.isPlayer){if(who.nades[d.w]>=cap){Game.hint('Você já tem essa granada');return}}else if(who.remote||!who.gn||who.gn[d.w]>=cap)return}
     if(!this.remove(d.id))return;
+    if(!isN){try{Sync.dropDel(d.id)}catch(_){}}if(d.w==='c4'){try{Sync.c4Set(who)}catch(_){}}   // [CANAL]
     if(who.isPlayer){const P=Player;
       if(isN){P.nades[d.w]++;Snd.tone(420,.05,.08);HUDui.dirty=true;return}
       if(d.w==='c4'){P.loadout.c4='c4';Game.c4h=P}
@@ -4719,7 +4722,7 @@ const Game={mode:'menu',phase:'none',timer:0,round:1,score:{T:0,CT:0},bots:[],op
   assignC4(){if(this.opts.mode==='treino'){Player.loadout.c4=null;this.c4h=null;return}   // TREINO: sem C4 / sem plantio
     Player.loadout.c4=null;this.c4h=null;const key=x=>x.isPlayer?(Online.pid||'~'):(x.rid||x.bid||x.name);
     const T=[Player].concat(this.bots).filter(x=>x.team==='T').sort((a,b)=>key(a)<key(b)?-1:1);if(!T.length)return;
-    const h=this.opts.room?T[(this.round*7)%T.length]:T[(Math.random()*T.length)|0];   // sorteio uniforme entre TODOS os T
+    const h=T[(this.round*7)%T.length];   // [CANAL] determinístico por round: mesmo portador em qualquer aparelho e após reconexão
     this.c4h=h;if(h.isPlayer)Player.loadout.c4='c4'},
   big(t,s,ms){const b=$('#banner');$('#bT').textContent=t;$('#bS').textContent=s||'';b.style.display='block';clearTimeout(this._b);if(ms)this._b=setTimeout(()=>b.style.display='none',ms)},
   endRound(winner,reason){if(Sync.on()&&!Sync._rx){if(Sync.isHost())Sync.publishEnd(winner,reason);return}   // [RELÓGIO] o fim do round é gravado no servidor; todos encerram ao receber
@@ -5885,7 +5888,7 @@ const Online={shopOn:{sk:{},ag:{},av:{}},cav:{},db:null,ok:false,pid:Store.get('
     const mv=Math.hypot(dx,dz)>.05,sw=mv?Math.sin(b.t*9)*.7:0;b.m.legL.rotation.x=sw;b.m.legR.rotation.x=-sw;b.m.tor.position.y=.92+(mv?Math.abs(Math.sin(b.t*9))*.03:0)},
   leave(){if(!this.room)return;clearInterval(this.tx);try{this.db.ref('rooms/'+this.room.rid+'/pres/'+this.pid).set(0)}catch(_){}try{this.refs[0].child(this.pid).remove();this.refs.forEach(r=>r.off())}catch(e){}this.room=null;this.peers={};this._hold=false;this._h=undefined},
   install(){const G=Game,N=Nade,me=this,f2=n=>+n.toFixed(2);
-    const pl=G.plant;G.plant=function(p,by){const ok=this.bomb.state==='idle';pl.call(this,p,by);if(ok&&by&&(by.isPlayer||me.hb(by)))me.ev({t:'pl',x:f2(p.x),z:f2(p.z)})};
+    const pl=G.plant;G.plant=function(p,by){const ok=this.bomb.state==='idle';pl.call(this,p,by);if(ok&&by&&(by.isPlayer||me.hb(by))){me.ev({t:'pl',x:f2(p.x),z:f2(p.z)});try{Sync.bombSet(p)}catch(_){}}};
     const df=G.defuse;G.defuse=function(by){const ok=this.bomb.state==='planted';df.call(this,by);if(ok&&by&&(by.isPlayer||me.hb(by)))me.ev({t:'df'})};
     const th=N.throw;N.throw=function(ow,ty,o,v){th.call(this,ow,ty,o,v);if(ow&&(ow.isPlayer||me.hb(ow)))me.ev({t:'nd',ty,o:[f2(o.x),f2(o.y),f2(o.z)],v:[f2(v.x),f2(v.y),f2(v.z)]})};
     const ok=G.onKill;G.onKill=function(a,v,w,h){ok.call(this,a,v,w,h);if(v&&v.bid&&!v.remote){v._kb=a?(a.isPlayer?me.pid:(a.rid||a.bid||'')):'';v._kw=w||'';v._kh=h?1:0}if(me.room&&!me._rx&&v&&v.isPlayer)me.ev({t:'k',a:(a&&a.rid)||null,w,h:h?1:0})};
@@ -5945,10 +5948,37 @@ const Sync={BUY:15,LIVE:120,END:4.5,rd:null,ref:null,pres:null,t0:0,_pe:0,_ad:0,
     g.round=rd.round;const want=Rejoin.teamAt(g.ot,rd.round,g.opts.mode);if(Player.team!==want)g.swapSides();   // perdeu rounds: ressincroniza lado, placar e round
     const sc={T:+rd.score.T||0,CT:+rd.score.CT||0};if(rd.roundEnd&&rd.winner)sc[rd.winner]=Math.max(0,sc[rd.winner]-1);
     g.score=sc;g.over=false;g.newRound(true);this.deadIfLive(rd)},
+  _dk(id){return String(id).replace(/[.#$\[\]\/]/g,'_')},
+  okW(){return !!(this.ref&&this.rd&&Game.mode==='game'&&Game.opts&&Game.opts.mode!=='treino'&&this.rd.round===Game.round)},
+  /* [CANAL] itens no chão (rd.drops) e portador da C4 (rd.c4h) ficam no servidor; cada round novo zera tudo */
+  dropSet(id,w,x,z,ammo,sk){if(!this.okW())return;this.ref.child('drops/'+this._dk(id)).set({id:String(id),w,x:+(+x).toFixed(2),z:+(+z).toFixed(2),a:ammo?[ammo.mag|0,ammo.res|0]:null,s:sk||'',rd:Game.round}).catch(()=>{})},
+  dropDel(id){if(!this.okW())return;this.ref.child('drops/'+this._dk(id)).remove().catch(()=>{})},
+  c4Set(who){if(!this.okW()||!who)return;this.ref.child('c4h').set({k:who.isPlayer?(Online.pid||'~'):String(who.rid||who.bid||who.name||''),rd:Game.round}).catch(()=>{})},
+  dropsRestore(rd){const g=Game;
+    try{if(!rd||g.opts.mode==='treino')return;
+      const d=rd.drops;if(d&&typeof d==='object')Object.keys(d).forEach(k=>{const q=d[k];if(!q||q.rd!==g.round||!q.id||Drops.list.some(x=>x.id===q.id))return;if(!(q.w==='c4'||W[q.w]))return;
+        Drops.drop(q.w,+q.x,+q.z,q.a?{mag:q.a[0],res:q.a[1]}:null,false,q.s||null,q.id)});
+      if(g.bomb.state!=='idle')return;                                       // C4 já plantada: nada de portador
+      if(Drops.c4()){if(g.c4h===Player)Player.loadout.c4=null;g.c4h=null;return}   // a C4 está no chão
+      const hk=rd.c4h&&rd.c4h.rd===g.round?rd.c4h.k:null,key=x=>x.isPlayer?(Online.pid||'~'):String(x.rid||x.bid||x.name||'');
+      if(hk){const x=[Player].concat(g.bots).find(b=>key(b)===hk);
+        if(x&&x.team==='T'&&x!==g.c4h){if(g.c4h===Player)Player.loadout.c4=null;if(x.isPlayer){Player.loadout.c4='c4';g.c4h=Player}else{g.c4h=x;try{BotBrain.c4Taken(x)}catch(_){}}}}
+      if(g.c4h===Player&&!Player.alive){Drops.drop('c4',Player.pos.x,Player.pos.z,null,true);g.c4h=null;Player.loadout.c4=null}   // voltei morto com a C4: ela cai no spawn
+    }catch(e){console.warn('dropsRestore',e)}},
+  /* [CANAL] a bomba plantada fica gravada no servidor (rd.bomb = posição + hora do SERVIDOR). Quem sintoniza depois vê a bomba e o tempo certo. */
+  bombSet(p){if(!this.ref||!this.rd||Game.mode!=='game'||!Game.opts||Game.opts.mode==='treino')return;
+    this.ref.child('bomb').set({x:+(+p.x).toFixed(2),z:+(+p.z).toFixed(2),pt:this.TS(),rd:Game.round}).catch(()=>{})},
+  bombRestore(rd){const g=Game,b=rd&&rd.bomb;
+    try{if(!b||b.rd!==g.round||!(+b.pt)||g.bomb.state!=='idle'||g.opts.mode==='treino')return;
+      const left=Math.max(.05,40-(this.now()-b.pt)/1000);   // já passou dos 40s: explode na hora (o host encerra o round)
+      g.plant(V3(+b.x,0,+b.z),null);if(g.bomb.state==='planted'){g.bomb.t=left;g.bomb.beep=0}}
+    catch(e){console.warn('bombRestore',e)}},
   /* voltou no meio do round: não renasce — assiste até o próximo round */
   deadIfLive(rd){const g=Game;if(rd.roundEnd||this.el()<=this.BUY){Online._hold=false;return}
-    g.phase='live';g.timer=this.BUY+this.LIVE-this.el();try{Shop.close()}catch(_){}
+    g.phase='live';g.timer=this.BUY+this.LIVE-this.el();try{Shop.close()}catch(_){}try{Rejoin.restoreBots()}catch(_){}   // [BOTS-RECONEXÃO]
+    try{this.bombRestore(rd)}catch(_){}   // [CANAL] bomba plantada volta com o tempo do servidor
     if(Player.alive){Player.alive=false;Player.hp=0;try{Player.setScope(false)}catch(_){}g.spec=null}
+    try{this.dropsRestore(rd)}catch(_){}   // [CANAL] itens no chão + portador da C4
     try{Online.takeover()}catch(_){Online._hold=false}},   // [TOMADA] se o bot no meu lugar está vivo, assumo na hora
   /* reconexão: fresh = ninguém online (rounds foram resolvidos por bots) → reinicia o relógio do servidor no round calculado */
   resume(st){if(!this.ref)return;if(st&&st.fresh){this._join=false;this.ref.set({round:Game.round,roundStartTime:this.TS(),roundEnd:false,score:{T:Game.score.T,CT:Game.score.CT},host:Online.pid}).catch(()=>{})}}
@@ -5983,13 +6013,22 @@ const Rejoin={RS:90,_busy:false,_resuming:false,_fb:0,_bar:null,_lost:false,HB_T
   teamAt(ot,rd,m){const sw=this.swapOf(m);return sw&&rd>sw?this.flip(ot):ot},
   active(){const g=Game;return g.mode==='game'&&!g.over&&!!g.ot&&!!g.opts&&g.opts.mode!=='treino'&&!!Online.pid},
   pending(){const s=Store.get('sess',null);return!!(s&&s.pid===Online.pid&&!s.fin)},
+  /* [BOTS-RECONEXÃO] estado de um bot (posição, mira, vida, vivo/morto, arma, munição) para o retrato da partida */
+  botSt(b){try{const r=b.m.root;return{ps:{x:+b.pos.x.toFixed(2),y:+(b.pos.y||0).toFixed(2),z:+b.pos.z.toFixed(2),ry:+(+r.rotation.y||0).toFixed(2),hp:Math.max(0,Math.round(+b.hp||0)),a:b.alive?1:0,w:b.wid||'glock',m:b.am?(b.am.m|0):null,r:b.am?(b.am.r|0):null}}}catch(e){return{}}},
+  /* [BOTS-RECONEXÃO] voltou no meio do MESMO round: bots retomam de onde estavam (nada de voltar ao spawn). Round diferente / fase de compra: não mexe. */
+  restoreBots(){const z=this._bsSnap;this._bsSnap=null;
+    try{const g=Game;if(!z||z.ph!=='live'||z.rn!==g.round||!z.l.length)return 0;let n=0;
+      g.bots.forEach(b=>{if(b.board||b.remote||b.rid||b.aiOf)return;const q=z.l.find(x=>x.tm===b.team&&x.n===b.name);if(!q||!q.ps)return;
+        Online.applyBot(b,q.ps);b.path=[];b.target=null;b.wait=.2;n++});return n}
+    catch(e){console.warn('restoreBots',e);return 0}},
   snap(){const g=Game,P=Player,o=g.opts,R=Online.room;
     return JSON.parse(JSON.stringify({v:1,ts:Date.now(),pid:Online.pid,rid:R?R.rid:null,party:!!(R&&R.party),map:o.map,mode:o.mode,size:o.size,diff:o.diff,botRank:o.botRank||null,eco:o.eco,
       ot:g.ot,team:P.team,round:g.round,score:{T:g.score.T,CT:g.score.CT},money:P.money,t0:g.matchT0||Date.now(),nm:S.name,av:Store.get('avatar','')||'',
       st:{k:P.kills||0,h:P.headshots||0,d:P.deaths||0,a:P.assists||0,pl:P.plantsOk||0,df:P.defuses||0,mv:P.mvps||0,sf:P.shotsF||0,sh:P.shotsH||0,ob:P.objectiveDone?1:0},
       lo:{primary:P.loadout.primary||null,pistol:P.loadout.pistol||null,knife:P.loadout.knife||'knife'},
       ar:{armor:P.armor||0,helmet:!!P.helmet,vestP:P.vestP||0,helmP:P.helmP||0,kit:!!P.kit,nades:Object.assign({},P.nades||{})},
-      bots:g.bots.filter(b=>!b.board).map(b=>({n:b.name||'Bot',tm:b.team,k:b.kills||0,d:b.deaths||0,a:b.assists||0,av:b.av||'',rid:b.rid||''})),
+      ph:g.phase,   // [BOTS-RECONEXÃO] fase do round no momento do retrato
+      bots:g.bots.filter(b=>!b.board).map(b=>Object.assign({n:b.name||'Bot',tm:b.team,k:b.kills||0,d:b.deaths||0,a:b.assists||0,av:b.av||'',rid:b.rid||''},g.phase==='live'?Rejoin.botSt(b):{})),
       room:R?{me:R.me,others:R.others,host:R.host}:null}))},
   save(fb){if(this._resuming||this._lost||!this.active())return;try{const s=this.snap();Store.set('sess',s);
       if(Online.ok&&Online.db&&(fb||Date.now()-this._fb>20000)){this._fb=Date.now();Online.db.ref('players/'+Online.pid+'/sessao').set(Object.assign({},s,{dev:this._dev,hb:firebase.database.ServerValue.TIMESTAMP})).catch(()=>{})}}catch(e){}},
@@ -6038,7 +6077,7 @@ const Rejoin={RS:90,_busy:false,_resuming:false,_fb:0,_bar:null,_lost:false,HB_T
       await UI.rejoin(s,go)
     }finally{this._busy=false}},
   /* volta para a partida: estado da partida + itens + K/D/A (só o que ele fez até cair) */
-  apply(s,st){const g=Game,P=Player,SW=this.swapOf(s.mode);
+  apply(s,st){const g=Game,P=Player,SW=this.swapOf(s.mode);this._bsSnap={rn:s.round,ph:s.ph,l:(s.bots||[]).filter(q=>q&&q.ps)};   // [BOTS-RECONEXÃO]
     try{
       g.ot=s.ot;if(SW&&st.r>SW)g.swapSides();                       // a troca de lados já aconteceu
       g.score={T:st.sc.T,CT:st.sc.CT};g.round=st.r;g.over=false;g.matchT0=s.t0||Date.now();
