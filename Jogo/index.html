@@ -4692,7 +4692,7 @@ const Game={mode:'menu',phase:'none',timer:0,round:1,score:{T:0,CT:0},bots:[],op
     for(let i=0;i<o.size;i++)this.bots.push(new Bot(en,names.pop()))}
     this.score={T:0,CT:0};this.round=1;this.over=false;Player.money=o.eco==='treino'?16000:1200;Player.kills=0;Player.headshots=0;Player.deaths=0;Player.plantsOk=0;Player.defuses=0;Player.mvps=0;Player.shotsF=0;Player.shotsH=0;Player.assists=0;Player.objectiveDone=false;
     this.mode='game';this.matchT0=Date.now();$('#hud').classList.remove('hidden','preview');this.paused=false;$('#pauseBtn').style.display=(o.room||Online.room)?'none':'';HUDui.radar=$('#radar');HUDui.crosshair();HUD.apply();
-    World.camera.fov=S.fov;World.camera.updateProjectionMatrix();this.newRound(true);try{Rejoin.save(true)}catch(_){}},
+    World.camera.fov=S.fov;World.camera.updateProjectionMatrix();this.newRound(true);try{Sync.begin()}catch(e){console.warn('sync.begin',e)}try{Rejoin.save(true)}catch(_){}},
   botLoadout(tm){const r=this.round,eco=this.opts.eco==='treino';
     const pool=eco?['ak47','galil','awp','ssg08','p90','mac10','nova']:r<2?['glock','deagle']:r<3?['mac10','p90','nova','glock','deagle']:['ak47','galil','ak47','mac10','p90','ssg08','awp','nova'];
     const w0=pool[(Math.random()*pool.length)|0];return tm==='CT'?({ak47:'m4a4',galil:'m4a1s',glock:'usp'}[w0]||w0):w0},
@@ -4720,7 +4720,8 @@ const Game={mode:'menu',phase:'none',timer:0,round:1,score:{T:0,CT:0},bots:[],op
     const h=this.opts.room?T[(this.round*7)%T.length]:T[(Math.random()*T.length)|0];   // sorteio uniforme entre TODOS os T
     this.c4h=h;if(h.isPlayer)Player.loadout.c4='c4'},
   big(t,s,ms){const b=$('#banner');$('#bT').textContent=t;$('#bS').textContent=s||'';b.style.display='block';clearTimeout(this._b);if(ms)this._b=setTimeout(()=>b.style.display='none',ms)},
-  endRound(winner,reason){this.phase='end';this.timer=4.5;try{BotBrain.hEnd(winner)}catch(_){}try{this.bots.forEach(b=>BotBrain.finish(b,winner))}catch(e){try{console.warn('score',e)}catch(_){}}try{BotBrain.afterRound()}catch(_){}   // SCORE do round (bots)
+  endRound(winner,reason){if(Sync.on()&&!Sync._rx){if(Sync.isHost())Sync.publishEnd(winner,reason);return}   // [RELÓGIO] o fim do round é gravado no servidor; todos encerram ao receber
+    this.phase='end';this.timer=4.5;try{BotBrain.hEnd(winner)}catch(_){}try{this.bots.forEach(b=>BotBrain.finish(b,winner))}catch(e){try{console.warn('score',e)}catch(_){}}try{BotBrain.afterRound()}catch(_){}   // SCORE do round (bots)
     this.score[winner]++;try{Rejoin.live()}catch(_){}   // [RECONEXÃO] placar vivo da sala
     const mv=this.bots.concat([Player]).sort((x,y)=>(this.kills[y.isPlayer?'__p':y.name]||0)-(this.kills[x.isPlayer?'__p':x.name]||0))[0];
     const mvn=mv?(mv.isPlayer?S.name:mv.name):'—';this.lastMvp=mv;if(mv&&mv.isPlayer)Player.mvps=(Player.mvps||0)+1;
@@ -4822,7 +4823,7 @@ const Game={mode:'menu',phase:'none',timer:0,round:1,score:{T:0,CT:0},bots:[],op
     if(Player.vm)Player.vm.visible=false},
   pause(on){if(this.mode!=='game'||(on&&(this.opts.room||Online.room)))return;   // ONLINE: não existe pausa
     this.paused=on;$('#pause').classList.toggle('hidden',!on);Controls.fireHeld=false;Controls.mx=Controls.my=0},
-  quit(){this._fr=null;try{if(Rejoin.active()){Rejoin.save(true);Rejoin.release()}}catch(_){}clearAllTimers();['menu','lbTags','lbName','lbLeft','lbRight','partyBar'].forEach(i=>{const e=document.getElementById(i);if(e)e.style.display=''});Nade.clear();Drops.clear();Player.setScope(false);Online.leave();Online.startTimers();setTimeout(()=>{if(Game.mode==='menu'&&Thumb.prewarm)Thumb.prewarm()},4000);this.mode='menu';this.paused=false;this.phase='none';$('#hud').classList.add('hidden');$('#pause').classList.add('hidden');Shop.close();
+  quit(){this._fr=null;try{Sync.stop()}catch(_){}try{if(Rejoin.active()){Rejoin.save(true);Rejoin.release()}}catch(_){}clearAllTimers();['menu','lbTags','lbName','lbLeft','lbRight','partyBar'].forEach(i=>{const e=document.getElementById(i);if(e)e.style.display=''});Nade.clear();Drops.clear();Player.setScope(false);Online.leave();Online.startTimers();setTimeout(()=>{if(Game.mode==='menu'&&Thumb.prewarm)Thumb.prewarm()},4000);this.mode='menu';this.paused=false;this.phase='none';$('#hud').classList.add('hidden');$('#pause').classList.add('hidden');Shop.close();
     this.bots.forEach(b=>{World.scene.remove(b.m.root);disposeTree(b.m.root)});this.bots=[];if(Player.vm){World.camera.remove(Player.vm);Player.vm=null}
     World.camera.position.set(0,12,30);World.camera.fov=S.fov;World.camera.updateProjectionMatrix();$('#menu').style.display='';$('#menu').classList.remove('hidden');clearInterval(UI._frT);UI.view='lobby';
     {const tb=document.getElementById('lbTags');if(tb)tb.remove();Lobby.tagBox=null;Lobby.tg={}}   // recria nametags e personagem do lobby do zero
@@ -4835,9 +4836,9 @@ const Game={mode:'menu',phase:'none',timer:0,round:1,score:{T:0,CT:0},bots:[],op
     else if(this.mode==='game'||this.mode==='over'){
       if(!this.paused){
         if(Player.vm)Player.vm.visible=Player.alive&&!Player.scoped;
-        this.timer-=dt;
+        this.timer-=dt;try{if(Sync.on())Sync.tick()}catch(_){}   // [RELÓGIO] fases pelo horário do servidor
         if(this.phase==='buy'&&this.timer<=0){this.phase='live';this.timer=this.opts.eco==='treino'?1e9:120;Shop.close();this.big('COMEÇOU!','',900)}
-        else if(this.phase==='end'&&this.timer<=0&&this.mode==='game'){if(this.over)this.matchOver();else{this.round++;this.newRound(false)}}
+        else if(this.phase==='end'&&this.timer<=0&&this.mode==='game'){if(this.over)this.matchOver();else if(Sync.on())Sync.advance();else{this.round++;this.newRound(false)}}
         Player.update(dt);BotBrain.hTick(dt);for(const b of this.bots)b.update(dt);HeadBoost.tick(dt);FX.update(dt);Nade.update(dt);this.updateBomb(dt);this.checkEnd();HUDui.update(dt)}
     }
     this.draw()},
@@ -5836,6 +5837,66 @@ const Online={shopOn:{sk:{},ag:{},av:{}},cav:{},db:null,ok:false,pid:Store.get('
 };
 
 /* ---------------- Menus ---------------- */
+/* ===================== [RELÓGIO DO SERVIDOR] ROUND SINCRONIZADO NO FIREBASE =====================
+   rooms/<rid>/rd  (partida só com bots: players/<id>/rd) = { round, roundStartTime (hora do SERVIDOR), roundEnd, winner, reason, endTime, score:{T,CT}, over, host }
+   • O tempo do round NÃO é mais contado no celular: restante = fase − (hora do servidor − roundStartTime). Quem cai e volta lê o rd e vê quanto passou de verdade.
+   • HOST = líder da sala (ou, se ele cair, o próximo jogador conectado em ordem de ID). Só o host decide o fim do round (grava roundEnd=true + endTime)
+     e começa o próximo (grava round+1 + roundStartTime). Tudo via transaction: se dois celulares se acharem host, só o primeiro vale.
+   • TODOS (inclusive o host) escutam o rd: roundEnd → encerram o round; round novo → começam o round; o tempo das fases vem do relógio do servidor.
+   • Quem volta no meio do round entra NO ESTADO AO VIVO (round, placar, tempo restante) e espera o próximo round (não renasce). */
+const Sync={BUY:15,LIVE:120,END:4.5,rd:null,ref:null,pres:null,t0:0,_pe:0,_ad:0,_rx:false,_join:false,_off:[],
+  on(){return !!(this.ref&&this.rd&&Game.mode==='game'&&Game.opts&&Game.opts.mode!=='treino')},
+  now(){return Online.srvNow?Online.srvNow():Date.now()},
+  TS(){return firebase.database.ServerValue.TIMESTAMP},
+  el(){return this.rd&&+this.rd.roundStartTime?(this.now()-this.rd.roundStartTime)/1000:0},
+  stop(){this._off.forEach(r=>{try{r.off()}catch(_){}});this._off=[];this.ref=null;this.rd=null;this.pres=null},
+  begin(){this.stop();const g=Game,o=g.opts;if(!o||o.mode==='treino'||!Online.ok||!Online.db||!Online.pid)return;
+    const R=Online.room;this.t0=Date.now();this._pe=0;this._ad=0;this._join=!!Rejoin._resuming;
+    this.ref=Online.db.ref(R?'rooms/'+R.rid+'/rd':'players/'+Online.pid+'/rd');this._off.push(this.ref);
+    this.ref.on('value',x=>{try{this.recv(x.val())}catch(e){console.warn('[sync]',e)}},()=>{});
+    if(R){const pr=Online.db.ref('rooms/'+R.rid+'/pres');this._off.push(pr);pr.on('value',x=>{this.pres=x.val()||{}},()=>{})}
+    if(Rejoin._resuming)return;                                    // reconexão: NÃO recria o round 1, lê o ao vivo
+    const first={round:1,roundStartTime:this.now()+3000,roundEnd:false,score:{T:0,CT:0},host:Online.pid};   // +3s: tempo de todos terminarem de carregar
+    if(R)this.ref.transaction(c=>c||first,()=>{},false).catch(()=>{});else this.ref.set(first).catch(()=>{})},
+  alive(id){if(id===Online.pid)return true;const pr=this.pres?this.pres[id]:undefined;if(pr===0)return false;const p=Online.peers&&Online.peers[id];
+    if(p)return Date.now()-p.rx<8000;return Date.now()-this.t0<12000},
+  /* host atual: líder da sala; caiu → o próximo conectado (ordem de ID). Sem sala (só bots) = você. */
+  isHost(){const R=Online.room;if(!R)return true;const ids=[R.me.pid].concat((R.others||[]).map(p=>p.pid)),ord=[R.host].concat(ids.filter(x=>x!==R.host).sort());
+    for(const id of ord){if(id&&this.alive(id))return id===Online.pid}return true},
+  /* relógio das fases = hora do servidor (chamado todo frame) */
+  tick(){const rd=this.rd,g=Game;if(!rd||rd.round!==g.round)return;const el=this.el();
+    if(g.phase==='buy')g.timer=this.BUY-el;
+    else if(g.phase==='live')g.timer=this.BUY+this.LIVE-el;
+    else if(g.phase==='end'&&rd.roundEnd&&+rd.endTime)g.timer=(g.over?3.5:this.END)-(this.now()-rd.endTime)/1000},
+  /* host: fim do round (transaction: só o primeiro host vale) */
+  publishEnd(w,reason){const g=Game;if(this._pe===g.round)return;this._pe=g.round;const n=g.round;
+    this.ref.transaction(c=>{if(!c||c.round!==n||c.roundEnd)return;const sc={T:+(c.score||{}).T||0,CT:+(c.score||{}).CT||0};sc[w]++;
+      return{round:n,roundStartTime:c.roundStartTime,roundEnd:true,winner:w,reason:String(reason||'').slice(0,60),endTime:this.TS(),score:sc,over:sc[w]>=g.win()?1:0,host:Online.pid}},
+      (e,ok)=>{if(!ok&&this._pe===n)this._pe=0},false).catch(()=>{this._pe=0})},
+  /* host: depois da fase de fim, começa o próximo round */
+  advance(){if(!this.isHost()||!this.rd||!this.rd.roundEnd||this._ad===Game.round)return;const g=Game,n=g.round+1;this._ad=g.round;
+    this.ref.transaction(c=>{if(!c||c.round!==n-1||!c.roundEnd)return;let sc={T:+c.score.T||0,CT:+c.score.CT||0};if(g.swapAt()&&n===g.swapAt()+1)sc={T:sc.CT,CT:sc.T};
+      return{round:n,roundStartTime:this.TS(),roundEnd:false,score:sc,over:0,host:Online.pid}},(e,ok)=>{if(!ok&&this._ad===n-1)this._ad=0},false).catch(()=>{this._ad=0})},
+  /* chegou estado novo do servidor */
+  recv(rd){this.rd=rd;const g=Game;if(!rd||g.mode!=='game'||!g.opts||g.opts.mode==='treino'||!rd.score)return;
+    if(rd.round>g.round)this.adopt(rd);
+    else if(rd.round===g.round&&this._join&&!rd.roundEnd){this._join=false;this.deadIfLive(rd)}
+    if(rd.roundEnd&&rd.round===g.round&&g.phase!=='end'&&!g.over)this.rcvEnd(rd)},
+  rcvEnd(rd){const g=Game,w=rd.winner==='CT'?'CT':'T';this._rx=true;
+    try{const sc={T:+rd.score.T||0,CT:+rd.score.CT||0};sc[w]=Math.max(0,sc[w]-1);g.score=sc;g.endRound(w,rd.reason||'Fim do round')}finally{this._rx=false}},
+  adopt(rd){const g=Game,nat=rd.round===g.round+1&&g.phase==='end'&&!rd.roundEnd;this._join=false;
+    if(nat){g.round=rd.round;g.newRound(false);return}                 // caminho normal: todos avançam juntos
+    g.round=rd.round;const want=Rejoin.teamAt(g.ot,rd.round,g.opts.mode);if(Player.team!==want)g.swapSides();   // perdeu rounds: ressincroniza lado, placar e round
+    const sc={T:+rd.score.T||0,CT:+rd.score.CT||0};if(rd.roundEnd&&rd.winner)sc[rd.winner]=Math.max(0,sc[rd.winner]-1);
+    g.score=sc;g.over=false;g.newRound(true);this.deadIfLive(rd)},
+  /* voltou no meio do round: não renasce — assiste até o próximo round */
+  deadIfLive(rd){const g=Game;if(rd.roundEnd||this.el()<=this.BUY)return;
+    g.phase='live';g.timer=this.BUY+this.LIVE-this.el();try{Shop.close()}catch(_){}
+    if(Player.alive){Player.alive=false;Player.hp=0;try{Player.setScope(false)}catch(_){}g.spec=null}},
+  /* reconexão: fresh = ninguém online (rounds foram resolvidos por bots) → reinicia o relógio do servidor no round calculado */
+  resume(st){if(!this.ref)return;if(st&&st.fresh){this._join=false;this.ref.set({round:Game.round,roundStartTime:this.TS(),roundEnd:false,score:{T:Game.score.T,CT:Game.score.CT},host:Online.pid}).catch(()=>{})}}
+};
+
 /* ===================== RECONEXÃO NA PARTIDA =====================
    • A vaga do jogador é RESERVADA até o fim da partida (a sala nunca aceita ninguém no lugar dele).
    • Enquanto a partida roda, o jogo guarda um "retrato" da partida (aparelho + players/<id>/sessao): sala, time, placar, round, itens e K/D/A.
@@ -5875,7 +5936,7 @@ const Rejoin={RS:90,_busy:false,_resuming:false,_fb:0,_bar:null,_lost:false,HB_T
       room:R?{me:R.me,others:R.others,host:R.host}:null}))},
   save(fb){if(this._resuming||this._lost||!this.active())return;try{const s=this.snap();Store.set('sess',s);
       if(Online.ok&&Online.db&&(fb||Date.now()-this._fb>20000)){this._fb=Date.now();Online.db.ref('players/'+Online.pid+'/sessao').set(Object.assign({},s,{dev:this._dev,hb:firebase.database.ServerValue.TIMESTAMP})).catch(()=>{})}}catch(e){}},
-  clear(){try{Store.set('sess',null)}catch(_){}try{if(Online.ok&&Online.db&&Online.pid)Online.db.ref('players/'+Online.pid+'/sessao').remove().catch(()=>{})}catch(_){}},
+  clear(){try{Store.set('sess',null)}catch(_){}try{if(Online.ok&&Online.db&&Online.pid){Online.db.ref('players/'+Online.pid+'/sessao').remove().catch(()=>{});Online.db.ref('players/'+Online.pid+'/rd').remove().catch(()=>{})}}catch(_){}},
   live(){const R=Online.room;if(!R||!Online.db)return;Online.db.ref('rooms/'+R.rid+'/live').set({rd:Game.round,sc:{T:Game.score.T,CT:Game.score.CT},ts:firebase.database.ServerValue.TIMESTAMP}).catch(()=>{})},
   fim(){const R=Online.room;if(!R||!Online.db)return;const g=Game,w=g.score.T>=this.winOf(g.opts.mode)?'T':'CT',v={sc:{T:g.score.T,CT:g.score.CT},rd:g.round,w,ts:firebase.database.ServerValue.TIMESTAMP};
     Online.db.ref('rooms/'+R.rid+'/fim').transaction(c=>c||v).catch(()=>{})},
@@ -5892,19 +5953,27 @@ const Rejoin={RS:90,_busy:false,_resuming:false,_fb:0,_bar:null,_lost:false,HB_T
       if(!s){try{const v=(await Online.db.ref('players/'+Online.pid+'/sessao').get()).val();if(v&&v.pid===Online.pid&&!v.fin&&v.map&&v.mode)s=v}catch(_){}}
       if(!s)return;if(s.fin){if(s.res)Pmsg((s.res.w?'Vitória':'Derrota')+' salva: '+s.res.sc[0]+' x '+s.res.sc[1]+' · '+(s.res.xp||0)+' XP · '+(s.res.coins||0)+' moedas'+(s.res.rp?' · '+(s.res.rp>0?'+':'')+s.res.rp+' RP':''));this.clear();return}
       const m=s.mode,SW=this.swapOf(m),now=Date.now(),nz=q=>({T:+(q&&q.T)||0,CT:+(q&&q.CT)||0});
-      let fim=null,live=null;
-      if(s.rid){try{const rr=Online.db.ref('rooms/'+s.rid),a=await rr.child('fim').get(),b=await rr.child('live').get();fim=a.val();live=b.val()}catch(_){}}
+      let fim=null,live=null,rd=null,pres=null;
+      try{rd=(await Online.db.ref(s.rid?'rooms/'+s.rid+'/rd':'players/'+Online.pid+'/rd').get()).val()}catch(_){}   // [RELÓGIO] estado AO VIVO do servidor
+      if(s.rid){try{const rr=Online.db.ref('rooms/'+s.rid),a=await rr.child('fim').get(),b=await rr.child('live').get(),c=await rr.child('pres').get();fim=a.val();live=b.val();pres=c.val()}catch(_){}}
+      const srv=Online.srvNow?Online.srvNow():now;
+      if(!fim&&rd&&rd.over&&rd.roundEnd&&rd.score&&rd.winner)fim={sc:nz(rd.score),rd:rd.round,w:rd.winner,ts:+rd.endTime||now};   // o host já encerrou a partida
       let go=null;
       if(!fim){
-        let r=s.round,sc=nz(s.score),bt=s.ts||now;
-        if(live&&live.sc&&live.rd>=s.round){r=live.rd+1;sc=nz(live.sc);if(SW&&r===SW+1)sc={T:sc.CT,CT:sc.T};bt=+live.ts||bt}
-        const others=!!(s.rid&&live&&+live.ts&&now-live.ts<150000);   // ainda há gente jogando na sala: não adianta nada
-        if(!others){const k=Math.floor((now-bt)/(this.RS*1000));
+        let r=s.round,sc=nz(s.score),bt=s.ts||now,rdOk=false;
+        if(rd&&rd.score&&rd.round>=s.round){rdOk=true;bt=+rd.roundStartTime||bt;
+          if(rd.roundEnd){r=rd.round+1;sc=nz(rd.score);if(SW&&r===SW+1)sc={T:sc.CT,CT:sc.T}}else{r=rd.round;sc=nz(rd.score)}}
+        else if(live&&live.sc&&live.rd>=s.round){r=live.rd+1;sc=nz(live.sc);if(SW&&r===SW+1)sc={T:sc.CT,CT:sc.T};bt=+live.ts||bt}   // sala antiga (sem rd)
+        const others=rdOk?!!(pres&&Object.keys(pres).some(id=>id!==Online.pid&&pres[id]===1)):!!(s.rid&&live&&+live.ts&&now-live.ts<150000);   // ainda há gente jogando: o host cuida da partida
+        let fresh=!rdOk;
+        if(!others){const k=Math.floor((srv-bt)/(this.RS*1000));
           if(k>0){const q=this.sim(m,r,sc,k);
             if(q.end){fim={sc:q.sc,rd:q.rd,w:q.w,ts:bt+q.used*this.RS*1000};
               if(s.rid){try{const tx=await Online.db.ref('rooms/'+s.rid+'/fim').transaction(c=>c||{sc:fim.sc,rd:fim.rd,w:fim.w,ts:firebase.database.ServerValue.TIMESTAMP});const v=tx.snapshot&&tx.snapshot.val();if(v&&v.sc)fim=v}catch(_){}}}
-            else{r=q.r;sc=q.sc}}}
-        if(!fim)go={r,sc}}
+            else{r=q.r;sc=q.sc;fresh=true}}}
+        if(!fim){
+          if(rdOk&&!fresh){const z=nz(rd.score);if(rd.roundEnd&&rd.winner)z[rd.winner]=Math.max(0,z[rd.winner]-1);go={r:rd.round,sc:z,live:1}}   // volta para o ao vivo: mesmo round, placar e tempo do servidor
+          else go={r,sc,fresh:true}}}
       if(fim){await this.settle(s,fim);return}
       if(Online.db){try{const v=(await Online.db.ref('players/'+Online.pid+'/sessao').get()).val();if(this.hbOk(v)){Pmsg(this.MSG_DUP);return}}catch(_){}}   // [TRAVA 2 APARELHOS]
       this._lost=false;
@@ -5920,7 +5989,7 @@ const Rejoin={RS:90,_busy:false,_resuming:false,_fb:0,_bar:null,_lost:false,HB_T
       const mine=s.bots||[];
       ['T','CT'].forEach(tm=>{const src=mine.filter(q=>q.tm===tm&&!q.rid);g.bots.filter(b=>b.team===tm&&!b.remote&&!b.aiOf&&!b.board).forEach((b,i)=>{const q=src[i];if(q){b.name=q.n;b.kills=q.k;b.deaths=q.d;b.assists=q.a;b.av=q.av}})});
       g.bots.filter(b=>b.rid).forEach(b=>{const q=mine.find(z=>z.rid===b.rid);if(q){b.kills=q.k;b.deaths=q.d;b.assists=q.a}});
-      g.newRound(true);
+      g.newRound(true);try{Sync.resume(st)}catch(e){console.warn('sync.resume',e)}
       const lo=s.lo||{},ar=s.ar||{};
       if(lo.primary)P.loadout.primary=lo.primary;if(lo.pistol)P.loadout.pistol=lo.pistol;P.loadout.knife=lo.knife||'knife';
       P.armor=ar.armor||0;P.helmet=!!ar.helmet;P.vestP=ar.vestP||0;P.helmP=ar.helmP||0;P.kit=!!ar.kit;P.nades=Object.assign({frag:0,flash:0,smoke:0},ar.nades||{});
